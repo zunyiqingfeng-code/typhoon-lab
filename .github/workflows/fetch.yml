@@ -23,9 +23,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      # 纯标准库，无需 pip install
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # 纯标准库，无需 pip install。全源失败退出码 2 → 自然红灯
       - name: 抓取并合并归档
         run: python3 fetch_typhoon.py --source auto
+
+      - name: 重建主索引与跨年评分
+        run: |
+          python3 fetch_typhoon.py --reindex
+          node scripts/score_archive.mjs
+
+      # 台风数/轨迹点骤降 → 红灯，GitHub 自动邮件告警（免第三方）
+      - name: 健康检查（趋势告警）
+        run: python3 scripts/ci_healthcheck.py
 
       - name: 有变更才提交
         run: |
@@ -43,4 +56,5 @@ jobs:
 # 1. Actions 跑在境外 runner，若 zjwater/nmc 对境外封禁导致持续失败，
 #    退路 A：自己机器 crontab 跑同一脚本再 push；
 #    退路 B：腾讯云函数（境内出口）+ 定时触发器，写 COS。
-# 2. 失败会自然亮红灯；要主动告警可在最后加 Server酱/邮件 step。
+# 2. 告警走「红灯」：抓取失败(退出2) 或 健康检查骤降 都会让本次 run 失败，
+#    GitHub 默认给仓库所有者发邮件。要更强可加 Server酱/webhook step（需 secret）。
