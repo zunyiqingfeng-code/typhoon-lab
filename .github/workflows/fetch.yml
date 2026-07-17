@@ -1,0 +1,46 @@
+name: fetch-typhoon-data
+
+on:
+  schedule:
+    - cron: "8 * * * *"      # 每小时第8分（UTC，best-effort，可能延迟数分钟）
+  workflow_dispatch: {}       # 手动触发入口
+
+concurrency:
+  group: fetch-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 纯标准库，无需 pip install
+      - name: 抓取并合并归档
+        run: python3 fetch_typhoon.py --source auto
+
+      - name: 有变更才提交
+        run: |
+          git config user.name  "typhoon-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "无数据变更，跳过提交"
+          else
+            git commit -m "data: $(date -u +'%Y-%m-%d %H:%M') UTC 自动抓取"
+            git push
+          fi
+
+# 备注：
+# 1. Actions 跑在境外 runner，若 zjwater/nmc 对境外封禁导致持续失败，
+#    退路 A：自己机器 crontab 跑同一脚本再 push；
+#    退路 B：腾讯云函数（境内出口）+ 定时触发器，写 COS。
+# 2. 失败会自然亮红灯；要主动告警可在最后加 Server酱/邮件 step。

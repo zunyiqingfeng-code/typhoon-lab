@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>台风态势实验室 · M1</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<style>
+/* ---------- 令牌 ---------- */
+:root{
+  --ink:#0a1420;          /* 页面底：夜海墨蓝 */
+  --sea:#0d1b2c;          /* 海面 */
+  --land:#16283a;         /* 陆地 */
+  --coast:#2c4a63;        /* 海岸线 */
+  --panel:rgba(13,26,40,.86);
+  --line:rgba(87,215,201,.14);
+  --text:#d7e3ee;
+  --dim:#7b93a8;
+  --accent:#57d7c9;       /* 雷达荧光青：只给交互件，不给数据 */
+  --warn:#e33e3e;
+  /* 强度色带（国内惯例） */
+  --td:#35c46a; --ts:#3f8ef7; --sts:#f2c744;
+  --ty:#f2872e; --sty:#ef5aa0; --sup:#e33e3e;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--ink);color:var(--text);font-family:var(--sans);
+     font-size:13px;overflow:hidden}
+#map{position:absolute;inset:0}
+.maplibregl-canvas:focus{outline:2px solid var(--accent)}
+
+/* ---------- 顶部：身份与数据来源 ---------- */
+#brand{position:absolute;top:14px;left:16px;z-index:5;pointer-events:none}
+#brand .lab{font-size:11px;letter-spacing:.32em;color:var(--dim)}
+#storm-id{margin-top:6px;display:flex;align-items:baseline;gap:10px;
+          pointer-events:auto;flex-wrap:wrap}
+#storm-id .zh{font-size:26px;font-weight:700;letter-spacing:.06em}
+#storm-id .en{font-family:var(--mono);font-size:13px;color:var(--dim)}
+.badge{font-size:11px;padding:2px 8px;border-radius:3px;color:#08131d;
+       font-weight:700;letter-spacing:.08em}
+#storm-tabs{margin-top:8px;display:flex;gap:6px;pointer-events:auto}
+#storm-tabs button{background:var(--panel);border:1px solid var(--line);
+  color:var(--dim);font:inherit;font-size:11px;padding:3px 9px;border-radius:3px;
+  cursor:pointer}
+#storm-tabs button[aria-pressed="true"]{color:var(--accent);
+  border-color:var(--accent)}
+#storm-tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+#provenance{position:absolute;top:14px;right:16px;z-index:5;text-align:right}
+#src-badge{display:inline-block;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;padding:4px 10px;border-radius:3px;
+  border:1px solid var(--accent);color:var(--accent)}
+#src-badge.fixture{border-color:var(--warn);color:#fff;background:var(--warn);
+  font-weight:700}
+#src-time{margin-top:5px;font-family:var(--mono);font-size:10px;color:var(--dim)}
+
+/* ---------- 右栏：读数 ---------- */
+#rail{position:absolute;top:96px;right:16px;z-index:5;width:236px;
+  display:flex;flex-direction:column;gap:10px;max-height:calc(100% - 210px);
+  overflow-y:auto;scrollbar-width:thin}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+  padding:10px 12px;backdrop-filter:blur(3px)}
+.card h3{margin:0 0 8px;font-size:10px;font-weight:400;color:var(--dim);
+  letter-spacing:.24em}
+.metric{display:flex;align-items:baseline;justify-content:space-between;
+  padding:3px 0}
+.metric .v{font-family:var(--mono);font-size:24px;line-height:1}
+.metric .u{font-size:10px;color:var(--dim);margin-left:4px}
+.metric .k{font-size:11px;color:var(--dim)}
+table.radii{width:100%;border-collapse:collapse;font-family:var(--mono);
+  font-size:11px}
+table.radii th{font-weight:400;color:var(--dim);text-align:right;
+  padding:2px 0 4px;font-size:10px}
+table.radii td{text-align:right;padding:2px 0;color:var(--text)}
+table.radii td.lv{text-align:left;font-family:var(--sans)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;
+  margin-right:5px;vertical-align:baseline}
+.agency-row{display:flex;align-items:center;gap:7px;padding:3px 0;
+  cursor:pointer;user-select:none}
+.agency-row input{accent-color:var(--accent)}
+.agency-row .sw{width:16px;height:0;border-top:2px dashed currentColor}
+.agency-row .nm{font-family:var(--mono);font-size:11px}
+.agency-row .off{color:var(--dim)}
+
+/* ---------- 底部：时间轴 ---------- */
+#timeline{position:absolute;left:16px;right:16px;bottom:34px;z-index:5;
+  background:var(--panel);border:1px solid var(--line);border-radius:6px;
+  padding:8px 12px 10px;backdrop-filter:blur(3px)}
+#tl-top{display:flex;align-items:center;gap:10px}
+#play{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);
+  background:none;color:var(--accent);cursor:pointer;font-size:12px;flex:none}
+#play:focus-visible{outline:2px solid var(--accent)}
+#tl-when{font-family:var(--mono);font-size:12px;min-width:118px}
+#tl-grade{font-size:11px}
+#ticks{position:relative;height:26px;margin-top:6px}
+#ticks .tick{position:absolute;bottom:0;width:3px;border-radius:1px;
+  transform:translateX(-50%)}
+#scrub{position:absolute;inset:0;width:100%;height:100%;margin:0;
+  -webkit-appearance:none;appearance:none;background:none;cursor:pointer}
+#scrub::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:30px;
+  border-radius:3px;background:var(--accent);border:0;
+  box-shadow:0 0 8px rgba(87,215,201,.6)}
+#scrub::-moz-range-thumb{width:12px;height:30px;border-radius:3px;
+  background:var(--accent);border:0}
+#scrub:focus-visible{outline:2px solid var(--accent)}
+
+#foot{position:absolute;left:16px;right:16px;bottom:8px;z-index:5;
+  display:flex;justify-content:space-between;gap:12px;
+  font-size:10px;color:var(--dim)}
+
+/* ---------- 地图上的 DOM 标记 ---------- */
+.eye{width:18px;height:18px;position:relative}
+.eye::before{content:"";position:absolute;inset:0;border-radius:50%;
+  border:2px solid #fff;background:rgba(255,255,255,.15)}
+.eye::after{content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.55);animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+@media (prefers-reduced-motion:reduce){.eye::after{animation:none;opacity:.4}}
+.citylbl{font-size:10px;color:#93aec4;text-shadow:0 1px 3px #000;
+  letter-spacing:.05em;pointer-events:none}
+.timelbl{font-family:var(--mono);font-size:9px;color:#6f8aa0;
+  text-shadow:0 1px 2px #000;pointer-events:none;transform:translateY(-4px)}
+.maplibregl-popup-content{background:var(--panel);color:var(--text);
+  font-family:var(--mono);font-size:11px;border:1px solid var(--line);
+  border-radius:5px;padding:8px 10px}
+.maplibregl-popup-tip{border-top-color:var(--panel)!important;
+  border-bottom-color:var(--panel)!important}
+.maplibregl-ctrl-attrib{background:rgba(13,26,40,.6)!important;
+  color:var(--dim)!important;font-size:10px}
+.maplibregl-ctrl-attrib a{color:var(--dim)!important}
+
+/* ---------- 空态 / 错误 ---------- */
+#notice{position:absolute;inset:0;display:none;place-items:center;z-index:9;
+  background:rgba(10,20,32,.7)}
+#notice .box{background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:22px 28px;max-width:420px;text-align:center;
+  line-height:1.8}
+#notice code{font-family:var(--mono);color:var(--accent);font-size:12px}
+
+@media (max-width:720px){
+  #rail{left:16px;right:16px;top:auto;bottom:118px;width:auto;max-height:132px;
+    flex-direction:row;overflow-x:auto;overflow-y:hidden}
+  .card{min-width:190px;flex:none}
+  #storm-id .zh{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div id="map" aria-label="台风态势地图"></div>
+<canvas id="windfx" aria-hidden="true"
+  style="position:absolute;inset:0;pointer-events:none;z-index:2"></canvas>
+
+<header id="brand">
+  <div class="lab">台风态势实验室 · TYPHOON LAB</div>
+  <div id="storm-id">
+    <span class="zh">—</span><span class="en"></span>
+    <span class="badge" style="background:#556">载入中</span>
+  </div>
+  <nav id="storm-tabs" aria-label="切换台风"></nav>
+</header>
+
+<div id="provenance">
+  <span id="src-badge">— 数据</span>
+  <div id="src-time"></div>
+</div>
+
+<aside id="rail">
+  <section class="card" id="card-metrics">
+    <h3>核心指标</h3>
+    <div class="metric"><span class="k">中心气压</span>
+      <span><span class="v" id="m-p">—</span><span class="u">hPa</span></span></div>
+    <div class="metric"><span class="k">最大风速</span>
+      <span><span class="v" id="m-w">—</span><span class="u">m/s</span></span></div>
+    <div class="metric"><span class="k">移向 / 移速</span>
+      <span><span class="v" id="m-mv" style="font-size:16px">—</span>
+      <span class="u">km/h</span></span></div>
+  </section>
+  <section class="card">
+    <h3>风圈半径 KM</h3>
+    <table class="radii" aria-label="四象限风圈半径">
+      <thead><tr><th></th><th>东北</th><th>东南</th><th>西南</th><th>西北</th></tr></thead>
+      <tbody id="radii-body"></tbody>
+    </table>
+  </section>
+  <section class="card" id="card-sim">
+    <h3>推演 · 情景模拟非预报</h3>
+    <label class="agency-row"><input id="tg-wind" type="checkbox">
+      <span class="nm">Holland 风场粒子</span></label>
+    <label class="agency-row"><input id="tg-ens" type="checkbox">
+      <span class="nm">集合路径 ×40</span></label>
+    <label class="agency-row"><input id="tg-cone" type="checkbox">
+      <span class="nm">预报锥 1.5σ</span></label>
+    <div id="sim-params" style="font-family:var(--mono);font-size:10px;
+      color:var(--dim);margin-top:6px;line-height:1.7"></div>
+    <div id="sim-hint" style="font-size:10px;color:var(--dim);margin-top:4px"></div>
+  </section>
+  <section class="card" id="card-impact" style="display:none">
+    <h3>城市影响估算 · 几何计算非预警</h3>
+    <div id="impact-list" style="font-family:var(--mono);font-size:11px;
+      line-height:1.9"></div>
+  </section>
+  <section class="card">
+    <h3>预报路径 · 机构</h3>
+    <div id="agency-list"></div>
+    <div id="fc-note" style="font-size:10px;color:var(--dim);margin-top:6px">
+      预报仅在最新时刻显示，回放历史时自动隐藏。</div>
+  </section>
+</aside>
+
+<div id="timeline">
+  <div id="tl-top">
+    <button id="play" aria-label="播放/暂停">▶</button>
+    <span id="tl-when">—</span>
+    <span id="tl-grade"></span>
+    <span style="margin-left:auto;font-size:10px;color:var(--dim)">
+      拖动或 ←/→ 回放</span>
+  </div>
+  <div id="ticks">
+    <input id="scrub" type="range" min="0" max="0" value="0" step="1"
+      aria-label="时间轴">
+  </div>
+</div>
+
+<footer id="foot">
+  <span id="foot-src">数据来源：—</span>
+  <span>本页面为技术演示，不构成气象预报；请以中央气象台及各地官方预警为准。</span>
+</footer>
+
+<div id="notice"><div class="box" id="notice-box"></div></div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="physics.js"></script>
+<script>
+/*__JS_START__*/
+"use strict";
+
+/* ================= 配置 ================= */
+const GRADE_META = {
+  TD:{c:"#35c46a",zh:"热带低压"}, TS:{c:"#3f8ef7",zh:"热带风暴"},
+  STS:{c:"#f2c744",zh:"强热带风暴"}, TY:{c:"#f2872e",zh:"台风"},
+  STY:{c:"#ef5aa0",zh:"强台风"}, SuperTY:{c:"#e33e3e",zh:"超强台风"},
+};
+const GRADE_FALLBACK = {c:"#8fa5b8", zh:"未知"};
+const RING_META = [            /* 风圈：级别 → 颜色 */
+  {key:"r7",  zh:"7级",  c:"#f2c744"},
+  {key:"r10", zh:"10级", c:"#f2872e"},
+  {key:"r12", zh:"12级", c:"#e33e3e"},
+];
+const AGENCY_META = {
+  CMA:{c:"#ffffff",zh:"中央气象台"}, JMA:{c:"#b48cf2",zh:"日本气象厅"},
+  JTWC:{c:"#59b7ff",zh:"美国JTWC"}, HKO:{c:"#63e0b8",zh:"香港天文台"},
+  CWA:{c:"#f2a0e0",zh:"台湾气象署"}, KMA:{c:"#c9d86b",zh:"韩国气象厅"},
+};
+const SOURCE_META = {
+  zjwater:{badge:"LIVE · zjwater", foot:"浙江省水利厅台风路径系统（非官方转发，仅技术演示）"},
+  nmc:{badge:"LIVE · nmc", foot:"中央气象台台风网（非官方转发，仅技术演示）"},
+  "digital-typhoon-jma":{badge:"存档 · JMA/NII",
+    foot:"Digital Typhoon（日本国立情报学研究所）JMA 轨迹（非官方转发，仅技术演示）"},
+};
+const CITIES = [
+  ["上海",31.23,121.47],["宁波",29.87,121.55],["温州",28.00,120.67],
+  ["福州",26.08,119.30],["厦门",24.48,118.09],["汕头",23.35,116.68],
+  ["广州",23.13,113.26],["湛江",21.27,110.36],["海口",20.04,110.32],
+  ["台北",25.03,121.56],["高雄",22.62,120.31],["那霸",26.21,127.68],
+  ["马尼拉",14.60,120.98],["东京",35.68,139.69],["首尔",37.57,126.98],
+  ["香港",22.32,114.17],
+];
+const R_EARTH = 6371.0;
+
+/* ================= 小工具 ================= */
+const $ = s => document.querySelector(s);
+const fmtT = iso => {           /* '07-15 08:00' */
+  const d = new Date(iso);
+  const p = n => String(n).padStart(2,"0");
+  return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+const gradeOf = g => GRADE_META[g] || GRADE_FALLBACK;
+const DIR16 = ["北","东北偏北","东北","东北偏东","东","东南偏东","东南","东南偏南",
+  "南","西南偏南","西南","西南偏西","西","西北偏西","西北","西北偏北"];
+const deg2zh = d => d==null ? "—" : DIR16[Math.round(((d%360)+360)%360/22.5)%16];
+
+/* 大圆目的地点：从 (lat,lon) 沿方位角 brg 走 dist km */
+function destPoint(lat, lon, brg, dist){
+  const φ1 = lat*Math.PI/180, λ1 = lon*Math.PI/180, θ = brg*Math.PI/180;
+  const δ = dist / R_EARTH;
+  const φ2 = Math.asin(Math.sin(φ1)*Math.cos(δ) +
+                       Math.cos(φ1)*Math.sin(δ)*Math.cos(θ));
+  const λ2 = λ1 + Math.atan2(Math.sin(θ)*Math.sin(δ)*Math.cos(φ1),
+                             Math.cos(δ) - Math.sin(φ1)*Math.sin(φ2));
+  return [λ2*180/Math.PI, φ2*180/Math.PI];   /* [lon,lat] */
+}
+
+/* 四象限风圈 → 多边形环。官方表示法：象限内等半径圆弧，边界处跳变 */
+function quadrantRing(lat, lon, r){
+  if(!r) return null;
+  const seg = {ne:[0,90], se:[90,180], sw:[180,270], nw:[270,360]};
+  const ring = [];
+  for(const q of ["ne","se","sw","nw"]){
+    const rad = r[q]; if(rad==null || rad<=0) continue;
+    const [a0,a1] = seg[q];
+    for(let a=a0; a<=a1; a+=3) ring.push(destPoint(lat,lon,a,rad));
+  }
+  if(ring.length < 8) return null;
+  ring.push(ring[0]);
+  return ring;
+}
+
+/* ================= 数据装载（双模式） ================= */
+async function loadJSON(inlineKey, url){
+  if(window[inlineKey]) return window[inlineKey];
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(url + " → HTTP " + r.status);
+  return r.json();
+}
+
+function showNotice(html){
+  $("#notice-box").innerHTML = html;
+  $("#notice").style.display = "grid";
+}
+
+/* ================= 全局状态 ================= */
+let DATA = null, LAND = null, map = null;
+let stormIdx = 0, tIdx = 0, playing = false, playTimer = null;
+let trkPtFC = null;            /* 自持轨迹点集合，勿读 maplibre 内部字段 */
+const agencyOn = {};           /* 机构开关 */
+let eyeMarker = null, domMarkers = [];
+
+/* ================= 地图构建 ================= */
+function buildMap(){
+  map = new maplibregl.Map({
+    container:"map",
+    attributionControl:{compact:true,
+      customAttribution:"陆地轮廓 Natural Earth · 台风数据见页脚"},
+    style:{
+      version:8,
+      sources:{ land:{type:"geojson", data:LAND} },
+      layers:[
+        {id:"bg", type:"background",
+         paint:{"background-color":"#0d1b2c"}},
+        {id:"land-fill", type:"fill", source:"land",
+         paint:{"fill-color":"#16283a"}},
+        {id:"coast", type:"line", source:"land",
+         paint:{"line-color":"#2c4a63","line-width":1}},
+      ],
+    },
+    center:[128,24], zoom:3.6, minZoom:2.4, maxZoom:9,
+    maxBounds:[[84,-12],[182,58]],
+  });
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),
+                 "bottom-right");
+  map.on("load", () => { addGraticule(); addStormLayers(); addCities();
+                         FX.init(); renderStorm(); });
+}
+
+function addGraticule(){
+  const feats = [];
+  for(let lon=90; lon<=175; lon+=5)
+    feats.push({type:"Feature",properties:{},
+      geometry:{type:"LineString",coordinates:[[lon,-5],[lon,55]]}});
+  for(let lat=-5; lat<=55; lat+=5)
+    feats.push({type:"Feature",properties:{},
+      geometry:{type:"LineString",coordinates:[[90,lat],[176,lat]]}});
+  map.addSource("grat",{type:"geojson",
+    data:{type:"FeatureCollection",features:feats}});
+  map.addLayer({id:"grat",type:"line",source:"grat",
+    paint:{"line-color":"#1b3247","line-width":.6}},"land-fill");
+}
+
+function emptyFC(){ return {type:"FeatureCollection",features:[]}; }
+
+function addStormLayers(){
+  /* 推演层（垫底） */
+  map.addSource("cone",{type:"geojson",data:emptyFC()});
+  map.addLayer({id:"cone-f",type:"fill",source:"cone",
+    paint:{"fill-color":"#57d7c9","fill-opacity":.07}});
+  map.addLayer({id:"cone-l",type:"line",source:"cone",
+    paint:{"line-color":"#57d7c9","line-width":1,
+      "line-dasharray":[3,2],"line-opacity":.5}});
+  map.addSource("ens",{type:"geojson",data:emptyFC()});
+  map.addLayer({id:"ens",type:"line",source:"ens",
+    paint:{"line-color":"#9fd8ff","line-width":.7,"line-opacity":.22}});
+  /* 风圈（画在路径之下） */
+  for(const r of RING_META){
+    map.addSource("ring-"+r.key,{type:"geojson",data:emptyFC()});
+    map.addLayer({id:"ringf-"+r.key,type:"fill",source:"ring-"+r.key,
+      paint:{"fill-color":r.c,"fill-opacity":.10}});
+    map.addLayer({id:"ringl-"+r.key,type:"line",source:"ring-"+r.key,
+      paint:{"line-color":r.c,"line-width":1.2,"line-opacity":.85}});
+  }
+  /* 历史轨迹：分段按强度着色 */
+  const gradeColor = ["match",["get","grade"],
+    ...Object.entries(GRADE_META).flatMap(([k,v])=>[k,v.c]),
+    GRADE_FALLBACK.c];
+  map.addSource("trk-line",{type:"geojson",data:emptyFC()});
+  map.addLayer({id:"trk-line",type:"line",source:"trk-line",
+    layout:{"line-cap":"round"},
+    paint:{"line-color":gradeColor,"line-width":2.4}});
+  map.addSource("trk-pt",{type:"geojson",data:emptyFC()});
+  map.addLayer({id:"trk-pt",type:"circle",source:"trk-pt",
+    paint:{"circle-color":gradeColor,
+      "circle-radius":["interpolate",["linear"],["zoom"],3,2.6,7,5],
+      "circle-stroke-color":"#0a1420","circle-stroke-width":1}});
+  /* 已走过/未走到 的视觉区分：mask 变暗未来点 */
+  map.addLayer({id:"trk-future",type:"circle",source:"trk-pt",
+    filter:["==",["get","future"],1],
+    paint:{"circle-color":"#0a1420","circle-opacity":.55,
+      "circle-radius":["interpolate",["linear"],["zoom"],3,2.6,7,5]}});
+  /* 预报 */
+  map.addSource("fc-line",{type:"geojson",data:emptyFC()});
+  map.addLayer({id:"fc-line",type:"line",source:"fc-line",
+    paint:{"line-color":["get","c"],"line-width":1.6,
+      "line-dasharray":[2,2],"line-opacity":.9}});
+  map.addSource("fc-pt",{type:"geojson",data:emptyFC()});
+  map.addLayer({id:"fc-pt",type:"circle",source:"fc-pt",
+    paint:{"circle-color":"#0d1b2c","circle-radius":3.4,
+      "circle-stroke-color":["get","c"],"circle-stroke-width":1.4}});
+
+  /* 点击弹窗（实况点 + 预报点） */
+  const popup = new maplibregl.Popup({closeButton:false,offset:8});
+  const hook = (layer, fn) => {
+    map.on("click", layer, e=>{
+      const f = e.features[0];
+      popup.setLngLat(e.lngLat).setHTML(fn(f.properties)).addTo(map);
+    });
+    map.on("mouseenter", layer, ()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave", layer, ()=>map.getCanvas().style.cursor="");
+  };
+  hook("trk-pt", p => `${fmtT(p.t)}<br>${gradeOf(p.grade).zh} · ` +
+    `${p.wind_ms??"—"} m/s · ${p.pressure_hpa??"—"} hPa`);
+  hook("fc-pt", p => `${p.agency} 预报 ${fmtT(p.t)}<br>` +
+    `${p.wind_ms??"—"} m/s · ${p.pressure_hpa??"—"} hPa`);
+}
+
+function addCities(){
+  for(const [name,lat,lon] of CITIES){
+    const el = document.createElement("div");
+    el.className = "citylbl"; el.textContent = name;
+    domMarkers.push(new maplibregl.Marker({element:el,anchor:"left",
+      offset:[6,0]}).setLngLat([lon,lat]).addTo(map));
+  }
+}
+
+/* ================= 渲染当前台风 ================= */
+function storm(){ return DATA.storms[stormIdx]; }
+
+function renderStorm(){
+  const s = storm(), tr = s.track;
+  tIdx = tr.length - 1;
+
+  /* 身份区 */
+  const lastG = gradeOf(tr[tIdx].grade);
+  $("#storm-id").innerHTML =
+    `<span class="zh">${s.name_zh||s.name_en||"未命名"}</span>` +
+    `<span class="en">${s.name_en||""} · ${s.id}</span>` +
+    `<span class="badge" style="background:${lastG.c}">${lastG.zh}</span>` +
+    (s.is_active ? "" :
+      `<span class="badge" style="background:#3a4d60;color:#c6d4e0">已停编 / 存档</span>`);
+
+  /* 多台风切换 */
+  const tabs = $("#storm-tabs"); tabs.innerHTML = "";
+  if(DATA.storms.length > 1){
+    DATA.storms.forEach((x,i)=>{
+      const b = document.createElement("button");
+      b.textContent = x.name_zh || x.name_en || x.id;
+      b.setAttribute("aria-pressed", i===stormIdx);
+      b.onclick = ()=>{ stormIdx=i; renderStorm(); };
+      tabs.appendChild(b);
+    });
+  }
+
+  /* 机构开关列表 */
+  const al = $("#agency-list"); al.innerHTML = "";
+  if(!s.forecasts.length)
+    al.innerHTML = '<span style="font-size:11px;color:var(--dim)">本源无预报数据</span>';
+  for(const f of s.forecasts){
+    if(!(f.agency in agencyOn)) agencyOn[f.agency] = true;
+    const m = AGENCY_META[f.agency] || {c:"#9ab",zh:f.agency};
+    const row = document.createElement("label");
+    row.className = "agency-row";
+    row.innerHTML =
+      `<input type="checkbox" ${agencyOn[f.agency]?"checked":""}>` +
+      `<span class="sw" style="color:${m.c}"></span>` +
+      `<span class="nm" style="color:${m.c}">${f.agency}</span>` +
+      `<span style="font-size:10px;color:var(--dim)">${m.zh}</span>`;
+    row.querySelector("input").onchange = e=>{
+      agencyOn[f.agency] = e.target.checked; renderTime(); };
+    al.appendChild(row);
+  }
+
+  /* 轨迹线段（相邻两点一段，色取后点强度） */
+  const segs = [], pts = [];
+  for(let i=0;i<tr.length;i++){
+    const p = tr[i];
+    pts.push({type:"Feature",
+      properties:{...p, r7:0, r10:0, r12:0, idx:i, future:0},
+      geometry:{type:"Point",coordinates:[p.lon,p.lat]}});
+    if(i>0) segs.push({type:"Feature",properties:{grade:p.grade},
+      geometry:{type:"LineString",
+        coordinates:[[tr[i-1].lon,tr[i-1].lat],[p.lon,p.lat]]}});
+  }
+  map.getSource("trk-line").setData({type:"FeatureCollection",features:segs});
+  trkPtFC = {type:"FeatureCollection",features:pts};
+  map.getSource("trk-pt").setData(trkPtFC);
+
+  /* 日界时间标注（00/12时 + 首末点） */
+  domMarkers = domMarkers.filter(m=>{
+    if(m._isTime){ m.remove(); return false; } return true; });
+  tr.forEach((p,i)=>{
+    const h = new Date(p.t).getHours();
+    if(!(h===0 || i===0 || i===tr.length-1)) return;
+    const el = document.createElement("div");
+    el.className = "timelbl"; el.textContent = fmtT(p.t).slice(0,5);
+    const mk = new maplibregl.Marker({element:el,anchor:"bottom",
+      offset:[0,-6]}).setLngLat([p.lon,p.lat]).addTo(map);
+    mk._isTime = true; domMarkers.push(mk);
+  });
+
+  /* 时间轴刻度 */
+  const ticks = $("#ticks");
+  ticks.querySelectorAll(".tick").forEach(t=>t.remove());
+  tr.forEach((p,i)=>{
+    const t = document.createElement("div");
+    t.className = "tick";
+    const w = p.wind_ms ?? 10;
+    t.style.left = (i/(tr.length-1)*100)+"%";
+    t.style.height = Math.max(4, Math.min(24, w/2.4))+"px";
+    t.style.background = gradeOf(p.grade).c;
+    ticks.appendChild(t);
+  });
+  const sc = $("#scrub");
+  sc.max = tr.length-1; sc.value = tIdx;
+
+  /* 视野适配轨迹 + 预报 */
+  const all = tr.map(p=>[p.lon,p.lat]);
+  s.forecasts.forEach(f=>f.points.forEach(p=>all.push([p.lon,p.lat])));
+  const lons = all.map(c=>c[0]), lats = all.map(c=>c[1]);
+  map.fitBounds([[Math.min(...lons),Math.min(...lats)],
+                 [Math.max(...lons),Math.max(...lats)]],
+                {padding:{top:110,bottom:150,left:60,right:270},
+                 duration:600, maxZoom:6});
+  renderTime();
+}
+
+/* 时间片渲染：眼位、风圈、预报可见性、读数 */
+function renderTime(){
+  const s = storm(), tr = s.track, p = tr[tIdx];
+  const atLatest = tIdx === tr.length-1;
+
+  /* 眼标记 */
+  if(!eyeMarker){
+    const el = document.createElement("div"); el.className = "eye";
+    eyeMarker = new maplibregl.Marker({element:el})
+      .setLngLat([p.lon,p.lat]).addTo(map);
+  } else eyeMarker.setLngLat([p.lon,p.lat]);
+
+  /* 风圈 */
+  for(const r of RING_META){
+    const ring = quadrantRing(p.lat, p.lon, p[r.key]);
+    map.getSource("ring-"+r.key).setData(ring ?
+      {type:"FeatureCollection",features:[{type:"Feature",properties:{},
+        geometry:{type:"Polygon",coordinates:[ring]}}]} : emptyFC());
+  }
+
+  /* 未来点变暗 */
+  if(trkPtFC){
+    trkPtFC.features.forEach(f=>{
+      f.properties.future = f.properties.idx > tIdx ? 1 : 0; });
+    map.getSource("trk-pt").setData(trkPtFC);
+  }
+
+  /* 预报：只在最新时刻显示 */
+  const fl = [], fp = [];
+  if(atLatest){
+    for(const f of s.forecasts){
+      if(!agencyOn[f.agency]) continue;
+      const m = AGENCY_META[f.agency] || {c:"#9ab"};
+      const coords = [[p.lon,p.lat],
+                      ...f.points.map(q=>[q.lon,q.lat])];
+      fl.push({type:"Feature",properties:{c:m.c},
+        geometry:{type:"LineString",coordinates:coords}});
+      for(const q of f.points)
+        fp.push({type:"Feature",
+          properties:{...q, agency:f.agency, c:m.c},
+          geometry:{type:"Point",coordinates:[q.lon,q.lat]}});
+    }
+  }
+  map.getSource("fc-line").setData({type:"FeatureCollection",features:fl});
+  map.getSource("fc-pt").setData({type:"FeatureCollection",features:fp});
+
+  /* 读数 */
+  $("#m-p").textContent = p.pressure_hpa ?? "—";
+  $("#m-w").textContent = p.wind_ms ?? "—";
+  $("#m-mv").textContent =
+    `${deg2zh(p.move_dir_deg)} ${p.move_speed_kmh ?? "—"}`;
+  const tb = $("#radii-body"); tb.innerHTML = "";
+  for(const r of RING_META){
+    const v = p[r.key];
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="lv"><span class="dot" style="background:${r.c}"></span>${r.zh}</td>` +
+      (v ? `<td>${v.ne??"—"}</td><td>${v.se??"—"}</td><td>${v.sw??"—"}</td><td>${v.nw??"—"}</td>`
+         : `<td colspan="4" style="color:var(--dim)">—</td>`);
+    tb.appendChild(row);
+  }
+  const g = gradeOf(p.grade);
+  $("#tl-when").textContent = fmtT(p.t);
+  $("#tl-grade").innerHTML =
+    `<span class="dot" style="background:${g.c}"></span>${g.zh}` +
+    (atLatest ? "" : ' <span style="color:var(--dim)">· 历史回放</span>');
+  $("#scrub").value = tIdx;
+  renderSim();
+}
+
+/* ================= 推演层（情景模拟，非预报） ================= */
+const sim = {wind:false, ens:false, cone:false, state:null};
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function stormMotionFilled(p, tr, i){
+  /* move 字段缺失时由前后点推算，保证 Holland 非对称项可用 */
+  if(p.move_dir_deg!=null && p.move_speed_kmh!=null) return p;
+  const a = tr[Math.max(0,i-1)], b = tr[Math.min(tr.length-1,i+1)];
+  const dt = (Date.parse(b.t)-Date.parse(a.t))/3.6e6;
+  if(dt<=0) return p;
+  const d = TLPhys.haversineKm([a.lat,a.lon],[b.lat,b.lon]);
+  const y = Math.sin((b.lon-a.lon)*Math.PI/180)*Math.cos(b.lat*Math.PI/180);
+  const x = Math.cos(a.lat*Math.PI/180)*Math.sin(b.lat*Math.PI/180)-
+    Math.sin(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*
+    Math.cos((b.lon-a.lon)*Math.PI/180);
+  return {...p, move_dir_deg:(Math.atan2(y,x)*180/Math.PI+360)%360,
+          move_speed_kmh: d/dt};
+}
+
+/* —— WebGL 之前先用 2D canvas 粒子平流（M3.5 再升 GL） —— */
+const FX = {
+  cv:null, ctx:null, parts:[], raf:0, running:false,
+  N: matchMedia("(max-width:720px)").matches ? 1200 : 2600,
+  init(){
+    this.cv = document.getElementById("windfx");
+    this.ctx = this.cv.getContext("2d");
+    const fit = ()=>{ const d = Math.min(devicePixelRatio||1, 1.5);
+      this.cv.width = innerWidth*d; this.cv.height = innerHeight*d;
+      this.cv.style.width = innerWidth+"px";
+      this.cv.style.height = innerHeight+"px";
+      this.ctx.setTransform(d,0,0,d,0,0); this.clear(); };
+    fit(); addEventListener("resize", fit);
+    map.on("move", ()=>this.clear());
+  },
+  clear(){ this.ctx.clearRect(0,0,innerWidth,innerHeight); this.parts.forEach(p=>p.age=1e9); },
+  spawn(){
+    const s = sim.state, R = s.domainKm;
+    const a = Math.random()*Math.PI*2;
+    const r = Math.sqrt(Math.random())*R;
+    const p = TLPhys.destPoint(s.lat, s.lon, a*180/Math.PI, r);
+    return {lat:p[0], lon:p[1], age:Math.random()*60|0};
+  },
+  colorOf(spd){
+    return spd>=51?"#e33e3e":spd>=41.5?"#ef5aa0":spd>=32.7?"#f2872e":
+           spd>=24.5?"#f2c744":spd>=17.2?"#3f8ef7":spd>=10?"#35c46a":"#3d5a72";
+  },
+  step(){
+    if(!this.running) return;
+    const ctx = this.ctx, s = sim.state;
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.fillStyle = "rgba(0,0,0,0.90)";
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.lineWidth = 1.1;
+    while(this.parts.length < this.N) this.parts.push(this.spawn());
+    for(let i=0;i<this.parts.length;i++){
+      let p = this.parts[i];
+      const w = TLPhys.windAt(s, p.lat, p.lon);
+      if(!w || p.age++>110 || w.spd<1.5){ this.parts[i]=this.spawn(); continue; }
+      const stepKm = Math.min(w.spd*0.7, 46);
+      const nlat = p.lat + (w.v*stepKm/w.spd)/110.574;
+      const nlon = p.lon + (w.u*stepKm/w.spd)/(111.32*Math.cos(p.lat*Math.PI/180));
+      const A = map.project([p.lon,p.lat]), B = map.project([nlon,nlat]);
+      ctx.strokeStyle = this.colorOf(w.spd);
+      ctx.globalAlpha = .55;
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+      p.lat=nlat; p.lon=nlon;
+    }
+    ctx.globalAlpha = 1;
+    this.raf = requestAnimationFrame(()=>this.step());
+  },
+  set(on){
+    if(on && !this.running){ this.running=true; this.parts.length=0;
+      this.clear(); this.step(); }
+    if(!on && this.running){ this.running=false;
+      cancelAnimationFrame(this.raf); this.clear(); }
+  },
+};
+
+function renderSim(){
+  const s = storm(), tr = s.track;
+  const atLatest = tIdx === tr.length-1;
+  const p = stormMotionFilled(tr[tIdx], tr, tIdx);
+  sim.state = TLPhys.makeState(p);
+
+  /* 参数透明化 */
+  const rs = sim.state.rmwSource==="r7-inverse" ? "r7反解" : "占位估计";
+  $("#sim-params").textContent =
+    `RMW ${sim.state.rmw.toFixed(0)} km（${rs}） · B ${sim.state.B.toFixed(2)}` +
+    ` · Vmax ${sim.state.vmax} m/s`;
+
+  const hasFc = s.forecasts.length > 0;
+  const hint = [];
+  if(!hasFc) hint.push("本数据源无预报，集合/锥/城市估算不可用");
+  else if(!atLatest) hint.push("回放历史时仅风场可用");
+  if(REDUCED) hint.push("系统开启了减少动态，粒子已停用");
+  $("#sim-hint").textContent = hint.join("；");
+  $("#tg-ens").disabled = $("#tg-cone").disabled = !(hasFc && atLatest);
+  $("#tg-wind").disabled = REDUCED;
+
+  /* 风场粒子 */
+  FX.set(sim.wind && !REDUCED);
+
+  /* 集合与锥 */
+  const showEns = sim.ens && hasFc && atLatest;
+  const showCone = sim.cone && hasFc && atLatest;
+  if(showEns){
+    const key = s.id + "|" + p.t;
+    if(sim._ensKey !== key){
+      sim._ensKey = key;
+      sim._ensFC = {type:"FeatureCollection",
+        features: TLPhys.ensembleTracks(p, s.forecasts, 40).map(t=>({
+          type:"Feature",properties:{},
+          geometry:{type:"LineString",coordinates:t.map(q=>[q[1],q[0]])}}))};
+    }
+    map.getSource("ens").setData(sim._ensFC);
+  } else map.getSource("ens").setData(emptyFC());
+  const ring = showCone ? TLPhys.forecastCone(p, s.forecasts) : null;
+  map.getSource("cone").setData(ring ? {type:"FeatureCollection",
+    features:[{type:"Feature",properties:{},
+      geometry:{type:"Polygon",coordinates:[ring]}}]} : emptyFC());
+
+  /* 城市影响估算 */
+  const card = $("#card-impact");
+  if(hasFc && atLatest){
+    const r7 = p.r7 ? (p.r7.ne+p.r7.se+p.r7.sw+p.r7.nw)/4 : null;
+    const im = TLPhys.cityImpacts(p, s.forecasts, CITIES, r7)
+      .filter(x=>x.distKm<=900).slice(0,6);
+    if(im.length){
+      card.style.display = "";
+      $("#impact-list").innerHTML = im.map(x=>
+        `<div>${x.name} ` +
+        `<span style="color:var(--dim)">最近</span> ${x.distKm} km · ` +
+        `${fmtT(new Date(x.t).toISOString())}` +
+        (x.inGale ? ' <span style="color:#f2c744">7级圈内</span>' : "") +
+        `</div>`).join("");
+    } else card.style.display = "none";
+  } else card.style.display = "none";
+}
+
+/* ================= 交互 ================= */
+function bindUI(){
+  $("#scrub").addEventListener("input", e=>{
+    tIdx = +e.target.value; stopPlay(); renderTime(); });
+  document.addEventListener("keydown", e=>{
+    if(e.target.tagName === "INPUT") return;   /* scrub 走原生+input 事件，避免双步进 */
+    if(e.key === "ArrowLeft"){ tIdx = Math.max(0,tIdx-1); stopPlay(); renderTime(); }
+    if(e.key === "ArrowRight"){
+      tIdx = Math.min(storm().track.length-1,tIdx+1); stopPlay(); renderTime(); }
+    if(e.key === " "){ e.preventDefault(); togglePlay(); }
+  });
+  $("#play").onclick = togglePlay;
+  for(const [id,key] of [["tg-wind","wind"],["tg-ens","ens"],["tg-cone","cone"]])
+    $("#"+id).addEventListener("change", e=>{
+      sim[key] = e.target.checked; renderSim(); });
+}
+function togglePlay(){ playing ? stopPlay() : startPlay(); }
+function startPlay(){
+  playing = true; $("#play").textContent = "❚❚";
+  playTimer = setInterval(()=>{
+    tIdx = (tIdx + 1) % storm().track.length;
+    renderTime();
+  }, 600);
+}
+function stopPlay(){
+  playing = false; $("#play").textContent = "▶";
+  clearInterval(playTimer);
+}
+
+/* ================= 启动 ================= */
+(async function boot(){
+  try{
+    [LAND, DATA] = await Promise.all([
+      loadJSON("__LAND__", "assets/land_wp.json"),
+      loadJSON("__TYPHOON_DATA__", "../data/latest.json"),
+    ]);
+  }catch(err){
+    showNotice(`数据加载失败：${err.message}<br><br>` +
+      `本地开发请在项目根目录执行<br>` +
+      `<code>python3 fetch_typhoon.py --source fixture</code><br>` +
+      `<code>python3 -m http.server 8000</code><br>` +
+      `然后访问 <code>localhost:8000/web/</code>`);
+    return;
+  }
+  /* 数据来源角标 —— 假数据永远明示 */
+  const badge = $("#src-badge");
+  if(DATA.fixture){
+    badge.textContent = "演示数据 FIXTURE · 非真实";
+    badge.className = "fixture";
+    $("#foot-src").textContent =
+      "数据来源：fixture 演示生成（结构与真实一致，数值虚构）";
+  }else{
+    const sm = SOURCE_META[DATA.source] ||
+      {badge:DATA.source, foot:DATA.source + "（非官方转发，仅技术演示）"};
+    badge.textContent = sm.badge;
+    $("#foot-src").textContent = "数据来源：" + sm.foot;
+  }
+  $("#src-time").textContent = "更新 " + fmtT(DATA.generated_at);
+  const note = DATA.storms[0] && DATA.storms[0].meta && DATA.storms[0].meta.note;
+  if(note){
+    const el = document.createElement("div");
+    el.id = "src-note"; el.textContent = note;
+    el.style.cssText =
+      "margin-top:4px;font-size:10px;color:var(--dim);max-width:240px";
+    $("#provenance").appendChild(el);
+  }
+
+  if(!DATA.storms.length){
+    showNotice("当前西北太平洋无编号活跃台风。<br>" +
+      "可运行 <code>--source fixture</code> 查看演示，" +
+      "或等待 M4 历史库回放任意历史台风。");
+    return;
+  }
+  /* 默认选中最后一个活跃台风；无活跃则选最新的 */
+  const act = DATA.storms.map(s=>!!s.is_active).lastIndexOf(true);
+  stormIdx = act >= 0 ? act : DATA.storms.length - 1;
+  bindUI();
+  buildMap();
+})();
+/*__JS_END__*/
+</script>
+</body>
+</html>
