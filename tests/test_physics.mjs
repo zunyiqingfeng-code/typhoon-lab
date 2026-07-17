@@ -59,4 +59,30 @@ check(impacts[0].name === "近城" && impacts[0].distKm < impacts[1].distKm,
       "CPA 距离排序正确");
 check(typeof impacts[0].t === "number", "CPA 时刻可用");
 
+// ---- Willoughby (2006) 式 7a：无 r7 时的 RMW 气候估计 ----
+const noR7 = { lat: 22, lon: 130, wind_ms: 45, pressure_hpa: 950 };
+const pf = P.estimateParams(noR7);
+check(pf.rmwSource === "willoughby06", "无 r7 → Willoughby06 气候式");
+const wexp = 46.4 * Math.exp(-0.0155 * 45 + 0.0169 * 22);
+check(Math.abs(pf.rmw - wexp) < 0.3,
+      `RMW 命中 Willoughby 式 7a（${pf.rmw.toFixed(1)} km）`);
+check(P.estimateParams({ lat: 22, lon: 130, wind_ms: 62, pressure_hpa: 915 }).rmw
+      < pf.rmw, "同纬度更强台风 RMW 更小");
+check(P.estimateParams({ lat: 35, lon: 130, wind_ms: 45, pressure_hpa: 950 }).rmw
+      > pf.rmw, "同强度更高纬 RMW 更大");
+
+// ---- B 随 ΔP 反变（Holland 关系，未触钳制区间） ----
+const bShallow = P.estimateParams({ lat: 20, lon: 130, wind_ms: 45, pressure_hpa: 975 }).B;
+const bDeep = P.estimateParams({ lat: 20, lon: 130, wind_ms: 45, pressure_hpa: 945 }).B;
+check(bDeep < bShallow && bShallow <= 2.5, "同 Vmax 下 ΔP 越大 B 越小");
+
+// ---- 剖面与风向补充 ----
+const f22 = 2 * 7.2921e-5 * Math.sin(22 * Math.PI / 180);
+check(P.gradientWind(prm.rmw * 0.5, prm.rmw, prm.B, prm.dP, f22) <
+      P.gradientWind(prm.rmw, prm.rmw, prm.B, prm.dP, f22),
+      "RMW 内侧风速小于 RMW 处");
+const wE = P.windAt(st, pt.lat, pt.lon + prm.rmw / 111);   // 中心正东
+check(wE && wE.v > 0, "北半球逆时针：中心正东处风向偏北（v>0）");
+check(P.climoErrKm(24) > 45 && P.climoErrKm(24) < 95, "24h 气候平均误差量级合理");
+
 console.log(`\n物理层全部通过：${ok} 项断言`);

@@ -705,7 +705,7 @@ function renderSim(){
   sim.state = TLPhys.makeState(p);
 
   /* 参数透明化 */
-  const rs = sim.state.rmwSource==="r7-inverse" ? "r7反解" : "占位估计";
+  const rs = sim.state.rmwSource==="r7-inverse" ? "r7反解" : "气候式W06";
   $("#sim-params").textContent =
     `RMW ${sim.state.rmw.toFixed(0)} km（${rs}） · B ${sim.state.B.toFixed(2)}` +
     ` · Vmax ${sim.state.vmax} m/s`;

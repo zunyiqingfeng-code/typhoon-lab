@@ -7,8 +7,11 @@
  *      Vg(r) = sqrt( B·ΔP/ρ · (RMW/r)^B · e^{-(RMW/r)^B} + (rf/2)² ) − rf/2
  *  - B 由 Vmax 与 ΔP 反解：Vmax² = B·ΔP/(ρe)  →  B = ρ·e·Vmax²/ΔP，钳制 [1.0, 2.5]
  *  - RMW：有 7 级风圈时，令 Vg(r7)=13.9 m/s 对 RMW 二分反解（r7 取四象限均值）；
- *    无 r7 时用粗略占位 RMW = clamp(70 − 0.8·Vmax, 15, 60) —— TODO(M3+)：
- *    换 Knaff–Zehr / Vickery–Wadhera 经验式并注明文献
+ *    无 r7 时用 Willoughby et al. (2006, Mon. Wea. Rev.) 式 7a 气候估计
+ *    RMW = 46.4·exp(−0.0155·Vmax + 0.0169·|φ|)（Vmax m/s，φ 纬度度，RMW km）
+ *    —— 较原线性占位有物理与纬度依据
+ *  - B 仍由 Vmax 与 ΔP 反解（Holland 1980）。Vickery–Wadhera(2008) 的 B(Rmax,φ)
+ *    经验式确切系数需原文核对，未凭记忆采用，保留 Holland 关系
  *  - 非对称：叠加移动矢量，权重 w(r) = 2·RMW·r/(RMW²+r²)（RMW 处为 1）
  *  - 入流角 20° 指向中心；北半球气旋逆时针
  *  - 集合路径：对多机构预报的逐提前时刻均值做持续性随机游走扰动，
@@ -70,7 +73,10 @@
       }
       rmw = (lo + hi) / 2; rmwSource = "r7-inverse";
     } else {
-      rmw = clamp(70 - 0.8 * vmax, 15, 60);               // 粗略占位
+      // Willoughby et al. (2006) 式 7a：Vmax m/s、纬度度 → RMW km
+      const lat = Math.abs(pt.lat == null ? 20 : pt.lat);
+      rmw = clamp(46.4 * Math.exp(-0.0155 * vmax + 0.0169 * lat), 10, 100);
+      rmwSource = "willoughby06";
     }
     return { vmax, pc, dP, B, rmw, rmwSource };
   }
