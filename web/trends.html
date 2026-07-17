@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>台风预报复盘 · 27 年总榜</title>
+<script src="splash.js" data-title="预报复盘" data-en="TYPHOON HINDCAST"></script>
 <style>
 :root{
   --ink:#0a1420; --panel:#0f1f30; --line:rgba(87,215,201,.14);
@@ -136,9 +137,11 @@ const ticks = (max,step)=>{ const t=[]; for(let v=0;v<=max+1e-6;v+=step) t.push(
 (async function(){
   let d;
   try{ const r=await fetch("../data/scores.json"); if(!r.ok) throw new Error("HTTP "+r.status); d=await r.json(); }
-  catch(e){ $("#err").style.display="block";
+  catch(e){ window.dismissSplash && window.dismissSplash();
+    $("#err").style.display="block";
     $("#err").innerHTML="评分数据未生成。请在项目根执行 <code>node scripts/score_archive.mjs</code> 后重试。<br>"+e.message;
     $("#sub").textContent=""; return; }
+  window.dismissSplash && window.dismissSplash();
   $("#main").style.display="";
   $("#sub").textContent=`${d.years[0]}–${d.years[d.years.length-1]} 年 · ${d.n_storms} 个台风 · ${d.n_points.toLocaleString()} 个可核验预报点`;
   $("#src").textContent="数据来源：浙江省水利厅台风路径系统（非官方转发，仅技术演示）";

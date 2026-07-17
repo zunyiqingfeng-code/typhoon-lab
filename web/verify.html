@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>台风复盘台 · 回溯校验</title>
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
+<script src="splash.js" data-title="台风复盘台" data-en="TYPHOON HINDCAST"></script>
 <style>
 :root{
   --ink:#0a1420; --sea:#0d1b2c; --land:#16283a; --coast:#2c4a63;
@@ -195,6 +196,7 @@ function whenMapReady(){
       getJSON("../data/archive/index.json"),
     ]);
   }catch(err){
+    window.dismissSplash && window.dismissSplash();
     showNotice("数据加载失败："+err.message+"<br><br>本地开发请在项目根执行<br>"+
       "<code>python3 fetch_typhoon.py --reindex</code><br>再起 "+
       "<code>python3 -m http.server 8000</code>，访问 <code>/web/verify.html</code>");
@@ -347,6 +349,7 @@ function buildMap(){
     map.on("mouseenter","fc-pt",()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave","fc-pt",()=>map.getCanvas().style.cursor="");
     mapReady = true;
+    window.dismissSplash && window.dismissSplash();
     requestAnimationFrame(()=>map.resize());   // 兜底：布局稳定后再对齐画布
     showNotice("在右上角搜索并点选一个台风，开始复盘。<br>"+
       "例如搜「巴威」。拖底部时间轴倒回不同发布时刻。");

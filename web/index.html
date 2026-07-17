@@ -145,7 +145,9 @@ table.radii td.lv{text-align:left;font-family:var(--sans)}
   .card{min-width:190px;flex:none}
   #storm-id .zh{font-size:20px}
 }
+
 </style>
+<script src="splash.js" data-title="台风态势实验室" data-en="TYPHOON LAB"></script>
 </head>
 <body>
 <div id="map" aria-label="台风态势地图"></div>
@@ -273,6 +275,7 @@ const R_EARTH = 6371.0;
 
 /* ================= 小工具 ================= */
 const $ = s => document.querySelector(s);
+const dismissSplash = () => window.dismissSplash && window.dismissSplash();
 const fmtT = iso => {           /* '07-15 08:00' */
   const d = new Date(iso);
   const p = n => String(n).padStart(2,"0");
@@ -353,7 +356,7 @@ function buildMap(){
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),
                  "bottom-right");
   map.on("load", () => { addGraticule(); addStormLayers(); addCities();
-                         FX.init(); renderStorm(); });
+                         FX.init(); renderStorm(); dismissSplash(); });
 }
 
 function addGraticule(){
@@ -793,6 +796,7 @@ function stopPlay(){
       loadJSON("__TYPHOON_DATA__", "../data/latest.json"),
     ]);
   }catch(err){
+    dismissSplash();
     showNotice(`数据加载失败：${err.message}<br><br>` +
       `本地开发请在项目根目录执行<br>` +
       `<code>python3 fetch_typhoon.py --source fixture</code><br>` +
@@ -824,6 +828,7 @@ function stopPlay(){
   }
 
   if(!DATA.storms.length){
+    dismissSplash();
     showNotice("当前西北太平洋无编号活跃台风。<br>" +
       "可运行 <code>--source fixture</code> 查看演示，" +
       "或等待 M4 历史库回放任意历史台风。");
