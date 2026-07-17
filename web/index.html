@@ -825,9 +825,12 @@ function stopPlay(){
       "或等待 M4 历史库回放任意历史台风。");
     return;
   }
-  /* 默认选中最后一个活跃台风；无活跃则选最新的 */
+  /* 默认选中最后一个活跃台风；无活跃则选末点时间最新的
+     （storms 按编号排序，编号大不等于停编晚，不能拿数组末位当最新） */
+  const lastT = s => s.track.length ? s.track[s.track.length-1].t : "";
   const act = DATA.storms.map(s=>!!s.is_active).lastIndexOf(true);
-  stormIdx = act >= 0 ? act : DATA.storms.length - 1;
+  stormIdx = act >= 0 ? act
+    : DATA.storms.reduce((b,s,i,a)=> lastT(s) > lastT(a[b]) ? i : b, 0);
   bindUI();
   buildMap();
 })();

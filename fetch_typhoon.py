@@ -617,7 +617,7 @@ def main():
                     default=datetime.now(TZ_BJ).year)
     ap.add_argument("--out", default=os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "data"))
-    ap.add_argument("--keep-days", type=int, default=3,
+    ap.add_argument("--keep-days", type=int, default=7,
                     help="停编后仍保留在 latest 中的天数")
     a = ap.parse_args()
     sys.exit(run(a.source, a.year, a.out, a.keep_days))
