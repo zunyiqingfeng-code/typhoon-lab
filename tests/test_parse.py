@@ -21,6 +21,9 @@ def check(cond, msg):
 
 
 check(ft.SCHEMA_VERSION == "1.1", "schema 版本 1.1")
+check(ft.norm_pressure("915") == 915 and ft.norm_pressure("9") is None and
+      ft.norm_pressure("0") is None and ft.norm_pressure(None) is None,
+      "气压物理区间 [850,1050]，挡掉风力等级等垃圾")
 
 # ---- 基础归一化 ----
 check(ft.norm_dir("西北西") == 292.5, "旧式方位 西北西 → 292.5°")

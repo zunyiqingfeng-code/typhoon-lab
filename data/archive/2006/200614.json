@@ -9,7 +9,6 @@
    "t": "2006-09-17T14:00:00+08:00",
    "lat": 21.1,
    "lon": 157.6,
-   "pressure_hpa": 100.0,
    "wind_ms": 18.0,
    "grade": "TS",
    "move_dir_deg": 22.5,

@@ -85,7 +85,7 @@
     for (const p of fc.points || []) {
       const vMs = Date.parse(p.t);
       const lead = Math.round((vMs - issMs) / 3600e3);
-      if (lead < 0) continue;
+      if (lead <= 0) continue;   // 排除 T+0 分析场：它等于发布时刻实况，不是预报
       const obs = interpObserved(track, vMs);
       if (!obs) continue;
       const windErr = (p.wind_ms != null && obs.wind_ms != null)

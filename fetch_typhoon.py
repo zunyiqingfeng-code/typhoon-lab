@@ -170,6 +170,13 @@ def norm_time(v):
     return None
 
 
+def norm_pressure(v):
+    """中心气压 → hPa，仅接受物理合理区间 [850,1050]，越界/缺测返回 None。
+    实测个别机构把预报『风力等级』塞进气压字段（HKO 出现过 9–14），须挡掉。"""
+    n = to_num(v)
+    return n if n is not None and 850 <= n <= 1050 else None
+
+
 def norm_radius(v):
     """风圈半径 → {ne,se,sw,nw}（km）或 None。
     实测形态：单值 '250'；四段 '280|180|220|180'。
@@ -282,7 +289,7 @@ class ZjwaterAdapter:
                 continue
             track.append(make_point(
                 t, lat, lon,
-                pressure_hpa=to_num(rp.get("pressure")),
+                pressure_hpa=norm_pressure(rp.get("pressure")),
                 wind_ms=to_num(rp.get("speed")),
                 grade=norm_grade(rp.get("strong")),
                 move_dir_deg=norm_dir(rp.get("movedirection")),
@@ -300,11 +307,11 @@ class ZjwaterAdapter:
                     fla, flo = to_num(fp.get("lat")), to_num(fp.get("lng"))
                     if ft is None or fla is None or flo is None:
                         continue
-                    # 实测 speed/pressure 为 "0" 表示缺测
-                    w, pr = to_num(fp.get("speed")), to_num(fp.get("pressure"))
+                    # 实测 speed/pressure 为 "0" 表示缺测；气压再过物理区间
+                    w = to_num(fp.get("speed"))
                     pts.append(make_point(
                         ft, fla, flo,
-                        pressure_hpa=pr if pr and pr > 0 else None,
+                        pressure_hpa=norm_pressure(fp.get("pressure")),
                         wind_ms=w if w and w > 0 else None,
                         grade=norm_grade(fp.get("strong")),
                     ))
@@ -424,7 +431,7 @@ class NmcAdapter:
                                         "sw": to_num(r[3]), "nw": to_num(r[4])}
             track.append(make_point(
                 t, lat, lon,
-                pressure_hpa=to_num(p[6]),
+                pressure_hpa=norm_pressure(p[6]),
                 wind_ms=to_num(p[7]),
                 grade=NMC_GRADE.get(str(p[3]), str(p[3])),
                 move_dir_deg=norm_dir(_NMC_DIR_ZH.get(str(p[8]), p[8]))
@@ -453,10 +460,9 @@ class NmcAdapter:
                     if fla is None or flo is None:
                         continue
                     w = to_num(q[5])
-                    pr = to_num(q[4])
                     pts.append(make_point(
                         ft, fla, flo,
-                        pressure_hpa=pr if pr and pr > 0 else None,
+                        pressure_hpa=norm_pressure(q[4]),
                         wind_ms=w if w and w > 0 else None,
                         grade=NMC_GRADE.get(str(q[7]), None)
                             if len(q) > 7 else None,

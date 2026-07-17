@@ -103,7 +103,6 @@
    "t": "2009-10-11T23:00:00+08:00",
    "lat": 22.9,
    "lon": 143.3,
-   "pressure_hpa": 0.0,
    "wind_ms": 18.0,
    "grade": "TS",
    "move_speed_kmh": 0.0
