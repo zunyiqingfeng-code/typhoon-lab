@@ -106,4 +106,29 @@ m2 = ft.merge_storm(st2, st2)
 check(len([f for f in m2["forecasts"] if f["agency"] == "CMA"]) == 2,
       "合并按 (机构,发布时刻) 去重：历史不翻倍也不丢")
 
+# ---- JMA 适配器（bosai specifications，命名字段） ----
+jma_sample = open(os.path.join(os.path.dirname(__file__),
+                  "sample_jma_specifications.json"), encoding="utf-8").read()
+with mock.patch.object(ft, "http_get", return_value=jma_sample):
+    jst = ft.JmaAdapter()._fetch_detail("TC9913", {"typhoonNumber": "13"}, 2099)
+
+check(jst["id"] == "209913" and jst["name_en"] == "TC9913",
+      "JMA：编号台风 id=年份+编号")
+check(len(jst["track"]) == 1 and jst["track"][0]["grade"] == "TY" and
+      jst["track"][0]["pressure_hpa"] == 960,
+      "JMA：advancedHours=0 分析场入实况轨迹")
+check(jst["track"][0]["t"] == "2099-08-01T08:00:00+08:00",
+      "JMA：validtime UTC → 北京时间")
+check("wind_ms" not in jst["track"][0], "JMA：TD/未验证强度字段，风速留空")
+check(len(jst["forecasts"]) == 1 and jst["forecasts"][0]["agency"] == "JMA" and
+      len(jst["forecasts"][0]["points"]) == 1,
+      "JMA：advancedHours>0 段进预报")
+check(jst["forecasts"][0]["issued_at"] == "2099-08-01T09:05:00+08:00",
+      "JMA：issue(UTC) 作为预报发布时间")
+check(jst["forecasts"][0]["points"][0]["t"] == "2099-08-04T08:00:00+08:00",
+      "JMA：72h 预报点有效时刻")
+with mock.patch.object(ft, "http_get", return_value=jma_sample):
+    jst2 = ft.JmaAdapter()._fetch_detail("TC2613", {"typhoonNumber": "a"}, 2026)
+check(jst2["id"] == "JMA-TC2613", "JMA：未编号（typhoonNumber=字母）id 用 TC 号")
+
 print("\n全部通过：%d 项断言" % ok)

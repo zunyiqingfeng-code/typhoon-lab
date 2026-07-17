@@ -493,6 +493,86 @@ _NMC_DIR_ZH = {
 }
 
 
+# ---------------------------------------------------------------- 适配器：jma（第二意见源）
+
+JMA_GRADE = {"TD": "TD", "TS": "TS", "STS": "STS", "TY": "TY"}
+
+
+class JmaAdapter:
+    """日本气象厅 bosai 台风 JSON。命名字段，较 nmc 数组偏移安全。
+    结构经 2026-07-17 直连实测（targetTc.json + {TC}/specifications.json）确证并落盘
+    tests/captured/jma_*。specifications 每段：advancedHours（0=分析/实况，>0=预报）、
+    position.deg=[lat,lon]、pressure、category.en、validtime.UTC。
+
+    实测当时仅一个 TD 在编，强台风才有的 maximumWind / 风圈字段未出现，
+    故本适配器只取已确证字段（位置/气压/类别/时间），风速一律留空、无风圈；
+    强台风的强度与风圈字段待有台风在编时补验（沙盒未验证项）。"""
+
+    name = "jma"
+    BASE = "https://www.jma.go.jp/bosai/typhoon/data"
+    REFERER = "https://www.jma.go.jp/bosai/typhoon/"
+
+    def _get(self, url):
+        return json.loads(http_get(url, referer=self.REFERER))
+
+    def fetch_year(self, year):
+        lst = self._get("%s/targetTc.json" % self.BASE)
+        if not isinstance(lst, list):
+            raise ValueError("targetTc 非数组")
+        log("jma：当前在编 %d 个" % len(lst))
+        storms = []
+        for it in lst:
+            tc = it.get("tropicalCyclone")
+            if not tc:
+                continue
+            try:
+                st = self._fetch_detail(tc, it, year)
+            except Exception as e:  # noqa: BLE001
+                log("  跳过 %s（%s）" % (tc, e))
+                continue
+            if st:
+                storms.append(st)
+        if not storms:
+            raise RuntimeError("jma 无可用在编台风")
+        return storms
+
+    def _fetch_detail(self, tc, meta, year):
+        spec = self._get("%s/%s/specifications.json" % (self.BASE, tc))
+        track, fpts, issued = [], [], None
+        for part in spec:
+            if part.get("part") == "title":
+                issued = norm_time((part.get("issue") or {}).get("UTC"))
+                continue
+            pos = (part.get("position") or {}).get("deg")
+            t = norm_time((part.get("validtime") or {}).get("UTC"))
+            if not (isinstance(pos, list) and len(pos) >= 2) or t is None:
+                continue
+            lat, lon = to_num(pos[0]), to_num(pos[1])
+            if lat is None or lon is None:
+                continue
+            grade = JMA_GRADE.get((part.get("category") or {}).get("en"),
+                                  (part.get("category") or {}).get("en"))
+            p = make_point(t, lat, lon,
+                           pressure_hpa=norm_pressure(part.get("pressure")),
+                           grade=grade)
+            (track if (to_num(part.get("advancedHours")) or 0) == 0
+             else fpts).append(p)
+        if not track and not fpts:
+            return None
+        tn = str(meta.get("typhoonNumber") or "")
+        sid = "%d%02d" % (year, int(tn)) if tn.isdigit() else "JMA-%s" % tc
+        st = {"id": sid, "name_zh": "", "name_en": tc,
+              "is_active": True, "basin": "WP",
+              "track": sorted(track, key=lambda p: p["t"])}
+        if fpts:
+            st["forecasts"] = [{"agency": "JMA",
+                                "issued_at": issued or track[0]["t"] if track else issued,
+                                "points": sorted(fpts, key=lambda p: p["t"])}]
+        else:
+            st["forecasts"] = []
+        return st
+
+
 # ---------------------------------------------------------------- fixture
 
 def build_fixture(now=None):
@@ -629,8 +709,9 @@ def run(source, year, out_dir, keep_days):
     storms, used = None, None
 
     order = {"auto": ["zjwater", "nmc"], "zjwater": ["zjwater"],
-             "nmc": ["nmc"], "fixture": ["fixture"]}[source]
-    adapters = {"zjwater": ZjwaterAdapter(), "nmc": NmcAdapter()}
+             "nmc": ["nmc"], "jma": ["jma"], "fixture": ["fixture"]}[source]
+    adapters = {"zjwater": ZjwaterAdapter(), "nmc": NmcAdapter(),
+                "jma": JmaAdapter()}
 
     for name in order:
         if name == "fixture":
@@ -762,7 +843,7 @@ def run_backfill(y0, y1, out_dir, delay=0.4):
 def main():
     ap = argparse.ArgumentParser(description="台风数据抓取管道")
     ap.add_argument("--source", default="auto",
-                    choices=["auto", "zjwater", "nmc", "fixture"])
+                    choices=["auto", "zjwater", "nmc", "jma", "fixture"])
     ap.add_argument("--year", type=int,
                     default=datetime.now(TZ_BJ).year)
     ap.add_argument("--out", default=os.path.join(
