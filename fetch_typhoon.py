@@ -26,6 +26,7 @@ fetch_typhoon.py — 台风数据抓取管道（M1）
 """
 
 import argparse
+import glob
 import gzip
 import io
 import json
@@ -42,6 +43,9 @@ TZ_BJ = timezone(timedelta(hours=8))
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+
+# 每次成功请求后的礼貌间隔（秒）。正常抓取为 0；回填大批历史时调大，别打炸源站
+_POLITE_DELAY = 0.0
 
 # ---------------------------------------------------------------- 通用工具
 
@@ -62,12 +66,20 @@ def http_get(url, referer=None, timeout=12, retries=3):
                 raw = resp.read()
                 if resp.headers.get("Content-Encoding") == "gzip":
                     raw = gzip.GzipFile(fileobj=io.BytesIO(raw)).read()
+                text = None
                 for enc in ("utf-8", "gbk"):
                     try:
-                        return raw.decode(enc)
+                        text = raw.decode(enc)
+                        break
                     except UnicodeDecodeError:
                         continue
-                return raw.decode("utf-8", errors="replace")
+                if text is None:
+                    text = raw.decode("utf-8", errors="replace")
+                if not text.strip():
+                    raise ValueError("空响应体")   # 空 200 当可重试失败
+                if _POLITE_DELAY:
+                    time.sleep(_POLITE_DELAY)
+                return text
         except Exception as e:  # noqa: BLE001 —— 网络层什么都可能抛
             last = e
             log("  重试 %d/%d：%s（%s）" % (i + 1, retries, url, e))
@@ -232,16 +244,27 @@ class ZjwaterAdapter:
                 log("zjwater：%s 列表 %d 条，活跃 %d 个" %
                     (host, len(lst), len(active_ids)))
                 storms = []
+                skipped = 0
                 for item in lst:
                     tfid = str(item.get("tfid") or item.get("id") or "").strip()
                     # 常规 6 位 YYYYNN；个别未编号低压为 8 位
                     if not re.match(r"^\d{6}(\d{2})?$", tfid):
                         continue
-                    st = self._fetch_detail(host, tfid)
+                    try:
+                        st = self._fetch_detail(host, tfid)
+                    except Exception as de:  # noqa: BLE001 单台风详情故障不拖垮整年
+                        skipped += 1
+                        log("  跳过 %s（详情失败：%s）" % (tfid, de))
+                        continue
                     if st:
                         if tfid in active_ids:
                             st["is_active"] = True
                         storms.append(st)
+                if skipped:
+                    log("zjwater：%d 年跳过 %d 个台风（详情故障）" % (year, skipped))
+                # 列表非空却一个都没取到 → 该域名系统性故障，换下一个域名
+                if lst and not storms:
+                    raise RuntimeError("列表非空但所有详情失败，疑似域名故障")
                 return storms
             except Exception as e:  # noqa: BLE001
                 err = e
@@ -631,8 +654,77 @@ def run(source, year, out_dir, keep_days):
     return 0
 
 
+def build_master_index(out_dir):
+    """扫描 archive/ 生成跨年主索引，供前端历史/复盘选择器用。
+    只取摘要字段——单台风归档可达 ~1MB，主索引须精简、可整体加载。"""
+    root = os.path.join(out_dir, "archive")
+    rows = []
+    for path in sorted(glob.glob(os.path.join(root, "*", "*.json"))):
+        year = os.path.basename(os.path.dirname(path))
+        try:
+            with open(path, encoding="utf-8") as f:
+                d = json.load(f)
+        except Exception as e:  # noqa: BLE001
+            log("主索引跳过 %s：%s" % (path, e))
+            continue
+        tr = d.get("track") or []
+        if not tr:
+            continue
+        fcs = d.get("forecasts") or []
+        winds = [p["wind_ms"] for p in tr if p.get("wind_ms") is not None]
+        press = [p["pressure_hpa"] for p in tr if p.get("pressure_hpa") is not None]
+        rows.append({
+            "id": d.get("id"),
+            "year": int(year) if year.isdigit() else None,
+            "name_zh": d.get("name_zh", ""), "name_en": d.get("name_en", ""),
+            "start": tr[0]["t"], "end": tr[-1]["t"], "n_points": len(tr),
+            "n_forecasts": len(fcs),
+            "agencies": sorted({f.get("agency") for f in fcs if f.get("agency")}),
+            "peak_wind_ms": max(winds) if winds else None,
+            "min_pressure_hpa": min(press) if press else None,
+        })
+    rows.sort(key=lambda r: ((r["year"] or 0), r["id"] or ""))
+    years = sorted({r["year"] for r in rows if r["year"]})
+    write_json(os.path.join(root, "index.json"), {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": datetime.now(TZ_BJ).isoformat(),
+        "n_storms": len(rows), "years": years, "storms": rows,
+    })
+    log("主索引：%d 个台风，覆盖 %d 个年份" % (len(rows), len(years)))
+    return len(rows)
+
+
+def run_backfill(y0, y1, out_dir, delay=0.4):
+    """回填 zjwater 历史到归档（含每机构全部预报史）。只写归档，不碰 latest.json。"""
+    global _POLITE_DELAY
+    _POLITE_DELAY = delay
+    adapter = ZjwaterAdapter()
+    now = datetime.now(TZ_BJ).isoformat()
+    grand = 0
+    for year in range(y0, y1 + 1):
+        try:
+            storms = adapter.fetch_year(year)
+        except Exception as e:  # noqa: BLE001
+            log("回填 %d 失败：%s" % (year, e))
+            continue
+        for s in storms:
+            s["meta"] = {"source": "zjwater", "fetched_at": now}
+            apath = os.path.join(out_dir, "archive", str(year), s["id"] + ".json")
+            old = None
+            if os.path.exists(apath):
+                with open(apath, encoding="utf-8") as f:
+                    old = json.load(f)
+            write_json(apath, merge_storm(old, s))
+        grand += len(storms)
+        log("回填 %d 年完成：%d 个台风（累计 %d）" % (year, len(storms), grand))
+    _POLITE_DELAY = 0.0
+    log("回填结束：%d-%d 年，共 %d 个台风" % (y0, y1, grand))
+    build_master_index(out_dir)
+    return grand
+
+
 def main():
-    ap = argparse.ArgumentParser(description="台风数据抓取管道 M1")
+    ap = argparse.ArgumentParser(description="台风数据抓取管道")
     ap.add_argument("--source", default="auto",
                     choices=["auto", "zjwater", "nmc", "fixture"])
     ap.add_argument("--year", type=int,
@@ -641,7 +733,17 @@ def main():
         os.path.dirname(os.path.abspath(__file__)), "data"))
     ap.add_argument("--keep-days", type=int, default=7,
                     help="停编后仍保留在 latest 中的天数")
+    ap.add_argument("--backfill", metavar="FROM-TO",
+                    help="回填历史年份区间（如 2000-2026）：只写归档，带礼貌间隔")
+    ap.add_argument("--reindex", action="store_true",
+                    help="扫描归档重建跨年主索引 archive/index.json")
     a = ap.parse_args()
+    if a.backfill:
+        y0, y1 = (int(x) for x in a.backfill.split("-"))
+        sys.exit(0 if run_backfill(y0, y1, a.out) else 2)
+    if a.reindex:
+        build_master_index(a.out)
+        sys.exit(0)
     sys.exit(run(a.source, a.year, a.out, a.keep_days))
 
 
