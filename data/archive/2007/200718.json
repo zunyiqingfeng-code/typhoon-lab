@@ -1,0 +1,31 @@
+{
+ "id": "200718",
+ "name_zh": "杨柳",
+ "name_en": "PODUL",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2007-10-06T20:00:00+08:00",
+   "lat": 34.2,
+   "lon": 157.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2007-10-07T02:00:00+08:00",
+   "lat": 35.9,
+   "lon": 160.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_speed_kmh": 45.0
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

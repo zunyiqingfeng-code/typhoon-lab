@@ -1,0 +1,118 @@
+{
+ "id": "200618",
+ "name_zh": "温比亚",
+ "name_en": "RUMBIA",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2006-10-03T20:00:00+08:00",
+   "lat": 20.6,
+   "lon": 154.0,
+   "pressure_hpa": 993.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 337.5,
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2006-10-04T02:00:00+08:00",
+   "lat": 21.3,
+   "lon": 153.5,
+   "pressure_hpa": 992.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 337.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-10-04T08:00:00+08:00",
+   "lat": 22.2,
+   "lon": 152.9,
+   "pressure_hpa": 992.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 337.5,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-10-04T14:00:00+08:00",
+   "lat": 22.3,
+   "lon": 152.5,
+   "pressure_hpa": 992.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 337.5,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-10-04T20:00:00+08:00",
+   "lat": 22.7,
+   "lon": 152.4,
+   "pressure_hpa": 992.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-10-05T02:00:00+08:00",
+   "lat": 22.8,
+   "lon": 152.3,
+   "pressure_hpa": 992.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-10-05T08:00:00+08:00",
+   "lat": 22.8,
+   "lon": 151.8,
+   "pressure_hpa": 993.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-10-05T14:00:00+08:00",
+   "lat": 23.2,
+   "lon": 152.0,
+   "pressure_hpa": 993.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-10-05T20:00:00+08:00",
+   "lat": 23.6,
+   "lon": 152.0,
+   "pressure_hpa": 993.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-10-06T02:00:00+08:00",
+   "lat": 24.6,
+   "lon": 151.8,
+   "pressure_hpa": 993.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-10-06T08:00:00+08:00",
+   "lat": 26.7,
+   "lon": 151.8,
+   "pressure_hpa": 993.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 25.0
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

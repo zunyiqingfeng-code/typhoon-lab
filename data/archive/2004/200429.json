@@ -1,0 +1,30 @@
+{
+ "id": "200429",
+ "name_zh": "塔拉斯",
+ "name_en": "TALAS",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2004-12-18T02:00:00+08:00",
+   "lat": 15.7,
+   "lon": 130.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2004-12-18T08:00:00+08:00",
+   "lat": 14.6,
+   "lon": 131.4,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

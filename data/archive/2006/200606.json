@@ -1,0 +1,743 @@
+{
+ "id": "200606",
+ "name_zh": "派比安",
+ "name_en": "PRAPIROON",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2006-08-01T14:00:00+08:00",
+   "lat": 17.0,
+   "lon": 117.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 270,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-01T17:00:00+08:00",
+   "lat": 17.3,
+   "lon": 117.3,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-01T20:00:00+08:00",
+   "lat": 17.5,
+   "lon": 116.7,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-01T21:00:00+08:00",
+   "lat": 17.5,
+   "lon": 116.6,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-01T22:00:00+08:00",
+   "lat": 17.6,
+   "lon": 116.6,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-01T23:00:00+08:00",
+   "lat": 17.6,
+   "lon": 116.4,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T00:00:00+08:00",
+   "lat": 17.6,
+   "lon": 116.3,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T01:00:00+08:00",
+   "lat": 17.6,
+   "lon": 116.2,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T02:00:00+08:00",
+   "lat": 17.6,
+   "lon": 116.1,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T03:00:00+08:00",
+   "lat": 17.6,
+   "lon": 116.0,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2006-08-02T04:00:00+08:00",
+   "lat": 17.6,
+   "lon": 115.9,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2006-08-02T05:00:00+08:00",
+   "lat": 17.6,
+   "lon": 115.8,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2006-08-02T06:00:00+08:00",
+   "lat": 17.7,
+   "lon": 115.7,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2006-08-02T07:00:00+08:00",
+   "lat": 17.8,
+   "lon": 115.6,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T08:00:00+08:00",
+   "lat": 18.0,
+   "lon": 115.5,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T09:00:00+08:00",
+   "lat": 18.0,
+   "lon": 115.4,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T10:00:00+08:00",
+   "lat": 18.1,
+   "lon": 115.3,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T11:00:00+08:00",
+   "lat": 18.5,
+   "lon": 115.2,
+   "pressure_hpa": 975.0,
+   "wind_ms": 30.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T12:00:00+08:00",
+   "lat": 18.8,
+   "lon": 114.9,
+   "pressure_hpa": 975.0,
+   "wind_ms": 30.0,
+   "grade": "STS",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T13:00:00+08:00",
+   "lat": 18.9,
+   "lon": 114.7,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T14:00:00+08:00",
+   "lat": 19.0,
+   "lon": 114.6,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T15:00:00+08:00",
+   "lat": 19.1,
+   "lon": 114.5,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T16:00:00+08:00",
+   "lat": 19.2,
+   "lon": 114.3,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T17:00:00+08:00",
+   "lat": 19.3,
+   "lon": 114.1,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY"
+  },
+  {
+   "t": "2006-08-02T18:00:00+08:00",
+   "lat": 19.4,
+   "lon": 113.9,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T19:00:00+08:00",
+   "lat": 19.4,
+   "lon": 113.7,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T20:00:00+08:00",
+   "lat": 19.4,
+   "lon": 113.6,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T21:00:00+08:00",
+   "lat": 19.4,
+   "lon": 113.4,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T22:00:00+08:00",
+   "lat": 19.3,
+   "lon": 113.3,
+   "pressure_hpa": 970.0,
+   "wind_ms": 35.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-02T23:00:00+08:00",
+   "lat": 19.3,
+   "lon": 113.2,
+   "pressure_hpa": 970.0,
+   "wind_ms": 35.0,
+   "grade": "TY",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-03T00:00:00+08:00",
+   "lat": 19.2,
+   "lon": 113.2,
+   "pressure_hpa": 970.0,
+   "wind_ms": 35.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-03T01:00:00+08:00",
+   "lat": 19.2,
+   "lon": 113.2,
+   "pressure_hpa": 970.0,
+   "wind_ms": 35.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-03T02:00:00+08:00",
+   "lat": 19.2,
+   "lon": 113.2,
+   "pressure_hpa": 970.0,
+   "wind_ms": 35.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-03T03:00:00+08:00",
+   "lat": 19.4,
+   "lon": 113.2,
+   "pressure_hpa": 970.0,
+   "wind_ms": 35.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-03T04:00:00+08:00",
+   "lat": 19.5,
+   "lon": 113.2,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2006-08-03T05:00:00+08:00",
+   "lat": 19.7,
+   "lon": 113.2,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2006-08-03T06:00:00+08:00",
+   "lat": 19.9,
+   "lon": 113.1,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T07:00:00+08:00",
+   "lat": 20.1,
+   "lon": 113.0,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T08:00:00+08:00",
+   "lat": 20.5,
+   "lon": 112.6,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY"
+  },
+  {
+   "t": "2006-08-03T09:00:00+08:00",
+   "lat": 20.4,
+   "lon": 112.4,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T10:00:00+08:00",
+   "lat": 20.5,
+   "lon": 112.4,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T11:00:00+08:00",
+   "lat": 20.5,
+   "lon": 112.4,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T12:00:00+08:00",
+   "lat": 20.7,
+   "lon": 112.3,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T13:00:00+08:00",
+   "lat": 20.8,
+   "lon": 112.3,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T14:00:00+08:00",
+   "lat": 20.9,
+   "lon": 112.2,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY"
+  },
+  {
+   "t": "2006-08-03T15:00:00+08:00",
+   "lat": 21.1,
+   "lon": 112.0,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T16:00:00+08:00",
+   "lat": 21.2,
+   "lon": 111.9,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T17:00:00+08:00",
+   "lat": 21.2,
+   "lon": 111.8,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T18:00:00+08:00",
+   "lat": 21.3,
+   "lon": 111.7,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T19:00:00+08:00",
+   "lat": 21.4,
+   "lon": 111.6,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T20:00:00+08:00",
+   "lat": 21.5,
+   "lon": 111.3,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T21:00:00+08:00",
+   "lat": 21.6,
+   "lon": 111.0,
+   "pressure_hpa": 975.0,
+   "wind_ms": 33.0,
+   "grade": "TY",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T22:00:00+08:00",
+   "lat": 21.6,
+   "lon": 110.8,
+   "pressure_hpa": 975.0,
+   "wind_ms": 30.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-03T23:00:00+08:00",
+   "lat": 21.6,
+   "lon": 110.6,
+   "pressure_hpa": 980.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-04T00:00:00+08:00",
+   "lat": 21.7,
+   "lon": 110.4,
+   "pressure_hpa": 975.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-04T01:00:00+08:00",
+   "lat": 21.8,
+   "lon": 110.3,
+   "pressure_hpa": 975.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-04T02:00:00+08:00",
+   "lat": 21.8,
+   "lon": 110.2,
+   "pressure_hpa": 975.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-04T03:00:00+08:00",
+   "lat": 21.9,
+   "lon": 110.1,
+   "pressure_hpa": 975.0,
+   "wind_ms": 28.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-04T04:00:00+08:00",
+   "lat": 22.0,
+   "lon": 110.0,
+   "pressure_hpa": 980.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2006-08-04T05:00:00+08:00",
+   "lat": 22.1,
+   "lon": 109.9,
+   "pressure_hpa": 985.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T06:00:00+08:00",
+   "lat": 22.1,
+   "lon": 109.9,
+   "pressure_hpa": 985.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T07:00:00+08:00",
+   "lat": 22.1,
+   "lon": 109.8,
+   "pressure_hpa": 985.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T08:00:00+08:00",
+   "lat": 22.2,
+   "lon": 109.7,
+   "pressure_hpa": 985.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T09:00:00+08:00",
+   "lat": 22.2,
+   "lon": 109.5,
+   "pressure_hpa": 985.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T10:00:00+08:00",
+   "lat": 22.2,
+   "lon": 109.4,
+   "pressure_hpa": 985.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T11:00:00+08:00",
+   "lat": 22.4,
+   "lon": 109.3,
+   "pressure_hpa": 990.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T12:00:00+08:00",
+   "lat": 22.5,
+   "lon": 109.2,
+   "pressure_hpa": 990.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T13:00:00+08:00",
+   "lat": 22.6,
+   "lon": 109.0,
+   "pressure_hpa": 992.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T14:00:00+08:00",
+   "lat": 22.7,
+   "lon": 108.9,
+   "pressure_hpa": 992.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T15:00:00+08:00",
+   "lat": 22.9,
+   "lon": 108.8,
+   "pressure_hpa": 992.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2006-08-04T16:00:00+08:00",
+   "lat": 23.1,
+   "lon": 108.7,
+   "pressure_hpa": 992.0,
+   "wind_ms": 15.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T17:00:00+08:00",
+   "lat": 23.2,
+   "lon": 108.6,
+   "pressure_hpa": 992.0,
+   "wind_ms": 15.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T18:00:00+08:00",
+   "lat": 23.3,
+   "lon": 108.4,
+   "pressure_hpa": 992.0,
+   "wind_ms": 15.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T19:00:00+08:00",
+   "lat": 23.4,
+   "lon": 108.3,
+   "pressure_hpa": 994.0,
+   "wind_ms": 12.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T20:00:00+08:00",
+   "lat": 23.2,
+   "lon": 108.2,
+   "pressure_hpa": 995.0,
+   "wind_ms": 12.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T21:00:00+08:00",
+   "lat": 23.2,
+   "lon": 108.1,
+   "pressure_hpa": 996.0,
+   "wind_ms": 12.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T22:00:00+08:00",
+   "lat": 23.2,
+   "lon": 107.9,
+   "pressure_hpa": 998.0,
+   "wind_ms": 10.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-04T23:00:00+08:00",
+   "lat": 23.2,
+   "lon": 107.9,
+   "pressure_hpa": 998.0,
+   "wind_ms": 10.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-05T00:00:00+08:00",
+   "lat": 23.2,
+   "lon": 107.8,
+   "pressure_hpa": 999.0,
+   "wind_ms": 10.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2006-08-05T01:00:00+08:00",
+   "lat": 23.2,
+   "lon": 107.7,
+   "pressure_hpa": 999.0,
+   "wind_ms": 10.0,
+   "grade": "TD"
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

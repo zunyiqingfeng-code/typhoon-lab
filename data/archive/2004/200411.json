@@ -1,0 +1,57 @@
+{
+ "id": "200411",
+ "name_zh": "-",
+ "name_en": "",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2004-07-26T14:00:00+08:00",
+   "lat": 19.2,
+   "lon": 118.2,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 14.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2004-07-26T20:00:00+08:00",
+   "lat": 19.4,
+   "lon": 117.9,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 14.0,
+   "grade": "TD"
+  },
+  {
+   "t": "2004-07-27T02:00:00+08:00",
+   "lat": 19.6,
+   "lon": 117.7,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 14.0,
+   "grade": "TD",
+   "move_dir_deg": 292.5,
+   "move_speed_kmh": 11.0
+  },
+  {
+   "t": "2004-07-27T08:00:00+08:00",
+   "lat": 22.7,
+   "lon": 116.6,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2004-07-27T11:00:00+08:00",
+   "lat": 22.9,
+   "lon": 116.2,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_speed_kmh": 15.0
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

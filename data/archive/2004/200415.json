@@ -1,0 +1,128 @@
+{
+ "id": "200415",
+ "name_zh": "马勒卡",
+ "name_en": "MALAKAS",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2004-08-11T08:00:00+08:00",
+   "lat": 26.8,
+   "lon": 158.5,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 22.5,
+   "move_speed_kmh": 36.0
+  },
+  {
+   "t": "2004-08-11T14:00:00+08:00",
+   "lat": 27.8,
+   "lon": 159.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 33.0
+  },
+  {
+   "t": "2004-08-11T20:00:00+08:00",
+   "lat": 29.4,
+   "lon": 160.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 41.0
+  },
+  {
+   "t": "2004-08-12T02:00:00+08:00",
+   "lat": 30.6,
+   "lon": 162.2,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2004-08-12T08:00:00+08:00",
+   "lat": 31.7,
+   "lon": 163.2,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 36.0
+  },
+  {
+   "t": "2004-08-12T14:00:00+08:00",
+   "lat": 32.3,
+   "lon": 164.7,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 67.5,
+   "move_speed_kmh": 37.0
+  },
+  {
+   "t": "2004-08-12T20:00:00+08:00",
+   "lat": 32.7,
+   "lon": 166.6,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_speed_kmh": 37.0
+  },
+  {
+   "t": "2004-08-13T02:00:00+08:00",
+   "lat": 33.3,
+   "lon": 168.8,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 45.0
+  },
+  {
+   "t": "2004-08-13T14:00:00+08:00",
+   "lat": 34.8,
+   "lon": 173.3,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 37.0
+  },
+  {
+   "t": "2004-08-13T20:00:00+08:00",
+   "lat": 35.5,
+   "lon": 175.9,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 45
+  },
+  {
+   "t": "2004-08-14T02:00:00+08:00",
+   "lat": 36.8,
+   "lon": 178.4,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 45
+  },
+  {
+   "t": "2004-08-14T03:00:00+08:00",
+   "lat": 37.0,
+   "lon": 178.0,
+   "pressure_hpa": 998.0,
+   "grade": "",
+   "move_dir_deg": 67.5,
+   "move_speed_kmh": 45.0
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "id": "200412",
+ "name_zh": "玛瑙",
+ "name_en": "MALOU",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2004-08-04T20:00:00+08:00",
+   "lat": 33.2,
+   "lon": 134.9,
+   "pressure_hpa": 994.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2004-08-05T02:00:00+08:00",
+   "lat": 35.8,
+   "lon": 134.5,
+   "pressure_hpa": 994.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2004-08-05T08:00:00+08:00",
+   "lat": 37.5,
+   "lon": 135.6,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2004-08-06T02:00:00+08:00",
+   "lat": 41.4,
+   "lon": 140.4,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 15.0,
+   "grade": "TD"
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

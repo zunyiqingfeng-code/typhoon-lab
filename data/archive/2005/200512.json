@@ -1,0 +1,172 @@
+{
+ "id": "200512",
+ "name_zh": "古超",
+ "name_en": "GUCHOL",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2005-08-21T14:00:00+08:00",
+   "lat": 25.0,
+   "lon": 148.4,
+   "pressure_hpa": 996.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2005-08-21T20:00:00+08:00",
+   "lat": 25.4,
+   "lon": 148.0,
+   "pressure_hpa": 996.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2005-08-22T02:00:00+08:00",
+   "lat": 26.0,
+   "lon": 147.6,
+   "pressure_hpa": 996.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_speed_kmh": 10.0
+  },
+  {
+   "t": "2005-08-22T08:00:00+08:00",
+   "lat": 26.9,
+   "lon": 147.1,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2005-08-22T14:00:00+08:00",
+   "lat": 28.2,
+   "lon": 147.0,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2005-08-22T20:00:00+08:00",
+   "lat": 29.0,
+   "lon": 146.5,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2005-08-23T02:00:00+08:00",
+   "lat": 29.8,
+   "lon": 146.1,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2005-08-23T08:00:00+08:00",
+   "lat": 31.0,
+   "lon": 146.1,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 20.0
+  },
+  {
+   "t": "2005-08-23T14:00:00+08:00",
+   "lat": 32.4,
+   "lon": 147.1,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 25.0
+  },
+  {
+   "t": "2005-08-23T20:00:00+08:00",
+   "lat": 33.3,
+   "lon": 148.2,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 25.0
+  },
+  {
+   "t": "2005-08-24T02:00:00+08:00",
+   "lat": 34.4,
+   "lon": 149.5,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_speed_kmh": 25.0
+  },
+  {
+   "t": "2005-08-24T08:00:00+08:00",
+   "lat": 35.7,
+   "lon": 151.3,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS"
+  },
+  {
+   "t": "2005-08-24T14:00:00+08:00",
+   "lat": 36.8,
+   "lon": 153.2,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 40.0
+  },
+  {
+   "t": "2005-08-24T20:00:00+08:00",
+   "lat": 37.8,
+   "lon": 155.0,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 45.0
+  },
+  {
+   "t": "2005-08-25T02:00:00+08:00",
+   "lat": 39.2,
+   "lon": 157.8,
+   "pressure_hpa": 985.0,
+   "wind_ms": 25.0,
+   "grade": "STS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 45.0
+  },
+  {
+   "t": "2005-08-25T08:00:00+08:00",
+   "lat": 40.8,
+   "lon": 160.4,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 45.0
+  },
+  {
+   "t": "2005-08-25T14:00:00+08:00",
+   "lat": 43.3,
+   "lon": 163.1,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 55.0
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

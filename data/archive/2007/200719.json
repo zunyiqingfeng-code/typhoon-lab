@@ -1,0 +1,67 @@
+{
+ "id": "200719",
+ "name_zh": "玲玲",
+ "name_en": "LINGLING",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2007-10-12T14:00:00+08:00",
+   "lat": 25.4,
+   "lon": 172.7,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2007-10-12T20:00:00+08:00",
+   "lat": 25.6,
+   "lon": 172.5,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2007-10-13T02:00:00+08:00",
+   "lat": 26.3,
+   "lon": 172.1,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2007-10-13T08:00:00+08:00",
+   "lat": 27.5,
+   "lon": 171.3,
+   "pressure_hpa": 994.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2007-10-13T14:00:00+08:00",
+   "lat": 28.8,
+   "lon": 170.5,
+   "pressure_hpa": 994.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_speed_kmh": 15.0
+  },
+  {
+   "t": "2007-10-13T20:00:00+08:00",
+   "lat": 29.1,
+   "lon": 170.5,
+   "pressure_hpa": 995.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

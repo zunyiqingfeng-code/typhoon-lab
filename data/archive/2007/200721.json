@@ -1,0 +1,93 @@
+{
+ "id": "200721",
+ "name_zh": "法西",
+ "name_en": "FAXAI",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2007-10-26T08:00:00+08:00",
+   "lat": 23.0,
+   "lon": 131.8,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2007-10-26T11:00:00+08:00",
+   "lat": 23.5,
+   "lon": 131.6,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 0,
+   "move_speed_kmh": 25.0
+  },
+  {
+   "t": "2007-10-26T14:00:00+08:00",
+   "lat": 24.0,
+   "lon": 131.4,
+   "pressure_hpa": 996.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_speed_kmh": 25.0
+  },
+  {
+   "t": "2007-10-26T17:00:00+08:00",
+   "lat": 24.5,
+   "lon": 131.6,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_speed_kmh": 30.0
+  },
+  {
+   "t": "2007-10-26T20:00:00+08:00",
+   "lat": 25.2,
+   "lon": 131.6,
+   "pressure_hpa": 995.0,
+   "wind_ms": 20.0,
+   "grade": "TS",
+   "move_speed_kmh": 30.0
+  },
+  {
+   "t": "2007-10-26T23:00:00+08:00",
+   "lat": 25.7,
+   "lon": 132.0,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2007-10-27T02:00:00+08:00",
+   "lat": 26.7,
+   "lon": 132.9,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS",
+   "move_speed_kmh": 60.0
+  },
+  {
+   "t": "2007-10-27T08:00:00+08:00",
+   "lat": 28.9,
+   "lon": 136.0,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS"
+  },
+  {
+   "t": "2007-10-27T14:00:00+08:00",
+   "lat": 33.4,
+   "lon": 139.9,
+   "pressure_hpa": 990.0,
+   "wind_ms": 23.0,
+   "grade": "TS",
+   "move_speed_kmh": 65.0
+  }
+ ],
+ "forecasts": [],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}

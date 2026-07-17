@@ -1,0 +1,85 @@
+{
+ "id": "200810",
+ "name_zh": "巴蓬",
+ "name_en": "PHANFONE",
+ "is_active": false,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2008-08-10T14:00:00+08:00",
+   "lat": 30.5,
+   "lon": 155.1,
+   "pressure_hpa": 1000.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 22.5,
+   "move_speed_kmh": 55.0
+  },
+  {
+   "t": "2008-08-10T20:00:00+08:00",
+   "lat": 31.9,
+   "lon": 156.9,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 22.5,
+   "move_speed_kmh": 50.0
+  },
+  {
+   "t": "2008-08-11T02:00:00+08:00",
+   "lat": 35.0,
+   "lon": 159.2,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.0,
+   "grade": "TS",
+   "move_dir_deg": 22.5,
+   "move_speed_kmh": 50.0
+  }
+ ],
+ "forecasts": [
+  {
+   "agency": "CMA",
+   "issued_at": "2008-08-11T02:00:00+08:00",
+   "points": [
+    {
+     "t": "2008-08-11T02:00:00+08:00",
+     "lat": 35.0,
+     "lon": 159.2,
+     "pressure_hpa": 998.0,
+     "wind_ms": 18.0,
+     "grade": "TS"
+    },
+    {
+     "t": "2008-08-12T02:00:00+08:00",
+     "lat": 43.7,
+     "lon": 163.0,
+     "grade": "null"
+    }
+   ]
+  },
+  {
+   "agency": "CWA",
+   "issued_at": "2008-08-11T02:00:00+08:00",
+   "points": [
+    {
+     "t": "2008-08-11T02:00:00+08:00",
+     "lat": 35.0,
+     "lon": 159.2,
+     "pressure_hpa": 998.0,
+     "wind_ms": 18.0,
+     "grade": "TS"
+    },
+    {
+     "t": "2008-08-11T14:00:00+08:00",
+     "lat": 40.1,
+     "lon": 162.8,
+     "grade": "null"
+    }
+   ]
+  }
+ ],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-07-17T23:30:48.762079+08:00"
+ }
+}
