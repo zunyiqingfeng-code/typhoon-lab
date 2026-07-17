@@ -93,10 +93,10 @@ table.board tr.best td{color:var(--good)}
   display:flex;justify-content:space-between;gap:12px;font-size:10px;color:var(--dim)}
 a{color:var(--accent)}
 
-#notice{position:absolute;inset:0;display:grid;place-items:center;z-index:9;
-  background:rgba(10,20,32,.72)}
+#notice{position:absolute;inset:0;display:grid;place-items:center;z-index:4;
+  background:rgba(10,20,32,.5);pointer-events:none}
 #notice .box{background:var(--panel);border:1px solid var(--line);border-radius:8px;
-  padding:22px 28px;max-width:440px;text-align:center;line-height:1.9}
+  padding:22px 28px;max-width:440px;text-align:center;line-height:1.9;pointer-events:auto}
 #notice code{font-family:var(--mono);color:var(--accent)}
 .maplibregl-popup-content{background:var(--panel);color:var(--text);
   font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:5px}
@@ -163,13 +163,14 @@ const AGENCY_META = {
 };
 const GRADE_C = {TD:"#35c46a",TS:"#3f8ef7",STS:"#f2c744",TY:"#f2872e",
   STY:"#ef5aa0",SuperTY:"#e33e3e"};
+const BOARD_LEADS = [24,48,72,120];   // 误差榜显示的标准提前量档（评测仍算全部）
 const gcolor = g => GRADE_C[g] || "#8fa5b8";
 const fmtT = ms => {
   const d = new Date(ms), p = n => String(n).padStart(2,"0");
   return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 };
 
-let map=null, LAND=null, INDEX=null;
+let map=null, LAND=null, INDEX=null, mapReady=false;
 let storm=null, score=null, stops=[], cursor=0;
 const agOn={}; let playing=false, timer=null;
 
@@ -180,6 +181,10 @@ async function getJSON(url){
   const r = await fetch(url);
   if(!r.ok) throw new Error(url+" → HTTP "+r.status);
   return r.json();
+}
+function whenMapReady(){
+  return mapReady ? Promise.resolve()
+    : new Promise(res => map.on("load", () => res()));
 }
 
 /* ---------- 启动 ---------- */
@@ -229,7 +234,7 @@ function buildPicker(){
     }
     list.classList.add("open");
   };
-  inp.addEventListener("focus",()=>render(inp.value));
+  inp.addEventListener("focus",()=>{ hideNotice(); render(inp.value); });
   inp.addEventListener("input",()=>render(inp.value));
   document.addEventListener("click",e=>{
     if(!$("#picker").contains(e.target)) list.classList.remove("open"); });
@@ -253,7 +258,9 @@ async function selectStorm(meta){
   for(const ag of score.agencies) if(!(ag in agOn)) agOn[ag]=true;
   buildAgencyList(); buildBoard();
   const sc=$("#scrub"); sc.max=Math.max(0,stops.length-1); sc.value=cursor;
+  await whenMapReady();   // 地图未就绪前不碰图层源
   drawObserved(); renderCursor(); fitStorm();
+  hideNotice();           // 台风渲染完成，无论 load 时序如何都收起提示
 }
 
 /* ---------- 机构列表 + 误差榜 ---------- */
@@ -272,7 +279,7 @@ function buildAgencyList(){
 }
 
 function buildBoard(){
-  const buckets=score.buckets;
+  const buckets=BOARD_LEADS;
   $("#board-head").innerHTML="<tr><th class=l>机构</th>"+
     "<th>全程</th>"+buckets.map(b=>`<th>${b}h</th>`).join("")+"</tr>";
   const rank=TLEval.agencyRanking(score,3);
@@ -339,10 +346,10 @@ function buildMap(){
         `${p.agency} 预报 +${p.lead}h<br>误差 ${Math.round(p.err)} km`).addTo(map); });
     map.on("mouseenter","fc-pt",()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave","fc-pt",()=>map.getCanvas().style.cursor="");
-    hideNotice();
+    mapReady = true;
+    requestAnimationFrame(()=>map.resize());   // 兜底：布局稳定后再对齐画布
     showNotice("在右上角搜索并点选一个台风，开始复盘。<br>"+
       "例如搜「巴威」。拖底部时间轴倒回不同发布时刻。");
-    $("#notice").addEventListener("click",hideNotice,{once:true});
   });
   bindUI();
 }
