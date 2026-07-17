@@ -590,6 +590,33 @@ def write_json(path, obj):
     log("写出 %s（%.1f KB）" % (path, os.path.getsize(path) / 1024))
 
 
+def health_check(latest_payload, index_payload):
+    """结构自检：源站悄悄改版/返回残缺时在日志里报警，别静默通过。
+    只做廉价的形态校验，不做跨运行的趋势判断（那属调度层）。"""
+    issues = []
+    if latest_payload.get("schema_version") != SCHEMA_VERSION:
+        issues.append("latest schema_version 异常：%r" %
+                      latest_payload.get("schema_version"))
+    storms = latest_payload.get("storms")
+    if not isinstance(storms, list):
+        issues.append("latest.storms 非数组")
+        storms = []
+    for s in storms:
+        if not s.get("track"):
+            issues.append("台风 %s 无轨迹点" % s.get("id"))
+        for f in s.get("forecasts", []):
+            if not f.get("points"):
+                issues.append("台风 %s 机构 %s 预报无点" %
+                              (s.get("id"), f.get("agency")))
+    n_idx = len(index_payload.get("storms", []))
+    if not latest_payload.get("fixture") and n_idx == 0:
+        issues.append("当年索引为空——源站列表可能异常，非淡季需排查")
+    for m in issues:
+        log("  [健康检查] " + m)
+    log("健康检查：%d 项异常，当年索引 %d 个台风" % (len(issues), n_idx))
+    return issues
+
+
 def run(source, year, out_dir, keep_days):
     now = datetime.now(TZ_BJ)
     fetched_at = now.isoformat()
@@ -632,14 +659,15 @@ def run(source, year, out_dir, keep_days):
     cutoff = (now - timedelta(days=keep_days)).isoformat()
     latest = [latest_forecast_only(s) for s in storms
               if s.get("is_active") or (s["track"] and s["track"][-1]["t"] >= cutoff)]
-    write_json(os.path.join(out_dir, "latest.json"), {
+    latest_payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": fetched_at,
         "source": used,
         "fixture": used == "fixture",
         "storms": latest,
-    })
-    write_json(os.path.join(out_dir, "index.json"), {
+    }
+    write_json(os.path.join(out_dir, "latest.json"), latest_payload)
+    index_payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": fetched_at,
         "year": year,
@@ -648,7 +676,9 @@ def run(source, year, out_dir, keep_days):
                     "start": s["track"][0]["t"] if s["track"] else None,
                     "end": s["track"][-1]["t"] if s["track"] else None,
                     "n_points": len(s["track"])} for s in storms],
-    })
+    }
+    write_json(os.path.join(out_dir, "index.json"), index_payload)
+    health_check(latest_payload, index_payload)
     log("完成：源=%s，台风 %d 个，latest 收录 %d 个" %
         (used, len(storms), len(latest)))
     return 0
