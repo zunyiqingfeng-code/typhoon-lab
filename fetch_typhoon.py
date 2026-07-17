@@ -37,7 +37,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 TZ_BJ = timezone(timedelta(hours=8))
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -293,11 +293,13 @@ class ZjwaterAdapter:
                                       "points": pts})
         if not track:
             return None
-        latest = {}
+        # schema 1.1：保留每机构全部发布时次（复盘评测需要完整预报史）；
+        # 仅去重完全相同的 (机构, 发布时刻)，同键取预报点更全的一份
+        seen = {}
         for fc in forecasts:
-            k = fc["agency"]
-            if k not in latest or fc["issued_at"] > latest[k]["issued_at"]:
-                latest[k] = fc
+            key = (fc["agency"], fc["issued_at"])
+            if key not in seen or len(fc["points"]) > len(seen[key]["points"]):
+                seen[key] = fc
         land = []
         for lp in d.get("land") or []:
             lt = norm_time(lp.get("landtime"))
@@ -313,7 +315,8 @@ class ZjwaterAdapter:
             "is_active": str(d.get("isactive")) == "1",
             "basin": "WP",
             "track": sorted(track, key=lambda p: p["t"]),
-            "forecasts": sorted(latest.values(), key=lambda f: f["agency"]),
+            "forecasts": sorted(seen.values(),
+                                 key=lambda f: (f["agency"], f["issued_at"])),
         }
         if land:
             st["land"] = land
@@ -382,7 +385,7 @@ class NmcAdapter:
         if not isinstance(ty, list) or len(ty) < 9:
             return None
         track = []
-        fc_raw = None
+        fc_hist = []   # schema 1.1：[(观测时刻, 预报dict)]，保留全部带预报时次
         for p in ty[8] or []:
             if not isinstance(p, list) or len(p) < 8:
                 continue
@@ -408,12 +411,11 @@ class NmcAdapter:
                 r12=radii.get("64KTS"),
             ))
             if len(p) > 11 and p[11]:
-                fc_raw = (t, p[11])   # 保留最后一个带预报的时次
+                fc_hist.append((t, p[11]))
         if not track:
             return None
         forecasts = []
-        if fc_raw:
-            base_t, fdict = fc_raw
+        for base_t, fdict in fc_hist:
             for code, arr in fdict.items():
                 pts = []
                 for q in arr or []:
@@ -440,11 +442,17 @@ class NmcAdapter:
                     forecasts.append({
                         "agency": NMC_AGENCY.get(str(code), str(code)),
                         "issued_at": base_t, "points": pts})
+        seen = {}
+        for fc in forecasts:
+            key = (fc["agency"], fc["issued_at"])
+            if key not in seen or len(fc["points"]) > len(seen[key]["points"]):
+                seen[key] = fc
         return {"basin": "WP",
                 "name_zh": ty[2] or "", "name_en": (ty[1] or "").upper(),
                 "is_active": str(ty[7]) == "start",
                 "track": sorted(track, key=lambda x: x["t"]),
-                "forecasts": sorted(forecasts, key=lambda f: f["agency"])}
+                "forecasts": sorted(seen.values(),
+                                    key=lambda f: (f["agency"], f["issued_at"]))}
 
 
 # NMC 方位码 → 中文（复用 DIR16 求角度）
@@ -522,17 +530,31 @@ def merge_storm(old, new):
     by_t = {p["t"]: p for p in old.get("track", [])}
     for p in new.get("track", []):
         by_t[p["t"]] = p
-    fc = {f["agency"]: f for f in old.get("forecasts", [])}
+    # schema 1.1：按 (机构, 发布时刻) 去重合并，保留全部历史预报；同键取更全的一份
+    fc = {(f["agency"], f.get("issued_at", "")): f for f in old.get("forecasts", [])}
     for f in new.get("forecasts", []):
-        k = f["agency"]
-        if k not in fc or f.get("issued_at", "") >= fc[k].get("issued_at", ""):
-            fc[k] = f
+        key = (f["agency"], f.get("issued_at", ""))
+        if key not in fc or len(f.get("points", [])) >= len(fc[key].get("points", [])):
+            fc[key] = f
     merged = dict(old)
     merged.update({k: v for k, v in new.items()
                    if k not in ("track", "forecasts")})
     merged["track"] = sorted(by_t.values(), key=lambda p: p["t"])
-    merged["forecasts"] = sorted(fc.values(), key=lambda f: f["agency"])
+    merged["forecasts"] = sorted(fc.values(),
+                                 key=lambda f: (f["agency"], f.get("issued_at", "")))
     return merged
+
+
+def latest_forecast_only(storm):
+    """latest.json 只吐每机构最新一份预报，前端契约不变；完整预报史留在归档。"""
+    best = {}
+    for f in storm.get("forecasts", []):
+        k = f["agency"]
+        if k not in best or f.get("issued_at", "") > best[k].get("issued_at", ""):
+            best[k] = f
+    s = dict(storm)
+    s["forecasts"] = sorted(best.values(), key=lambda f: f["agency"])
+    return s
 
 
 def write_json(path, obj):
@@ -585,7 +607,7 @@ def run(source, year, out_dir, keep_days):
 
     # latest：活跃 + 近 keep_days 天内仍有轨迹点的
     cutoff = (now - timedelta(days=keep_days)).isoformat()
-    latest = [s for s in storms
+    latest = [latest_forecast_only(s) for s in storms
               if s.get("is_active") or (s["track"] and s["track"][-1]["t"] >= cutoff)]
     write_json(os.path.join(out_dir, "latest.json"), {
         "schema_version": SCHEMA_VERSION,
