@@ -102,6 +102,15 @@ a{color:var(--accent)}
 .maplibregl-popup-content{background:var(--panel);color:var(--text);
   font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:5px}
 .maplibregl-ctrl-attrib{background:rgba(13,26,40,.6)!important;font-size:10px}
+
+@media(max-width:720px){
+  #picker{left:12px;right:12px;width:auto}
+  #rail{left:12px;right:12px;top:auto;bottom:104px;width:auto;max-height:150px;
+    flex-direction:row;overflow-x:auto;overflow-y:hidden}
+  #rail .card{min-width:230px;flex:none}
+  #brand .zh{font-size:19px}
+  #tl-lab{display:none}
+}
 </style>
 </head>
 <body>
