@@ -225,7 +225,8 @@ table.radii td.lv{text-align:left;font-family:var(--sans)}
 
 <footer id="foot">
   <span id="foot-src">数据来源：—</span>
-  <span><a href="verify.html" style="color:var(--accent);text-decoration:none">台风复盘台 · 多机构预报误差回溯 →</a>
+  <span><a href="verify.html" style="color:var(--accent);text-decoration:none">复盘台</a>
+    · <a href="trends.html" style="color:var(--accent);text-decoration:none">27年总榜 →</a>
     &nbsp;·&nbsp;本页面为技术演示，不构成气象预报；请以中央气象台及各地官方预警为准。</span>
 </footer>
 
@@ -647,7 +648,9 @@ const FX = {
     fit(); addEventListener("resize", fit);
     map.on("move", ()=>this.clear());
   },
-  clear(){ this.ctx.clearRect(0,0,innerWidth,innerHeight); this.parts.forEach(p=>p.age=1e9); },
+  /* 只擦屏幕空间的残留拖尾；粒子是经纬度、每帧重投影，拖动/缩放时自会跟随地图，
+     不重置粒子，避免移动时整片重生的突兀感 */
+  clear(){ this.ctx.clearRect(0,0,innerWidth,innerHeight); },
   spawn(){
     const s = sim.state, R = s.domainKm;
     const a = Math.random()*Math.PI*2;
