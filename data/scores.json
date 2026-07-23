@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-07-23T19:42:10.875Z",
+ "generated_at": "2026-07-23T21:19:14.831Z",
  "n_storms": 454,
- "n_points": 368196,
+ "n_points": 368197,
  "years": [
   "2000",
   "2001",
@@ -159,7 +159,7 @@
    }
   },
   "JMA": {
-   "n": 62483,
+   "n": 62484,
    "posMean": 113,
    "windMean": 5,
    "presMean": 9.4,
@@ -876,8 +876,8 @@
     "n72": 184
    },
    "JMA": {
-    "n": 2398,
-    "posMean": 93.1,
+    "n": 2399,
+    "posMean": 93,
     "pos72Mean": 140.4,
     "n72": 288
    },
