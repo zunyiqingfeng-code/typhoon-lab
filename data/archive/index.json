@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-07-24T17:30:21.924642+08:00",
+ "generated_at": "2026-07-24T19:53:46.441210+08:00",
  "n_storms": 645,
  "years": [
   2000,
@@ -10921,9 +10921,9 @@
    "name_zh": "红霞",
    "name_en": "NOUL",
    "start": "2026-07-23T05:00:00+08:00",
-   "end": "2026-07-24T17:00:00+08:00",
-   "n_points": 13,
-   "n_forecasts": 37,
+   "end": "2026-07-24T19:00:00+08:00",
+   "n_points": 15,
+   "n_forecasts": 47,
    "agencies": [
     "CMA",
     "CWA",
