@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-07-28T14:37:37.065030+08:00",
+ "generated_at": "2026-07-28T17:43:53.087400+08:00",
  "n_storms": 646,
  "years": [
   2000,
@@ -10940,17 +10940,17 @@
    "name_zh": "白海豚",
    "name_en": "DOLPHIN",
    "start": "2026-07-27T14:00:00+08:00",
-   "end": "2026-07-28T11:00:00+08:00",
-   "n_points": 8,
-   "n_forecasts": 32,
+   "end": "2026-07-28T17:00:00+08:00",
+   "n_points": 10,
+   "n_forecasts": 40,
    "agencies": [
     "CMA",
     "CWA",
     "JMA",
     "JTWC"
    ],
-   "peak_wind_ms": 33.0,
-   "min_pressure_hpa": 975.0
+   "peak_wind_ms": 42.0,
+   "min_pressure_hpa": 955.0
   }
  ]
 }
