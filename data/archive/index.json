@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-07-30T05:10:15.023206+08:00",
+ "generated_at": "2026-07-30T07:11:08.823348+08:00",
  "n_storms": 646,
  "years": [
   2000,
@@ -10940,9 +10940,9 @@
    "name_zh": "白海豚",
    "name_en": "DOLPHIN",
    "start": "2026-07-27T14:00:00+08:00",
-   "end": "2026-07-30T02:00:00+08:00",
-   "n_points": 21,
-   "n_forecasts": 84,
+   "end": "2026-07-30T05:00:00+08:00",
+   "n_points": 22,
+   "n_forecasts": 88,
    "agencies": [
     "CMA",
     "CWA",
