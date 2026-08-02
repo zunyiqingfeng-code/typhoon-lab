@@ -100,6 +100,26 @@
    "grade": "TD",
    "move_dir_deg": 337.5,
    "move_speed_kmh": 8.0
+  },
+  {
+   "t": "2026-08-03T02:00:00+08:00",
+   "lat": 16.0,
+   "lon": 123.9,
+   "pressure_hpa": 1002.0,
+   "wind_ms": 15.0,
+   "grade": "TD",
+   "move_dir_deg": 337.5,
+   "move_speed_kmh": 8.0
+  },
+  {
+   "t": "2026-08-03T05:00:00+08:00",
+   "lat": 16.2,
+   "lon": 123.8,
+   "pressure_hpa": 1002.0,
+   "wind_ms": 15.0,
+   "grade": "TD",
+   "move_dir_deg": 337.5,
+   "move_speed_kmh": 6.0
   }
  ],
  "forecasts": [
@@ -578,10 +598,62 @@
      "grade": "TD"
     }
    ]
+  },
+  {
+   "agency": "CMA",
+   "issued_at": "2026-08-03T02:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-08-03T02:00:00+08:00",
+     "lat": 16.0,
+     "lon": 123.9,
+     "pressure_hpa": 1002.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    },
+    {
+     "t": "2026-08-03T14:00:00+08:00",
+     "lat": 16.7,
+     "lon": 123.6,
+     "pressure_hpa": 998.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    },
+    {
+     "t": "2026-08-04T02:00:00+08:00",
+     "lat": 17.4,
+     "lon": 123.6,
+     "pressure_hpa": 998.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    }
+   ]
+  },
+  {
+   "agency": "CMA",
+   "issued_at": "2026-08-03T05:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-08-03T05:00:00+08:00",
+     "lat": 16.2,
+     "lon": 123.8,
+     "pressure_hpa": 1002.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    },
+    {
+     "t": "2026-08-03T17:00:00+08:00",
+     "lat": 16.8,
+     "lon": 123.6,
+     "pressure_hpa": 998.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    }
+   ]
   }
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-03T03:30:38.571943+08:00"
+  "fetched_at": "2026-08-03T05:07:58.011217+08:00"
  }
 }
