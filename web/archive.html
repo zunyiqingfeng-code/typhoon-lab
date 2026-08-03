@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>台风态势实验室 · 历史档案</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='2' opacity='.45'/%3E%3Cpath d='M16 3a13 13 0 0 1 13 13' fill='none' stroke='%2322d3ee' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<script src="splash.js" data-title="历史档案" data-en="TYPHOON ARCHIVE"></script>
+<style>
+:root{
+  --bg0:#070b14; --bg1:#0d1626; --sea:#0b1424; --land:#141f31; --coast:#2c4a63;
+  --panel:rgba(13,22,38,.55); --glass:rgba(255,255,255,.09);
+  --line:rgba(34,211,238,.14); --text:#d7e3ee; --dim:#7b93a8; --accent:#22d3ee;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --r:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(1100px 700px at 85% -10%,rgba(34,211,238,.05),transparent 60%),
+    linear-gradient(165deg,var(--bg0),var(--bg1))}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--accent);text-decoration:none}
+
+.wrap{max-width:1320px;margin:0 auto;padding:22px 20px 50px}
+header .lab{font-size:11px;letter-spacing:.32em;color:var(--dim)}
+header h1{margin:8px 0 6px;font-size:26px;font-weight:700;letter-spacing:.04em;
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.tag{font-size:11px;padding:2px 8px;border-radius:3px;font-weight:700;
+  background:var(--accent);color:#08131d;letter-spacing:.06em}
+.sub{color:var(--dim);font-family:var(--mono);font-size:11px}
+
+.layout{display:grid;grid-template-columns:300px 1fr;gap:14px;margin-top:16px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--glass);border-radius:var(--r);
+  padding:12px 14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.card h3{margin:0 0 10px;font-size:10px;font-weight:400;color:var(--dim);letter-spacing:.24em}
+
+/* 筛选与列表 */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.chips button{font:inherit;font-size:11px;color:var(--dim);background:none;
+  border:1px solid var(--glass);border-radius:6px;padding:5px 9px;cursor:pointer}
+.chips button:hover{color:var(--text)}
+.chips button[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+.tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:11px;color:var(--dim);background:none;
+  border:1px solid transparent;border-radius:6px;padding:6px 9px;cursor:pointer}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+#search{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--glass);
+  color:var(--text);font:inherit;font-size:12px;padding:9px 10px;border-radius:8px;
+  outline:none;margin-bottom:10px}
+#search:focus{border-color:var(--accent)}
+#storm-list{max-height:60vh;overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}
+.srow{display:flex;align-items:center;gap:8px;padding:7px 6px;border-radius:7px;
+  cursor:pointer;border:1px solid transparent}
+.srow:hover{background:rgba(34,211,238,.07)}
+.srow.cur{border-color:var(--accent);background:rgba(34,211,238,.1)}
+.srow .dot{width:9px;height:9px;border-radius:2px;flex:none}
+.srow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .meta{font-family:var(--mono);font-size:10px;color:var(--dim);flex:none}
+.srow .rank{width:22px;flex:none;font-family:var(--mono);font-size:10px;color:var(--dim);text-align:right}
+
+/* 地图卡 */
+.map-card{padding:0;overflow:hidden;position:relative}
+#map{height:52vh;min-height:380px}
+#map-live{position:absolute;top:10px;right:10px;z-index:3;font-family:var(--mono);
+  font-size:10px;color:var(--dim);letter-spacing:.1em;pointer-events:none}
+#tl{position:absolute;left:12px;right:12px;bottom:10px;z-index:3;
+  background:var(--panel);border:1px solid var(--glass);border-radius:10px;
+  padding:8px 12px 10px;backdrop-filter:blur(10px)}
+#tl-top{display:flex;align-items:center;gap:10px}
+#tl-btns{display:flex;gap:5px;flex:none}
+.icon-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--glass);
+  background:rgba(255,255,255,.05);color:var(--accent);cursor:pointer;
+  display:grid;place-items:center;padding:0}
+.icon-btn:hover{background:rgba(34,211,238,.12)}
+.icon-btn svg{width:14px;height:14px;display:block}
+#tl-when{font-family:var(--mono);font-size:12px;min-width:112px}
+#tl-grade{font-size:11px}
+#speed{display:flex;gap:4px;margin-left:auto}
+#speed button{font:inherit;font-family:var(--mono);font-size:10px;color:var(--dim);
+  background:none;border:1px solid transparent;border-radius:5px;padding:4px 7px;cursor:pointer}
+#speed button:hover{color:var(--text)}
+#speed button[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+#ticks{position:relative;height:24px;margin-top:6px}
+#ticks .tick{position:absolute;bottom:0;width:3px;border-radius:1px;transform:translateX(-50%)}
+#scrub{position:absolute;inset:0;width:100%;height:100%;margin:0;
+  -webkit-appearance:none;appearance:none;background:none;cursor:pointer}
+#scrub::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:30px;
+  border-radius:4px;background:var(--accent);border:0;box-shadow:0 0 10px rgba(34,211,238,.5)}
+#scrub::-moz-range-thumb{width:14px;height:30px;border-radius:4px;background:var(--accent);border:0}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+#chart-host{position:relative;cursor:crosshair}
+#chart-host svg{width:100%;height:auto;display:block}
+#chart-host .tl-readout{position:absolute;left:0;right:0;bottom:2px;text-align:center;
+  font-family:var(--mono);font-size:10px;color:var(--accent);pointer-events:none}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:11px}
+.stats-grid .k{color:var(--dim);font-size:10px}
+.stats-grid .v{font-family:var(--mono);font-size:12px}
+.stats-grid .full{grid-column:1 / -1}
+#year-chart svg{width:100%;height:auto;display:block}
+
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:baseline}
+.eye{width:18px;height:18px;position:relative}
+.eye::before{content:"";position:absolute;inset:0;border-radius:50%;
+  border:2px solid #fff;background:rgba(255,255,255,.15)}
+.eye::after{content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.6);animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+@media (prefers-reduced-motion:reduce){.eye::after{animation:none;opacity:.4}}
+.timelbl{font-family:var(--mono);font-size:9px;color:#6f8aa0;
+  text-shadow:0 1px 2px #000;pointer-events:none;transform:translateY(-4px)}
+.maplibregl-ctrl-attrib{background:rgba(13,22,38,.6)!important;color:var(--dim)!important;font-size:10px}
+.maplibregl-ctrl-attrib a{color:var(--dim)!important}
+.maplibregl-ctrl-group{border-radius:8px!important;overflow:hidden}
+.maplibregl-ctrl-group button{background:rgba(13,22,38,.7)!important}
+
+#err{padding:40px;text-align:center;color:var(--dim)}
+footer{margin-top:20px;color:var(--dim);font-size:11px;line-height:1.9}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  #map{height:56vh}
+  .icon-btn{width:44px;height:44px;border-radius:10px}
+  #speed button{min-width:40px;padding:8px 4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="lab">台风态势实验室 · 历史档案</div>
+  <h1>西太平洋台风档案<span class="tag">2000 – 2026 · 643 个</span></h1>
+  <div class="sub" id="sub">载入中…</div>
+</header>
+
+<div class="layout">
+  <aside class="card">
+    <div class="chips" id="chips"></div>
+    <div class="tabs" id="tabs" role="group" aria-label="排序方式"></div>
+    <input id="search" type="text" placeholder="搜索台风名或编号" autocomplete="off">
+    <div id="storm-list"></div>
+  </aside>
+
+  <main>
+    <section class="card map-card">
+      <div id="map" aria-label="台风轨迹地图"></div>
+      <div id="map-live">点选台风后按空格播放 · 北京时</div>
+      <div id="tl">
+        <div id="tl-top">
+          <div id="tl-btns">
+            <button id="step-b" class="icon-btn" aria-label="上一点" title="上一点（←）">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 3 5 8l6 5z"/><rect x="4" y="3" width="1.6" height="10"/></svg>
+            </button>
+            <button id="play" class="icon-btn" aria-label="播放/暂停" title="播放/暂停（空格）">
+              <svg id="ico-play" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.6v10.8L13 8z"/></svg>
+              <svg id="ico-pause" viewBox="0 0 16 16" fill="currentColor" style="display:none"><rect x="3.5" y="2.6" width="3" height="10.8"/><rect x="9.5" y="2.6" width="3" height="10.8"/></svg>
+            </button>
+            <button id="step-f" class="icon-btn" aria-label="下一点" title="下一点（→）">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l6 5-6 5z"/><rect x="10.4" y="3" width="1.6" height="10"/></svg>
+            </button>
+          </div>
+          <span id="tl-when" class="num">—</span>
+          <span id="tl-grade"></span>
+          <div id="speed" role="group" aria-label="播放速度"></div>
+        </div>
+        <div id="ticks">
+          <input id="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="时间轴">
+        </div>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h3>强度演变 · 悬停联动时间轴</h3>
+        <div id="chart-host"></div>
+      </section>
+      <section class="card">
+        <h3>生命周期统计</h3>
+        <div class="stats-grid" id="stats-grid"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:14px">
+      <h3 id="year-chart-title">年度峰值强度对比</h3>
+      <div id="year-chart"></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <span id="src">数据来源：—</span><br>
+  归档为各机构历史发布与实况路径，仅供回溯研究；本页面不构成气象预报。 ·
+  <a href="./">实时态势图</a> · <a href="verify.html">复盘台</a> · <a href="trends.html">27年总榜</a>
+</footer>
+</div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="tracklib.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const fmtT = TL.fmtT, bjHour = TL.bjHour, gradeOf = TL.grade;
+const SPEEDS = [0.5, 1, 2, 4];
+const SPEED_BASE = 560;
+
+let REC = null, LAND = null, map = null, mapReady = false;
+let storm = null, tIdx = 0, playing = false, raf = 0, lastTs = 0;
+let speedIdx = 1, frac = 1, chartApi = null, eyeMarker = null;
+let year = null, tab = "recent", query = "";
+let domTimeMarks = [], trkPtFC = null;
+
+/* ---------- 装载 ---------- */
+async function loadJSON(winKey, url){
+  if(window[winKey]) return window[winKey];
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(url + " → HTTP " + r.status);
+  return r.json();
+}
+function whenMapReady(){
+  return mapReady ? Promise.resolve() : new Promise(res => map.on("load", res));
+}
+
+/* ---------- 筛选列表 ---------- */
+const YEARS = [];
+const SORTS = {
+  recent: {zh:"最新", cmp:(a,b)=> b.year-a.year || String(b.id).localeCompare(String(a.id))},
+  strongest: {zh:"最强者", cmp:(a,b)=> (b.peak_wind_ms||0)-(a.peak_wind_ms||0)},
+  longest: {zh:"最长寿", cmp:(a,b)=> (b.life_h||0)-(a.life_h||0)},
+  longestPath: {zh:"最长路径", cmp:(a,b)=> (b.path_km||0)-(a.path_km||0)},
+};
+
+function renderList(){
+  const hit = REC.storms.filter(s =>
+    (year==null || s.year===year) &&
+    (!query || (s.name_zh||"").includes(query) || (s.name_en||"").toLowerCase().includes(query) ||
+     String(s.id).includes(query)));
+  hit.sort(SORTS[tab].cmp);
+  const box = $("#storm-list"); box.innerHTML = "";
+  hit.slice(0, 60).forEach((s,i)=>{
+    const g = TL.grade(TL.GRADE_ORDER[Math.max(0, Math.min(5,
+      (s.peak_wind_ms||0) >= 51 ? 5 : (s.peak_wind_ms||0) >= 41.5 ? 4 :
+      (s.peak_wind_ms||0) >= 32.7 ? 3 : (s.peak_wind_ms||0) >= 24.5 ? 2 :
+      (s.peak_wind_ms||0) >= 17.2 ? 1 : 0))]);
+    const row = document.createElement("div");
+    row.className = "srow" + (storm && storm.id === s.id ? " cur" : "");
+    row.innerHTML =
+      `<span class="rank">${tab==="recent" ? "" : (i+1)}</span>` +
+      `<span class="dot" style="background:${g.c}"></span>` +
+      `<span class="nm">${s.name_zh||s.name_en||s.id}</span>` +
+      `<span class="meta">${s.id} · ${s.peak_wind_ms!=null?s.peak_wind_ms+"m/s":""}${s.path_km?" · "+s.path_km+"km":""}</span>`;
+    row.onclick = ()=> selectStorm(s);
+    box.appendChild(row);
+  });
+  if(!hit.length) box.innerHTML = '<div style="color:var(--dim);padding:10px 6px">无匹配台风</div>';
+}
+
+function renderYearChart(){
+  const sel = REC.storms.filter(s => s.year===year);
+  if(!sel.length){ $("#year-chart").innerHTML = ""; return; }
+  $("#year-chart-title").textContent = year + " 年各台风峰值风速对比（m/s）";
+  const sorted = sel.slice().sort((a,b)=> Date.parse(a.start) - Date.parse(b.start));
+  const W = 900, H = 200, pad = {l:36, r:10, t:10, b:26};
+  const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+  const maxV = Math.max(20, ...sorted.map(s=>s.peak_wind_ms||0));
+  const n = sorted.length;
+  const bw = Math.max(2, Math.min(18, iw/n - 3));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${year} 年峰值风速对比">`;
+  for(let v=20; v<=maxV; v+=10){
+    const y = pad.t + (1 - v/maxV)*ih;
+    s += `<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="rgba(255,255,255,.06)"/>`;
+    s += `<text x="${pad.l-6}" y="${y+3}" fill="#7b93a8" font-size="10" text-anchor="end">${v}</text>`;
+  }
+  const cmap = [0,17.2,24.5,32.7,41.5,51];
+  sorted.forEach((st,i)=>{
+    const w = st.peak_wind_ms||0;
+    const lv = Math.max(0, cmap.filter(v=>w>=v).length-1);
+    const c = TL.GRADE[TL.GRADE_ORDER[lv]].c;
+    const x = pad.l + i/n*iw;
+    const y = pad.t + (1 - w/maxV)*ih;
+    const h = pad.t+ih - y;
+    s += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1" fill="${c}" opacity=".85">`;
+    s += `<title>${st.name_zh||st.name_en||st.id} ${w} m/s</title></rect>`;
+  });
+  s += "</svg>";
+  $("#year-chart").innerHTML = s;
+}
+
+/* ---------- 台风选择与回放 ---------- */
+async function selectStorm(meta){
+  let s;
+  try{ s = await loadJSON(null, `../data/archive/${meta.year}/${meta.id}.json`); }
+  catch(e){ alert("载入失败：" + e.message); return; }
+  s._dtrack = TL.decimate(s.track, 500);
+  storm = s;
+  tIdx = s._dtrack.length - 1; frac = 1; stopPlay();
+  document.querySelectorAll(".srow").forEach(r=>r.classList.remove("cur"));
+  await whenMapReady();
+  renderStorm();
+  renderList();
+}
+
+function renderStorm(){
+  const s = storm, tr = s._dtrack;
+  /* 轨迹线段 + 点 */
+  const gradeColor = ["match",["get","grade"],
+    ...Object.entries(TL.GRADE).flatMap(([k,v])=>[k,v.c]), "#8fa5b8"];
+  const segs = [], pts = [];
+  for(let i=0;i<tr.length;i++){
+    const p = tr[i];
+    pts.push({type:"Feature",properties:{...p, idx:i, future:0},
+      geometry:{type:"Point",coordinates:[p.lon,p.lat]}});
+    if(i>0) segs.push({type:"Feature",properties:{grade:p.grade},
+      geometry:{type:"LineString",coordinates:[[tr[i-1].lon,tr[i-1].lat],[p.lon,p.lat]]}});
+  }
+  map.getSource("trk-line").setData({type:"FeatureCollection",features:segs});
+  trkPtFC = {type:"FeatureCollection",features:pts};
+  map.getSource("trk-pt").setData(trkPtFC);
+  growGeometry();
+
+  domTimeMarks.forEach(m=>m.remove()); domTimeMarks = [];
+  tr.forEach((p,i)=>{
+    const h = bjHour(p.t);
+    if(!(h===0 || i===0 || i===tr.length-1)) return;
+    const el = document.createElement("div");
+    el.className = "timelbl"; el.textContent = fmtT(p.t).slice(0,5);
+    domTimeMarks.push(new maplibregl.Marker({element:el,anchor:"bottom",
+      offset:[0,-6]}).setLngLat([p.lon,p.lat]).addTo(map));
+  });
+
+  const ticks = $("#ticks");
+  ticks.querySelectorAll(".tick").forEach(t=>t.remove());
+  const denom = Math.max(1, tr.length - 1);
+  tr.forEach((p,i)=>{
+    const t = document.createElement("div");
+    t.className = "tick";
+    const w = p.wind_ms ?? 10;
+    t.style.left = (i/denom*100)+"%";
+    t.style.height = Math.max(4, Math.min(22, w/2.4))+"px";
+    t.style.background = gradeOf(p.grade).c;
+    ticks.appendChild(t);
+  });
+  const sc = $("#scrub");
+  sc.max = tr.length-1; sc.value = tIdx;
+
+  const lons = tr.map(p=>p.lon), lats = tr.map(p=>p.lat);
+  if(tr.length >= 2)
+    map.fitBounds([[Math.min(...lons),Math.min(...lats)],
+                   [Math.max(...lons),Math.max(...lats)]],
+                  {padding:{top:70,bottom:110,left:40,right:40}, duration:600, maxZoom:6});
+  else
+    map.setCenter([lons[0], lats[0]]);
+
+  chartApi = TL.intensityChart($("#chart-host"), tr, {
+    onSeek: i => seekTo(i),
+    onPick: i => { seekTo(i); stopPlay(); },
+  });
+  const st = TL.statsOf(tr);
+  const cell = (k,v,full) =>
+    `<div class="${full?'full':''}"><div class="k">${k}</div><div class="v num">${v}</div></div>`;
+  $("#stats-grid").innerHTML =
+    cell("台风", `${s.name_zh||s.name_en||s.id} ${s.name_en||""} · ${s.id}`) +
+    cell("起 / 止", `${TL.fmtFull(new Date(st.startMs).toISOString())} → ${TL.fmtFull(new Date(st.endMs).toISOString())}`, true) +
+    cell("持续时长", st.durH+" h") + cell("路径长度", st.pathKm.toLocaleString()+" km") +
+    cell("最大风速", st.maxWind!=null ? `${st.maxWind} m/s @ ${fmtT(st.maxAt.t)}` : "—") +
+    cell("最低气压", st.minPres!=null ? `${st.minPres} hPa @ ${fmtT(st.minAt.t)}` : "—") +
+    cell("平均移速", st.meanSpeed!=null ? st.meanSpeed+" km/h" : "—") +
+    cell("轨迹点数", st.n);
+  renderTime();
+}
+
+function renderTime(){
+  const tr = storm._dtrack, p = tr[tIdx];
+  if(!eyeMarker){
+    const el = document.createElement("div"); el.className = "eye";
+    eyeMarker = new maplibregl.Marker({element:el}).setLngLat([p.lon,p.lat]).addTo(map);
+  } else eyeMarker.setLngLat([p.lon,p.lat]);
+  const segs = [];
+  for(let i=1;i<=tIdx;i++)
+    segs.push({type:"Feature",properties:{grade:tr[i].grade},
+      geometry:{type:"LineString",coordinates:[[tr[i-1].lon,tr[i-1].lat],[tr[i].lon,tr[i].lat]]}});
+  map.getSource("trk-line").setData({type:"FeatureCollection",features:segs});
+  if(trkPtFC){
+    trkPtFC.features.forEach(f=>{ f.properties.future = f.properties.idx > tIdx ? 1 : 0; });
+    map.getSource("trk-pt").setData(trkPtFC);
+  }
+  growGeometry();
+  const g = gradeOf(p.grade);
+  $("#tl-when").textContent = fmtT(p.t);
+  $("#tl-grade").innerHTML = `<span class="dot" style="background:${g.c}"></span>${g.zh}` +
+    (tIdx===tr.length-1 ? "" : ' <span style="color:var(--dim)">· 历史回放</span>');
+  $("#scrub").value = tIdx;
+  if(chartApi) chartApi.setCursor(tIdx);
+}
+
+function growGeometry(){
+  const tr = storm._dtrack;
+  if(!tr.length || tIdx < 1) return;
+  const prev = tr[tIdx-1], cur = tr[tIdx];
+  const k = Math.max(0, Math.min(1, frac));
+  const lat = prev.lat + (cur.lat - prev.lat) * k;
+  const lon = prev.lon + (cur.lon - prev.lon) * k;
+  if(eyeMarker) eyeMarker.setLngLat([lon,lat]);
+  map.getSource("trk-grow").setData({type:"FeatureCollection",features:[{
+    type:"Feature",properties:{grade:cur.grade},
+    geometry:{type:"LineString",coordinates:[[prev.lon,prev.lat],[lon,lat]]}}]});
+}
+
+/* ---------- 播放 ---------- */
+function animLoop(ts){
+  if(!playing) return;
+  const dt = Math.min(ts - lastTs, 150);
+  lastTs = ts;
+  frac += dt / (SPEED_BASE / SPEEDS[speedIdx]);
+  if(frac >= 1){
+    frac = 0;
+    if(tIdx < storm._dtrack.length - 1){ tIdx++; renderTime(); }
+    else { stopPlay(); frac = 1; renderTime(); }
+  } else growGeometry();
+  raf = requestAnimationFrame(animLoop);
+}
+function togglePlay(){ playing ? stopPlay() : startPlay(); }
+function startPlay(){
+  if(!storm || storm._dtrack.length < 2) return;
+  playing = true;
+  $("#play").setAttribute("aria-label","暂停");
+  $("#ico-play").style.display = "none";
+  $("#ico-pause").style.display = "";
+  if(frac >= 1){
+    if(tIdx >= storm._dtrack.length - 1){ tIdx = 0; renderTime(); }
+    else { tIdx++; frac = 0; renderTime(); }
+  }
+  lastTs = performance.now();
+  raf = requestAnimationFrame(animLoop);
+}
+function stopPlay(){
+  if(!playing && !raf) return;
+  playing = false;
+  cancelAnimationFrame(raf); raf = 0;
+  $("#play").setAttribute("aria-label","播放");
+  $("#ico-play").style.display = "";
+  $("#ico-pause").style.display = "none";
+}
+function seekTo(i){
+  if(!storm) return;
+  const tr = storm._dtrack;
+  tIdx = Math.max(0, Math.min(tr.length-1, i));
+  frac = playing ? 0 : 1;
+  lastTs = performance.now();
+  renderTime();
+}
+function setSpeed(i){
+  speedIdx = i;
+  document.querySelectorAll("#speed button").forEach((b,j)=>{
+    b.setAttribute("aria-pressed", j===i); });
+  if(playing) lastTs = performance.now();
+}
+
+/* ---------- 地图 ---------- */
+function buildMap(){
+  map = new maplibregl.Map({
+    container:"map",
+    attributionControl:false,
+    style:{version:8, sources:{land:{type:"geojson",data:LAND}}, layers:[
+      {id:"bg",type:"background",paint:{"background-color":"#0b1424"}},
+      {id:"land",type:"fill",source:"land",paint:{"fill-color":"#141f31"}},
+      {id:"coast",type:"line",source:"land",paint:{"line-color":"#2c4a63","line-width":1}},
+    ]},
+    center:[128,24], zoom:3.4, minZoom:2.2, maxZoom:9, maxBounds:[[84,-12],[182,58]],
+  });
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}), "bottom-left");
+  map.addControl(new maplibregl.AttributionControl({compact:true,
+    customAttribution:"陆地 Natural Earth · 台风数据见页脚"}), "bottom-left");
+  map.on("load", ()=>{
+    const feats = [];
+    for(let lon=90; lon<=175; lon+=5)
+      feats.push({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:[[lon,-5],[lon,55]]}});
+    for(let lat=-5; lat<=55; lat+=5)
+      feats.push({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:[[90,lat],[176,lat]]}});
+    map.addSource("grat",{type:"geojson",data:{type:"FeatureCollection",features:feats}});
+    map.addLayer({id:"grat",type:"line",source:"grat",
+      paint:{"line-color":"#1b3247","line-width":.6}},"land");
+    const gradeColor = ["match",["get","grade"],
+      ...Object.entries(TL.GRADE).flatMap(([k,v])=>[k,v.c]), "#8fa5b8"];
+    map.addSource("trk-line",{type:"geojson",data:emptyFC()});
+    map.addLayer({id:"trk-line",type:"line",source:"trk-line",
+      layout:{"line-cap":"round"},paint:{"line-color":gradeColor,"line-width":2.4}});
+    map.addSource("trk-grow",{type:"geojson",data:emptyFC()});
+    map.addLayer({id:"trk-grow",type:"line",source:"trk-grow",
+      layout:{"line-cap":"round"},
+      paint:{"line-color":gradeColor,"line-width":3,"line-opacity":.9,"line-blur":1.2}});
+    map.addSource("trk-pt",{type:"geojson",data:emptyFC()});
+    map.addLayer({id:"trk-pt",type:"circle",source:"trk-pt",
+      paint:{"circle-color":gradeColor,
+        "circle-radius":["interpolate",["linear"],["zoom"],3,2.6,7,5],
+        "circle-stroke-color":"#070b14","circle-stroke-width":1}});
+    map.addLayer({id:"trk-future",type:"circle",source:"trk-pt",
+      filter:["==",["get","future"],1],
+      paint:{"circle-color":"#070b14","circle-opacity":.55,
+        "circle-radius":["interpolate",["linear"],["zoom"],3,2.6,7,5]}});
+    mapReady = true;
+    window.dismissSplash && window.dismissSplash();
+    requestAnimationFrame(()=>map.resize());
+  });
+}
+function emptyFC(){ return {type:"FeatureCollection",features:[]}; }
+
+/* ---------- 交互 ---------- */
+function bindUI(){
+  $("#scrub").addEventListener("input", e=>{
+    tIdx = +e.target.value; stopPlay(); frac = 1; renderTime(); });
+  $("#step-b").onclick = ()=> seekTo(tIdx-1);
+  $("#step-f").onclick = ()=> seekTo(tIdx+1);
+  $("#play").onclick = togglePlay;
+  document.addEventListener("keydown", e=>{
+    if(e.target.tagName === "INPUT") return;
+    if(e.key === " "){ e.preventDefault(); togglePlay(); }
+    else if(e.key === "ArrowLeft") seekTo(tIdx-1);
+    else if(e.key === "ArrowRight") seekTo(tIdx+1);
+    else if(e.key === "[") setSpeed(Math.max(0, speedIdx-1));
+    else if(e.key === "]") setSpeed(Math.min(SPEEDS.length-1, speedIdx+1));
+  });
+  const spBox = $("#speed"); spBox.innerHTML = "";
+  SPEEDS.forEach((v,i)=>{
+    const b = document.createElement("button");
+    b.textContent = v + "×";
+    b.setAttribute("aria-pressed", i===speedIdx);
+    b.onclick = ()=> setSpeed(i);
+    spBox.appendChild(b);
+  });
+  const chips = $("#chips");
+  chips.innerHTML = `<button aria-pressed="true" data-y="">全部</button>` +
+    YEARS.map(y=>`<button aria-pressed="false" data-y="${y}">${y}</button>`).join("");
+  chips.querySelectorAll("button").forEach(b=>{
+    b.onclick = ()=>{
+      year = b.dataset.y || null;
+      chips.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+      renderList(); renderYearChart();
+    };
+  });
+  const tabs = $("#tabs");
+  tabs.innerHTML = Object.entries(SORTS).map(([k,v])=>
+    `<button aria-pressed="${k==="recent"}" data-k="${k}">${v.zh}</button>`).join("");
+  tabs.querySelectorAll("button").forEach(b=>{
+    b.onclick = ()=>{
+      tab = b.dataset.k;
+      tabs.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+      renderList();
+    };
+  });
+  $("#search").addEventListener("input", e=>{ query = e.target.value.trim(); renderList(); });
+}
+
+/* ---------- 启动 ---------- */
+(async function boot(){
+  try{
+    [LAND, REC] = await Promise.all([
+      loadJSON("__LAND__", "assets/land_wp.json"),
+      loadJSON("__RECORDS__", "../data/records.json"),
+    ]);
+  }catch(err){
+    window.dismissSplash && window.dismissSplash();
+    $("#err").style.display = "block";
+    $("#err").textContent = "数据加载失败：" + err.message +
+      "\n\n请在项目根执行 python3 scripts/build_records.py 后重试。";
+    return;
+  }
+  REC.storms.forEach(s=>{ if(!YEARS.includes(s.year)) YEARS.push(s.year); });
+  YEARS.sort((a,b)=>b-a);
+  $("#sub").textContent = `${YEARS[YEARS.length-1]} – ${YEARS[0]} 年 · ` +
+    `${REC.n_storms} 个台风归档 · 路径长度与生命时长由 data/records.json 预计算`;
+  $("#src").textContent = "数据来源：浙江省水利厅台风路径系统（非官方转发，仅技术演示）";
+  bindUI();
+  buildMap();
+  renderList();
+  renderYearChart();
+})();
+</script>
+</body>
+</html>

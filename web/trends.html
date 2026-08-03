@@ -4,17 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>台风预报复盘 · 27 年总榜</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='2' opacity='.45'/%3E%3Cpath d='M16 3a13 13 0 0 1 13 13' fill='none' stroke='%2322d3ee' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
 <script src="splash.js" data-title="预报复盘" data-en="TYPHOON HINDCAST"></script>
 <style>
 :root{
-  --ink:#0a1420; --panel:#0f1f30; --line:rgba(87,215,201,.14);
-  --text:#d7e3ee; --dim:#7b93a8; --accent:#57d7c9; --grid:#1b3247;
-  --mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
-  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --bg0:#070b14; --bg1:#0d1626; --panel:rgba(13,22,38,.55);
+  --glass:rgba(255,255,255,.09); --line:rgba(34,211,238,.14);
+  --text:#d7e3ee; --dim:#7b93a8; --accent:#22d3ee; --grid:#1b3247;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans);
+body{margin:0;background:
+    radial-gradient(1100px 700px at 85% -10%,rgba(34,211,238,.05),transparent 60%),
+    linear-gradient(165deg,var(--bg0),var(--bg1));
+  color:var(--text);font-family:var(--sans);
   font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.num,table{font-variant-numeric:tabular-nums}
 .wrap{max-width:1120px;margin:0 auto;padding:26px 22px 60px}
 header .lab{font-size:11px;letter-spacing:.32em;color:var(--dim)}
 header h1{margin:8px 0 6px;font-size:26px;font-weight:700;letter-spacing:.04em;
@@ -22,8 +28,9 @@ header h1{margin:8px 0 6px;font-size:26px;font-weight:700;letter-spacing:.04em;
 .tag{font-size:11px;padding:2px 8px;border-radius:3px;font-weight:700;
   background:var(--accent);color:#08131d;letter-spacing:.06em}
 header .sub{color:var(--dim);font-family:var(--mono);font-size:11px}
-section{margin-top:26px;background:var(--panel);border:1px solid var(--line);
-  border-radius:8px;padding:16px 18px}
+section{margin-top:26px;background:var(--panel);border:1px solid var(--glass);
+  border-radius:10px;padding:16px 18px;backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px)}
 h2{margin:0 0 4px;font-size:14px;font-weight:600}
 h2 .q{font-size:11px;color:var(--dim);font-weight:400;margin-left:8px}
 .note{font-size:11px;color:var(--dim);margin:2px 0 14px}
@@ -156,7 +163,7 @@ const ticks = (max,step)=>{ const t=[]; for(let v=0;v<=max+1e-6;v+=step) t.push(
     return `<tr class="${i===0?"best":""}"><td class="l">${i+1} <b style="color:${m.c}">${x.a}</b>
       <span style="color:var(--dim)">${m.zh}</span></td>
       <td class="l"><span class="bar" style="width:${(x.posMean/maxPos*100).toFixed(0)}%;background:${m.c}"></span></td>
-      <td>${x.posMean}</td><td style="color:var(--dim)">${x.n.toLocaleString()}</td></tr>`;
+      <td>${x.posMean.toFixed(1)}</td><td style="color:var(--dim)">${x.n.toLocaleString()}</td></tr>`;
   }).join("");
 
   /* 误差 vs 提前量 */
@@ -181,10 +188,11 @@ const ticks = (max,step)=>{ const t=[]; for(let v=0;v<=max+1e-6;v+=step) t.push(
   legend($("#leg-year"), yearSeries);
 
   /* 强度误差 */
+  const f1 = v => v==null ? "—" : v.toFixed(1);
   $("#intens").innerHTML = ranked.map(x=>{
     const m=AG[x.a]||{c:"#9ab"};
     return `<tr><td class="l"><b style="color:${m.c}">${x.a}</b></td>
-      <td>${x.windMean??"—"}</td><td>${x.presMean??"—"}</td><td style="color:var(--dim)">${x.posMean}</td></tr>`;
+      <td>${f1(x.windMean)}</td><td>${f1(x.presMean)}</td><td style="color:var(--dim)">${f1(x.posMean)}</td></tr>`;
   }).join("");
 })();
 </script>

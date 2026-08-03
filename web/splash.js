@@ -9,24 +9,24 @@
   var en = (s && s.getAttribute("data-en")) || "TYPHOON LAB";
 
   var css = "\
-#splash{position:fixed;inset:0;z-index:50;background:var(--ink,#0a1420);\
+#splash{position:fixed;inset:0;z-index:50;background:var(--ink,#070b14);\
   display:grid;place-items:center;transition:opacity .55s ease}\
 #splash.gone{opacity:0;pointer-events:none}\
 #splash .sp-wrap{display:flex;flex-direction:column;align-items:center;gap:22px}\
 #splash .sp-radar{width:132px;height:132px;position:relative}\
-#splash .sp-radar i{position:absolute;border:1px solid rgba(87,215,201,.18);border-radius:50%}\
+#splash .sp-radar i{position:absolute;border:1px solid rgba(34,211,238,.18);border-radius:50%}\
 #splash .sp-radar i.r1{inset:0}#splash .sp-radar i.r2{inset:22px}#splash .sp-radar i.r3{inset:44px}\
 #splash .cross{position:absolute;inset:0}\
-#splash .cross::before,#splash .cross::after{content:'';position:absolute;background:rgba(87,215,201,.14)}\
+#splash .cross::before,#splash .cross::after{content:'';position:absolute;background:rgba(34,211,238,.14)}\
 #splash .cross::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-.5px)}\
 #splash .cross::after{top:50%;left:0;right:0;height:1px;transform:translateY(-.5px)}\
 #splash .sp-sweep{position:absolute;inset:0;border-radius:50%;\
-  background:conic-gradient(from 0deg,transparent 0deg,rgba(87,215,201,.32) 42deg,transparent 62deg);\
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(34,211,238,.32) 42deg,transparent 62deg);\
   animation:sp-spin 1.7s linear infinite}\
 #splash .sp-pulse{position:absolute;inset:0;border-radius:50%;\
-  border:1px solid rgba(87,215,201,.5);animation:sp-pulse 2.2s ease-out infinite}\
+  border:1px solid rgba(34,211,238,.5);animation:sp-pulse 2.2s ease-out infinite}\
 #splash .sp-eye{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;\
-  border-radius:50%;background:var(--accent,#57d7c9);box-shadow:0 0 14px rgba(87,215,201,.8)}\
+  border-radius:50%;background:var(--accent,#22d3ee);box-shadow:0 0 14px rgba(34,211,238,.8)}\
 #splash .sp-title{text-align:center;opacity:0;animation:sp-fade .9s ease .25s forwards}\
 #splash .sp-title .zh{font-size:22px;font-weight:700;letter-spacing:.4em;padding-left:.4em;color:var(--text,#d7e3ee)}\
 #splash .sp-title .en{margin-top:8px;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.42em;color:var(--dim,#7b93a8)}\

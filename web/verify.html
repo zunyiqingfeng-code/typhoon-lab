@@ -4,22 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>台风复盘台 · 回溯校验</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='2' opacity='.45'/%3E%3Cpath d='M16 3a13 13 0 0 1 13 13' fill='none' stroke='%2322d3ee' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
 <script src="splash.js" data-title="台风复盘台" data-en="TYPHOON HINDCAST"></script>
 <style>
 :root{
-  --ink:#0a1420; --sea:#0d1b2c; --land:#16283a; --coast:#2c4a63;
-  --panel:rgba(13,26,40,.9); --line:rgba(87,215,201,.14);
-  --text:#d7e3ee; --dim:#7b93a8; --accent:#57d7c9; --warn:#e33e3e; --good:#35c46a;
-  --mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
-  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-  --td:#35c46a; --ts:#3f8ef7; --sts:#f2c744; --ty:#f2872e; --sty:#ef5aa0; --sup:#e33e3e;
+  --bg0:#070b14; --bg1:#0d1626; --sea:#0b1424; --land:#141f31; --coast:#2c4a63;
+  --panel:rgba(13,22,38,.55); --glass:rgba(255,255,255,.09);
+  --line:rgba(34,211,238,.14);
+  --text:#d7e3ee; --dim:#7b93a8; --accent:#22d3ee; --warn:#f87171; --good:#35c46a;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --r:10px;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{background:var(--ink);color:var(--text);font-family:var(--sans);
+body{background:
+    radial-gradient(1200px 800px at 78% -10%,rgba(34,211,238,.05),transparent 60%),
+    radial-gradient(1000px 700px at 10% 108%,rgba(59,130,246,.07),transparent 60%),
+    linear-gradient(160deg,var(--bg0),var(--bg1));
+  color:var(--text);font-family:var(--sans);
   font-size:13px;overflow:hidden}
 #map{position:absolute;inset:0}
+.num{font-variant-numeric:tabular-nums}
 
 /* 顶栏 */
 #brand{position:absolute;top:14px;left:16px;z-index:5;pointer-events:none}
@@ -34,17 +41,18 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);
 
 /* 台风选择器 */
 #picker{position:absolute;top:14px;right:16px;z-index:6;width:280px}
-#picker input{width:100%;background:var(--panel);border:1px solid var(--line);
-  color:var(--text);font:inherit;font-size:12px;padding:7px 10px;border-radius:5px;
+#picker input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--glass);
+  color:var(--text);font:inherit;font-size:12px;padding:9px 10px;border-radius:8px;
   outline:none}
 #picker input:focus{border-color:var(--accent)}
 #plist{margin-top:6px;max-height:340px;overflow-y:auto;scrollbar-width:thin;
-  background:var(--panel);border:1px solid var(--line);border-radius:6px;display:none}
+  background:var(--panel);border:1px solid var(--glass);border-radius:8px;display:none;
+  backdrop-filter:blur(10px)}
 #plist.open{display:block}
 .pyear{font-family:var(--mono);font-size:10px;color:var(--dim);padding:6px 10px 2px;
-  position:sticky;top:0;background:var(--panel);letter-spacing:.1em}
-.prow{display:flex;align-items:center;gap:8px;padding:5px 10px;cursor:pointer}
-.prow:hover{background:rgba(87,215,201,.08)}
+  position:sticky;top:0;background:var(--bg1);letter-spacing:.1em}
+.prow{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer}
+.prow:hover{background:rgba(34,211,238,.08)}
 .prow .dot{width:8px;height:8px;border-radius:2px;flex:none}
 .prow .nm{flex:1}
 .prow .meta{font-family:var(--mono);font-size:10px;color:var(--dim)}
@@ -53,41 +61,44 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);
 #rail{position:absolute;top:92px;right:16px;z-index:5;width:280px;
   display:flex;flex-direction:column;gap:10px;max-height:calc(100% - 210px);
   overflow-y:auto;scrollbar-width:thin}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;
-  padding:10px 12px;backdrop-filter:blur(3px)}
+.card{background:var(--panel);border:1px solid var(--glass);border-radius:var(--r);
+  padding:10px 12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .card h3{margin:0 0 8px;font-size:10px;font-weight:400;color:var(--dim);
   letter-spacing:.22em}
-.ag-row{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;
+.ag-row{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;
   user-select:none}
-.ag-row input{accent-color:var(--accent)}
+.ag-row input{accent-color:var(--accent);width:16px;height:16px}
 .ag-row .sw{width:16px;height:0;border-top:3px solid currentColor;border-radius:2px}
 .ag-row .nm{font-family:var(--mono);font-size:12px}
 .ag-row .zh{font-size:10px;color:var(--dim)}
 .ag-row .err{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text)}
 
 /* 误差榜 */
-table.board{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
-table.board th{font-weight:400;color:var(--dim);font-size:10px;padding:3px 4px;
+table.board{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;
+  font-variant-numeric:tabular-nums}
+table.board th{font-weight:400;color:var(--dim);font-size:10px;padding:3px 2px;
   text-align:right}
 table.board th.l,table.board td.l{text-align:left}
-table.board td{padding:3px 4px;text-align:right}
+table.board td{padding:3px 2px;text-align:right}
 table.board tr.best td{color:var(--good)}
 .rankdot{display:inline-block;width:16px;color:var(--dim);text-align:center}
 
 /* 底部：发布时刻时间轴 */
 #tl{position:absolute;left:16px;right:16px;bottom:34px;z-index:5;
-  background:var(--panel);border:1px solid var(--line);border-radius:6px;
-  padding:8px 12px 10px;backdrop-filter:blur(3px)}
+  background:var(--panel);border:1px solid var(--glass);border-radius:var(--r);
+  padding:8px 12px 10px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 #tl-top{display:flex;align-items:center;gap:10px}
-#play{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);
-  background:none;color:var(--accent);cursor:pointer;font-size:12px;flex:none}
+#play{width:30px;height:30px;border-radius:7px;border:1px solid var(--glass);
+  background:rgba(255,255,255,.05);color:var(--accent);cursor:pointer;font-size:12px;flex:none}
+#play:focus-visible{outline:2px solid var(--accent)}
 #tl-when{font-family:var(--mono);font-size:12px;min-width:150px}
 #tl-lab{font-size:11px;color:var(--dim)}
 #scrub{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
   background:#1b3247;outline:none}
-#scrub::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:20px;
-  border-radius:3px;background:var(--accent);cursor:pointer}
-#scrub::-moz-range-thumb{width:12px;height:20px;border-radius:3px;
+#scrub::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:22px;
+  border-radius:4px;background:var(--accent);cursor:pointer;
+  box-shadow:0 0 10px rgba(34,211,238,.5)}
+#scrub::-moz-range-thumb{width:14px;height:22px;border-radius:4px;
   background:var(--accent);border:0;cursor:pointer}
 
 #foot{position:absolute;left:16px;right:16px;bottom:8px;z-index:5;
@@ -95,21 +106,32 @@ table.board tr.best td{color:var(--good)}
 a{color:var(--accent)}
 
 #notice{position:absolute;inset:0;display:grid;place-items:center;z-index:4;
-  background:rgba(10,20,32,.5);pointer-events:none}
-#notice .box{background:var(--panel);border:1px solid var(--line);border-radius:8px;
-  padding:22px 28px;max-width:440px;text-align:center;line-height:1.9;pointer-events:auto}
+  background:rgba(7,11,20,.5);pointer-events:none}
+#notice .box{background:var(--panel);border:1px solid var(--glass);border-radius:10px;
+  padding:22px 28px;max-width:440px;text-align:center;line-height:1.9;pointer-events:auto;
+  backdrop-filter:blur(10px)}
 #notice code{font-family:var(--mono);color:var(--accent)}
 .maplibregl-popup-content{background:var(--panel);color:var(--text);
-  font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:5px}
-.maplibregl-ctrl-attrib{background:rgba(13,26,40,.6)!important;font-size:10px}
+  font-family:var(--mono);font-size:11px;border:1px solid var(--glass);border-radius:6px}
+.maplibregl-ctrl-attrib{background:rgba(13,22,38,.6)!important;font-size:10px}
+.maplibregl-ctrl-group{border-radius:8px!important;overflow:hidden}
+.maplibregl-ctrl-group button{background:rgba(13,22,38,.7)!important}
+/* 缩放/署名控件放左下、抬到时间轴上方 */
+.maplibregl-ctrl-bottom-left{bottom:108px}
 
 @media(max-width:720px){
-  #picker{left:12px;right:12px;width:auto}
-  #rail{left:12px;right:12px;top:auto;bottom:104px;width:auto;max-height:150px;
+  #picker{left:12px;right:12px;width:auto;top:64px}
+  #plist{max-height:240px}
+  #rail{left:12px;right:12px;top:auto;bottom:126px;width:auto;max-height:150px;
     flex-direction:row;overflow-x:auto;overflow-y:hidden}
   #rail .card{min-width:230px;flex:none}
   #brand .zh{font-size:19px}
   #tl-lab{display:none}
+  #play{width:44px;height:44px;border-radius:10px}
+  #tl{bottom:72px}
+  #foot{flex-direction:column;gap:2px;font-size:9px}
+  .maplibregl-ctrl-bottom-left{bottom:284px}
+  .maplibregl-ctrl-bottom-left .maplibregl-ctrl-group{display:none}
 }
 </style>
 </head>
@@ -150,7 +172,7 @@ a{color:var(--accent)}
     <span id="tl-when">—</span>
     <input id="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="发布时刻">
   </div>
-  <div id="tl-lab" style="margin-top:4px">拖动时间轴 = 倒回到该时刻，看各机构当时最新一版预报叠在实际路径上</div>
+  <div id="tl-lab" style="margin-top:4px">拖动时间轴 = 倒回到该时刻，看各机构当时最新一版预报叠在实际路径上 · 北京时</div>
 </div>
 
 <footer id="foot">
@@ -171,13 +193,14 @@ const AGENCY_META = {
   JTWC:{c:"#59b7ff",zh:"美国JTWC"}, HKO:{c:"#63e0b8",zh:"香港天文台"},
   CWA:{c:"#f2a0e0",zh:"台湾气象署"}, KMA:{c:"#c9d86b",zh:"韩国气象厅"},
 };
-const GRADE_C = {TD:"#35c46a",TS:"#3f8ef7",STS:"#f2c744",TY:"#f2872e",
-  STY:"#ef5aa0",SuperTY:"#e33e3e"};
+const GRADE_C = {TD:"#4a9eff",TS:"#35c46a",STS:"#f2c744",TY:"#f2872e",
+  STY:"#f05252",SuperTY:"#dc2626"};
 const BOARD_LEADS = [24,48,72,120];   // 误差榜显示的标准提前量档（评测仍算全部）
 const gcolor = g => GRADE_C[g] || "#8fa5b8";
+/* 统一按北京时显示，不随访客系统时区漂移 */
 const fmtT = ms => {
-  const d = new Date(ms), p = n => String(n).padStart(2,"0");
-  return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  const d = new Date(ms + 8 * 3600e3), p = n => String(n).padStart(2,"0");
+  return `${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
 };
 
 let map=null, LAND=null, INDEX=null, mapReady=false;
@@ -264,7 +287,11 @@ async function selectStorm(meta){
   // 发布时刻停靠点 = 全机构 issued_at 并集
   const set = new Set(); (s.forecasts||[]).forEach(f=>set.add(f.issued_at));
   stops = [...set].sort();
+  // 默认停在仍有 ≥24h 可核验窗口的最近一次发布：
+  // 最末几次发布整份落在实况覆盖之外，误差列全为空，首屏会看不出这页在干什么
+  const endMs = s.track.length ? Date.parse(s.track[s.track.length-1].t) : 0;
   cursor = stops.length-1;
+  while(cursor>0 && endMs - Date.parse(stops[cursor]) < 24*3600e3) cursor--;
   // 机构开关
   for(const ag of score.agencies) if(!(ag in agOn)) agOn[ag]=true;
   buildAgencyList(); buildBoard();
@@ -317,15 +344,17 @@ function emptyFC(){ return {type:"FeatureCollection",features:[]}; }
 function buildMap(){
   map = new maplibregl.Map({
     container:"map",
-    attributionControl:{compact:true,customAttribution:"陆地 Natural Earth · 台风数据见页脚"},
+    attributionControl:false,
     style:{version:8, sources:{land:{type:"geojson",data:LAND}}, layers:[
-      {id:"bg",type:"background",paint:{"background-color":"#0d1b2c"}},
-      {id:"land",type:"fill",source:"land",paint:{"fill-color":"#16283a"}},
+      {id:"bg",type:"background",paint:{"background-color":"#0b1424"}},
+      {id:"land",type:"fill",source:"land",paint:{"fill-color":"#141f31"}},
       {id:"coast",type:"line",source:"land",paint:{"line-color":"#2c4a63","line-width":1}},
     ]},
     center:[128,24], zoom:3.4, minZoom:2.2, maxZoom:9, maxBounds:[[84,-12],[182,58]],
   });
-  map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-left");
+  map.addControl(new maplibregl.AttributionControl({compact:true,
+    customAttribution:"陆地 Natural Earth · 台风数据见页脚"}),"bottom-left");
   map.on("load",()=>{
     // 实况：已知段（实线）/ 发布后段（虚线）
     map.addSource("obs-past",{type:"geojson",data:emptyFC()});
@@ -338,7 +367,7 @@ function buildMap(){
     map.addSource("obs-pt",{type:"geojson",data:emptyFC()});
     map.addLayer({id:"obs-pt",type:"circle",source:"obs-pt",
       paint:{"circle-color":["get","c"],"circle-radius":3,
-        "circle-stroke-color":"#0a1420","circle-stroke-width":1}});
+        "circle-stroke-color":"#070b14","circle-stroke-width":1}});
     // 误差连线（预报点 → 同刻实况）
     map.addSource("err",{type:"geojson",data:emptyFC()});
     map.addLayer({id:"err",type:"line",source:"err",
@@ -349,7 +378,7 @@ function buildMap(){
       paint:{"line-color":["get","c"],"line-width":2,"line-dasharray":[2,1.5]}});
     map.addSource("fc-pt",{type:"geojson",data:emptyFC()});
     map.addLayer({id:"fc-pt",type:"circle",source:"fc-pt",
-      paint:{"circle-color":"#0d1b2c","circle-radius":3.5,
+      paint:{"circle-color":"#0b1424","circle-radius":3.5,
         "circle-stroke-color":["get","c"],"circle-stroke-width":1.6}});
     const popup=new maplibregl.Popup({closeButton:false,offset:8});
     map.on("click","fc-pt",e=>{ const p=e.features[0].properties;
@@ -360,7 +389,7 @@ function buildMap(){
     mapReady = true;
     window.dismissSplash && window.dismissSplash();
     requestAnimationFrame(()=>map.resize());   // 兜底：布局稳定后再对齐画布
-    showNotice("在右上角搜索并点选一个台风，开始复盘。<br>"+
+    showNotice("在搜索框搜索并点选一个台风，开始复盘。<br>"+
       "例如搜「巴威」。拖底部时间轴倒回不同发布时刻。");
   });
   bindUI();
@@ -376,9 +405,13 @@ function drawObserved(){
 
 function fitStorm(){
   const tr=storm.track, lons=tr.map(p=>p.lon), lats=tr.map(p=>p.lat);
+  /* 窄屏时卡片叠在底部，右 320px 的桌面留白会把轨迹挤出屏外 */
+  const pad = matchMedia("(max-width:720px)").matches
+    ? {top:130,bottom:300,left:26,right:26}
+    : {top:120,bottom:150,left:60,right:320};
   map.fitBounds([[Math.min(...lons),Math.min(...lats)],
     [Math.max(...lons),Math.max(...lats)]],
-    {padding:{top:120,bottom:150,left:60,right:320},duration:500,maxZoom:6});
+    {padding:pad,duration:500,maxZoom:6});
 }
 
 /* 找某机构截至 tc 的最新一版预报 */
@@ -441,9 +474,12 @@ function renderCursor(){
     el.style.color = e==null ? "var(--dim)" : "var(--text)";
   });
   const shown=Object.values(agErr).filter(x=>x!=null).length;
+  const endMs = tr.length ? Date.parse(tr[tr.length-1].t) : 0;
   $("#ag-hint").textContent = shown
     ? "当前发布时刻各机构最新一版预报 vs 实际路径，连线即误差。"
-    : "该时刻尚无机构发布预报，向右拖动时间轴。";
+    : (stops.length && tc > endMs - 24*3600e3
+      ? "该发布时刻之后实况已停编，无可对照点，向左拖动时间轴。"
+      : "该时刻尚无机构发布预报，向右拖动时间轴。");
 }
 function lineFC(coords){ return coords.length>1 ?
   {type:"FeatureCollection",features:[{type:"Feature",properties:{},

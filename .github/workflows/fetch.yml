@@ -36,6 +36,13 @@ jobs:
           python3 fetch_typhoon.py --reindex
           node scripts/score_archive.mjs
 
+      # JMA 实时镜像（前端直连受限时的降级通道）+ 档案指标预计算
+      # 两者都失败不打断主流程（realtime/records 有历史版本兜底）
+      - name: JMA 镜像与档案记录
+        run: |
+          python3 scripts/fetch_jma_live.py || echo "JMA 镜像抓取失败（忽略）"
+          python3 scripts/build_records.py || echo "records 构建失败（忽略）"
+
       # 台风数/轨迹点骤降 → 红灯，GitHub 自动邮件告警（免第三方）
       - name: 健康检查（趋势告警）
         run: python3 scripts/ci_healthcheck.py
