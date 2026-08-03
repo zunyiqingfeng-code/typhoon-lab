@@ -164,6 +164,18 @@ a{color:var(--accent)}
     <div style="font-size:10px;color:var(--dim);margin-top:6px">
       对同一有效时刻的实况位置取大圆距离；括号为样本数。</div>
   </section>
+  <section class="card" id="card-inten">
+    <h3>强度误差 · 预报对同刻实况</h3>
+    <table class="board"><thead id="inten-head"></thead><tbody id="inten-body"></tbody></table>
+    <div style="font-size:10px;color:var(--dim);margin-top:6px">
+      取 |预报−实况插值| 均值；风速 m/s、气压 hPa，两栏各为全程与 72h 档。</div>
+  </section>
+  <section class="card" id="card-sim">
+    <h3>相似路径检索</h3>
+    <button id="sim-btn" style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--glass);
+      color:var(--accent);font:inherit;font-size:12px;padding:8px;border-radius:8px;cursor:pointer">寻找形状相似的台风</button>
+    <div id="sim-list" style="margin-top:8px"></div>
+  </section>
 </aside>
 
 <div id="tl">
@@ -183,6 +195,7 @@ a{color:var(--accent)}
 <div id="notice"><div class="box" id="notice-box">载入中…</div></div>
 
 <script src="vendor/maplibre-gl.js"></script>
+<script src="tracklib.js"></script>
 <script src="eval.js"></script>
 <script>
 "use strict";
@@ -294,7 +307,7 @@ async function selectStorm(meta){
   while(cursor>0 && endMs - Date.parse(stops[cursor]) < 24*3600e3) cursor--;
   // 机构开关
   for(const ag of score.agencies) if(!(ag in agOn)) agOn[ag]=true;
-  buildAgencyList(); buildBoard();
+  buildAgencyList(); buildBoard(); buildIntensityBoard();
   const sc=$("#scrub"); sc.max=Math.max(0,stops.length-1); sc.value=cursor;
   await whenMapReady();   // 地图未就绪前不碰图层源
   drawObserved(); renderCursor(); fitStorm();
@@ -337,6 +350,22 @@ function buildBoard(){
       buckets.map(cell).join("");
     body.appendChild(tr);
   });
+}
+
+function buildIntensityBoard(){
+  $("#inten-head").innerHTML="<tr><th class=l>机构</th><th>Δ风</th><th>Δ压</th>"+
+    "<th>Δ风72h</th><th>Δ压72h</th></tr>";
+  const body=$("#inten-body"); body.innerHTML="";
+  for(const ag of score.agencies){
+    const t=score.table[ag], m=AGENCY_META[ag]||{c:"#9ab"};
+    const b72=t.byBucket[72];
+    const cell=v=>`<td>${v!=null?v.toFixed(1):"—"}</td>`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class=l><span style="color:${m.c}">${ag}</span></td>`+
+      cell(t.windMean)+cell(t.presMean)+
+      cell(b72&&b72.windMean)+cell(b72&&b72.presMean);
+    body.appendChild(tr);
+  }
 }
 
 /* ---------- 地图 ---------- */
@@ -485,10 +514,58 @@ function lineFC(coords){ return coords.length>1 ?
   {type:"FeatureCollection",features:[{type:"Feature",properties:{},
     geometry:{type:"LineString",coordinates:coords}}]} : emptyFC(); }
 
+/* ---------- 相似路径检索 ---------- */
+let SHAPES = null, simBusy = false;
+async function findSimilar(){
+  if(!storm) return;
+  const btn=$("#sim-btn"), box=$("#sim-list");
+  if(simBusy) return;
+  simBusy=true; btn.textContent="检索中…";
+  try{
+    if(!SHAPES) SHAPES = await getJSON("../data/shapes.json");
+    const cur = SHAPES.shapes.find(s=>s.id===storm.id);
+    if(!cur){ box.innerHTML="<div style='font-size:10px;color:var(--dim)'>当前台风无形状签名。</div>"; return; }
+    const hits=[];
+    for(const s of SHAPES.shapes){
+      if(s.id===cur.id) continue;
+      const ratio=cur.path_km/s.path_km;
+      if(ratio<1/3 || ratio>3) continue;                      // 尺度差太多
+      const d0=TL.haversineKm([cur.origin[0]/1e5,cur.origin[1]/1e5],
+        [s.origin[0]/1e5,s.origin[1]/1e5]);
+      if(d0>2600) continue;                                    // 起端不在同海域
+      const r=TL.shapeSimilarity(cur.pts,s.pts,cur.path_km,s.path_km);
+      if(r) hits.push({s,r});
+    }
+    hits.sort((a,b)=>a.r.eqKm-b.r.eqKm);
+    box.innerHTML="";
+    const note=document.createElement("div");
+    note.style.cssText="font-size:10px;color:var(--dim);margin-bottom:6px";
+    note.textContent="按起点对齐、总长归一化后的形状偏差排序（km）；尺度比超 3 倍或起端远离的不参与。";
+    box.appendChild(note);
+    for(const h of hits.slice(0,10)){
+      const row=document.createElement("div");
+      row.style.cssText="display:flex;gap:8px;align-items:center;padding:6px 2px;"+
+        "border-top:1px solid var(--glass);cursor:pointer";
+      row.innerHTML=`<span style="flex:1">${h.s.name_zh||h.s.name_en||h.s.id}</span>`+
+        `<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${h.s.year} · ${h.s.path_km}km</span>`+
+        `<span style="font-family:var(--mono);font-size:11px;color:var(--accent)">${Math.round(h.r.eqKm)}km</span>`;
+      row.onclick=()=>{ box.innerHTML=""; selectStorm({year:h.s.year,id:h.s.id,
+        name_zh:h.s.name_zh,name_en:h.s.name_en}); };
+      box.appendChild(row);
+    }
+    if(!hits.length) box.innerHTML="<div style='font-size:10px;color:var(--dim)'>未找到符合条件的相似路径。</div>";
+  }catch(err){
+    box.innerHTML="<div style='font-size:10px;color:var(--warn)'>检索失败："+err.message+"</div>";
+  }finally{
+    simBusy=false; btn.textContent="寻找形状相似的台风";
+  }
+}
+
 /* ---------- 交互 ---------- */
 function bindUI(){
   $("#scrub").addEventListener("input",e=>{ cursor=+e.target.value; stopPlay(); renderCursor(); });
   $("#play").onclick=()=> playing?stopPlay():startPlay();
+  $("#sim-btn").onclick=findSimilar;
 }
 function startPlay(){
   if(!stops.length) return;

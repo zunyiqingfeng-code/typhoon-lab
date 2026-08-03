@@ -268,10 +268,40 @@
     };
   }
 
+  /* 形状相似度：对两条起点对齐、总长归一化的 32 点形状签名（build_shapes.py 产物，
+   * 每组 [[latE5,lonE5]...]）逐点取大圆距离均值。平移/尺度不变（各减自身起点、除以
+   * 自身总长），方向敏感（反向走的不算相似）。返回等效 km（在两条路径平均尺度上），
+   * 0 为完全同形。预筛由调用方做（长度比/起点距离）。 */
+  function shapeSimilarity(aPts, bPts, aLenKm, bLenKm) {
+    var n = Math.min(aPts.length, bPts.length);
+    if (n < 4) return null;
+    var la = aLenKm || shapeLen(aPts), lb = bLenKm || shapeLen(bPts);
+    var d = 0;
+    for (var i = 0; i < n; i++) {
+      var ax = (aPts[i][1] - aPts[0][1]) / la * 1e-5 * 111.32;
+      var ay = (aPts[i][0] - aPts[0][0]) / la * 1e-5 * 110.57;
+      var bx = (bPts[i][1] - bPts[0][1]) / lb * 1e-5 * 111.32;
+      var by = (bPts[i][0] - bPts[0][0]) / lb * 1e-5 * 110.57;
+      d += Math.hypot(ax - bx, ay - by);
+    }
+    d /= n;
+    return { norm: d, eqKm: d * (la + lb) / 2,
+      lenRatio: la / lb, lenKmA: la, lenKmB: lb };
+  }
+  function shapeLen(pts) {
+    var s = 0;
+    for (var i = 1; i < pts.length; i++) {
+      s += haversineKm([pts[i - 1][0] / 1e5, pts[i - 1][1] / 1e5],
+        [pts[i][0] / 1e5, pts[i][1] / 1e5]);
+    }
+    return s;
+  }
+
   return {
     GRADE: GRADE, GRADE_ORDER: GRADE_ORDER, AGENCY: AGENCY,
     fmtT: fmtT, fmtFull: fmtFull, bjHour: bjHour, grade: grade, deg2zh: deg2zh,
     haversineKm: haversineKm, pathKm: pathKm, statsOf: statsOf,
     decimate: decimate, intensityChart: intensityChart,
+    shapeSimilarity: shapeSimilarity,
   };
 });

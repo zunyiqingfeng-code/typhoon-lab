@@ -291,6 +291,8 @@ table.radii td.lv{text-align:left;font-family:var(--sans)}
       <span class="nm">集合路径 ×40</span></label>
     <label class="agency-row"><input id="tg-cone" type="checkbox">
       <span class="nm">预报锥 1.5σ</span></label>
+    <label class="agency-row"><input id="tg-steer" type="checkbox">
+      <span class="nm">引导气流 500hPa</span></label>
     <div id="sim-params" style="font-family:var(--mono);font-size:10px;
       color:var(--dim);margin-top:6px;line-height:1.7"></div>
     <div id="sim-hint" style="font-size:10px;color:var(--dim);margin-top:4px"></div>
@@ -850,7 +852,10 @@ const FX = {
     fit(); addEventListener("resize", fit);
     map.on("move", ()=>this.clear());
   },
-  clear(){ this.ctx.clearRect(0,0,innerWidth,innerHeight); },
+  clear(){
+    this.ctx.clearRect(0,0,innerWidth,innerHeight);
+    if(steer.on && steer.data) steer.paint(this.ctx);
+  },
   spawn(){
     const s = sim.state, R = s.domainKm;
     const a = Math.random()*Math.PI*2;
@@ -885,6 +890,7 @@ const FX = {
       p.lat=nlat; p.lon=nlon;
     }
     ctx.globalAlpha = 1;
+    if(steer.on && steer.data) steer.paint(ctx);
     this.raf = requestAnimationFrame(()=>this.step());
   },
   set(on){
@@ -892,6 +898,83 @@ const FX = {
       this.clear(); this.step(); }
     if(!on && this.running){ this.running=false;
       cancelAnimationFrame(this.raf); this.clear(); }
+  },
+};
+
+/* ---- 引导气流 500hPa（Open-Meteo，境外 API 直连，失败静默不打扰） ---- */
+const steer = {
+  on:false, data:null, tMs:0, gridLats:[], gridLons:[],
+  BOX:{lonMin:100, lonMax:165, latMin:0, latMax:45, step:5},
+  buildGrid(){
+    const b=this.BOX, lats=[], lons=[];
+    for(let la=b.latMin; la<=b.latMax; la+=b.step)
+      for(let lo=b.lonMin; lo<=b.lonMax; lo+=b.step){ lats.push(la); lons.push(lo); }
+    this.gridLats=lats; this.gridLons=lons;
+  },
+  async load(){
+    if(this.data) return;
+    this.buildGrid();
+    const q = `latitude=${this.gridLats.join(",")}&longitude=${this.gridLons.join(",")}` +
+      `&pressure_level=500hPa&hourly=temperature_500hPa,wind_speed_500hPa,` +
+      `wind_direction_500hPa&forecast_hours=24&timezone=UTC`;
+    const ctl = new AbortController();
+    const to = setTimeout(()=>ctl.abort(), 9000);
+    try{
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?"+q,
+        {signal:ctl.signal});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const j = await r.json();
+      const cells = Array.isArray(j) ? j : [j];     // 多坐标时顶层为数组，一元素一坐标
+      const ws = [], wd = [];
+      for(const cell of cells){
+        const h = cell.hourly;
+        ws.push(h.wind_speed_500hPa.map(v=>v/3.6));  // km/h → m/s
+        wd.push(h.wind_direction_500hPa);
+      }
+      this.data = {time:cells[0].hourly.time, ws, wd};
+      this.tMs = Date.parse(this.data.time[0] + "Z");   // time 为 UTC 无时区串，补 Z 防本地时区偏移
+      FX.clear();
+    }catch(e){ console.warn("引导气流获取失败：", e.message); }
+    finally{ clearTimeout(to); }
+  },
+  /* 当前渲染时刻；预报场只覆盖当下起 24h，历史回放不画。
+     台风分析时刻通常落后当前整点数小时，允许 -4h 以内的取最近点 */
+  fieldAt(ms){
+    if(!this.data) return null;
+    const n = this.data.time.length;
+    let idx = Math.round((ms - this.tMs)/3600e3);
+    if(idx < -4 || idx >= n) return null;
+    idx = Math.max(0, Math.min(n-1, idx));
+    return {ws:this.data.ws, wd:this.data.wd, idx};
+  },
+  paint(ctx){
+    const tr = track();
+    if(!tr.length) return;
+    const f = this.fieldAt(Date.parse(tr[tIdx].t));
+    if(!f) return;
+    const dpr = Math.min(devicePixelRatio||1, 1.5);
+    ctx.strokeStyle = "#6fc5e8"; ctx.lineWidth = 1.2*dpr;
+    ctx.globalAlpha = .5;
+    for(let i=0;i<this.gridLats.length;i++){
+      const spd = f.ws[i][f.idx], dir = f.wd[i][f.idx];
+      if(spd==null || dir==null) continue;
+      const rad=(dir-180)*Math.PI/180;              // 气象风：来自方向 → 去向
+      const L = Math.min(14*dpr, 3*dpr + spd*0.55*dpr);
+      const a=this.gridLats[i], o=this.gridLons[i];
+      const A=map.project([o,a]), B=map.project(
+        [o+Math.sin(rad)*L/111.32/Math.cos(a*Math.PI/180),
+         a+Math.cos(rad)*L/110.574]);
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+      const ang=Math.atan2(B.y-A.y,B.x-A.x);
+      const h1=ang+2.6, h2=ang-2.6, hs=3.2*dpr;
+      ctx.beginPath();
+      ctx.moveTo(B.x,B.y);
+      ctx.lineTo(B.x-hs*Math.cos(h1), B.y-hs*Math.sin(h1));
+      ctx.moveTo(B.x,B.y);
+      ctx.lineTo(B.x-hs*Math.cos(h2), B.y-hs*Math.sin(h2));
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   },
 };
 
@@ -1023,6 +1106,11 @@ function bindUI(){
   for(const [id,key] of [["tg-wind","wind"],["tg-ens","ens"],["tg-cone","cone"]])
     $("#"+id).addEventListener("change", e=>{
       sim[key] = e.target.checked; renderSim(); });
+  $("#tg-steer").addEventListener("change", e=>{
+    steer.on = e.target.checked;
+    if(steer.on && !steer.data) steer.load();
+    else FX.clear();
+  });
   /* 抽屉 */
   const head = $("#rail-head");
   const toggleRail = () => {
