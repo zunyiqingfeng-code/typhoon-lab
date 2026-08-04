@@ -191,6 +191,7 @@ async function main() {
           try{ simState = { simCone: typeof sim!=='undefined' ? sim.cone : 'no-sim',
             tgConeDisabled: document.getElementById('tg-cone').disabled,
             selfFC: typeof storm!=='undefined' && storm() ? storm().forecasts.some(f=>f.agency==='SELF'&&f.cone) : 'no-storm',
+            selfEns: typeof storm!=='undefined' && storm() ? storm().forecasts.some(f=>f.agency==='SELF'&&f.ensemble) : 'no-storm',
             tIdx: typeof tIdx!=='undefined' ? tIdx : 'no-tIdx',
             trLen: typeof track!=='undefined' ? track().length : 'no-track',
             hasSimCone: typeof sim!=='undefined' && sim.state ? 'y' : 'n' }; }catch(e){ simState={err:e.message}; }
