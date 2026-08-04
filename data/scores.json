@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-04T03:46:11.103Z",
+ "generated_at": "2026-08-04T03:57:36.590Z",
  "n_storms": 456,
- "n_points": 371675,
+ "n_points": 371674,
  "years": [
   "2000",
   "2001",
@@ -124,10 +124,10 @@
    }
   },
   "HKO": {
-   "n": 40283,
+   "n": 40282,
    "posMean": 130.8,
    "windMean": 5.6,
-   "presMean": 0,
+   "presMean": null,
    "byLead": {
     "12": {
      "n": 1966,
@@ -878,8 +878,8 @@
     "n72": 343
    },
    "HKO": {
-    "n": 1295,
-    "posMean": 92.5,
+    "n": 1294,
+    "posMean": 92.6,
     "pos72Mean": 123.1,
     "n72": 208
    },

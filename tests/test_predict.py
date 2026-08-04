@@ -240,11 +240,36 @@ def test_intensity_offline_still_finite():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24)])
     predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
     predict.fetch_sst = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    predict.fetch_vws = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
     fc = predict.generate_self(st, None)
     assert fc is not None
     for p in fc["points"]:
         assert 8 <= p["wind_ms"] <= 50
         assert predict.grade_of(p["wind_ms"]) == p["grade"]
+
+
+# ---------------------------------------------------------------- 切变 VWS
+
+def test_vws_factor_clamp():
+    assert predict.vws_factor(None) == 1.0
+    assert predict.vws_factor(5.0) == 1.0          # 低切变无碍
+    assert abs(predict.vws_factor(10.0) - 0.92) < 1e-9
+    assert predict.vws_factor(30.0) == 0.35        # 高切变强抑制，封底
+
+
+def test_intensity_suppressed_by_vws():
+    """同 SST 下，强切变路径的风速上限明显低于弱切变。"""
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    predict.fetch_sst = lambda *a, **k: 30.0
+
+    predict.fetch_vws = lambda *a, **k: 5.0
+    lo = predict.generate_self(st, None)
+    predict.fetch_vws = lambda *a, **k: 25.0
+    hi = predict.generate_self(st, None)
+    w_lo = lo["points"][-1]["wind_ms"]
+    w_hi = hi["points"][-1]["wind_ms"]
+    assert w_lo > w_hi + 10                        # 高切变抑制增强 ≥10 m/s
 
 
 if __name__ == "__main__":

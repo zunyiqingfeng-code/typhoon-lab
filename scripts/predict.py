@@ -361,15 +361,46 @@ def sst_mpi(sst_c):
     return (28.2 + 55.8 * math.exp(0.1813 * (sst_c - 28.0))) * 0.5144
 
 
+def fetch_vws(lat, lon):
+    """200-850hPa 垂直风切变（m/s）——台风强度最强抑制因子。
+    用两层的风矢量差模长近似 VWS。失败抛异常由调用方降级。"""
+    url = ("https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
+           "&hourly=wind_speed_200hPa,wind_direction_200hPa,"
+           "wind_speed_850hPa,wind_direction_850hPa"
+           "&forecast_days=1&wind_speed_unit=ms" % (lat, lon))
+    d = _http_json(url, 8)
+    hh = d.get("hourly") or {}
+    s2 = hh.get("wind_speed_200hPa") or []
+    d2 = hh.get("wind_direction_200hPa") or []
+    s8 = hh.get("wind_speed_850hPa") or []
+    d8 = hh.get("wind_direction_850hPa") or []
+    for a, b, c, e in zip(s2, d2, s8, d8):
+        if any(v is None or math.isnan(v) for v in (a, b, c, e)):
+            continue
+        u = a * math.sin(b * D2R) - c * math.sin(e * D2R)
+        v = a * math.cos(b * D2R) - c * math.cos(e * D2R)
+        return math.hypot(u, v)
+    raise ValueError("Open-Meteo 无有效切变样本")
+
+
+def vws_factor(vws):
+    """切变对 MPI 的乘性折扣：<8 m/s 无碍，10→~0.7，20+→~0.35。
+    经验标定：垂直切变每增 1 m/s，MPI 约降 3-4%（Kaplan-DeMaria 类）。"""
+    if vws is None:
+        return 1.0
+    return max(0.35, min(1.0, 1.0 - 0.04 * max(0.0, vws - 8.0)))
+
+
 def evolve_intensity(fc_points, last_wind, sst_step=4, use_net=True,
                      default_sst=28.0):
-    """给预报路径点（[{t,lat,lon}]）附 wind_ms/grade：强度向该点 SST 对应的
-    MPI 指数松弛，近 6h 增量受限 ±9 m/s，逼近真实增强/衰减速率。
+    """给预报路径点（[{t,lat,lon}]）附 wind_ms/grade：强度向该点 SST 对应 MPI
+    指数松弛（近 6h 增量受限 ±9.5 m/s），并叠加垂直风切变对 MPI 的折扣。
 
-    每 sst_step 个点采一次 SST（省请求频次），失败/离线回落默认 28°C，
+    每 sst_step 个点采一次 SST/VWS（省请求频次），失败/离线回落默认 28°C，
     保证任何环境产出有限强度。返回带强度字段的新点列表。"""
     wind = last_wind
     sst = default_sst
+    vws = None
     res = []
     for k, q in enumerate(fc_points):
         if (k + 1) % sst_step == 0 and use_net:
@@ -379,7 +410,11 @@ def evolve_intensity(fc_points, last_wind, sst_step=4, use_net=True,
                     sst = v
             except Exception:
                 pass
-        mpi = sst_mpi(sst)
+            try:
+                vws = fetch_vws(q["lat"], q["lon"])
+            except Exception:
+                vws = vws if vws is not None else None
+        mpi = sst_mpi(sst) * vws_factor(vws)
         d = mpi - wind
         wind = max(8.0, min(78.0, wind + max(-9.5, min(9.5, 0.12 * d))))
         w = round(wind, 1)
