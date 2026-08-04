@@ -27,9 +27,14 @@ jobs:
         with:
           node-version: "20"
 
-      # 纯标准库，无需 pip install。全源失败退出码 2 → 自然红灯
+      # PAGASA 公报 PDF 解析需要 pypdf；其余源纯标准库
+      - name: 安装 pypdf（PAGASA 公报解析）
+        run: pip install pypdf
+
+      # multi：主源(zjwater/nmc) + 补充源(KMA/HKO/PAGASA/CWA/JTWC-UCAR)
+      # 补充源各自独立失败不拖累主流程；主源全失败退出码 2 → 自然红灯
       - name: 抓取并合并归档
-        run: python3 fetch_typhoon.py --source auto
+        run: python3 fetch_typhoon.py --source multi
 
       - name: 重建主索引与跨年评分
         run: |

@@ -30,6 +30,7 @@ import glob
 import gzip
 import io
 import json
+import math
 import os
 import re
 import sys
@@ -703,13 +704,77 @@ def health_check(latest_payload, index_payload):
     return issues
 
 
+def _haversine_km(lat1, lon1, lat2, lon2):
+    r = 6371.0
+    d2r = math.pi / 180
+    dlat = (lat2 - lat1) * d2r
+    dlon = (lon2 - lon1) * d2r
+    a = (math.sin(dlat / 2) ** 2 +
+         math.cos(lat1 * d2r) * math.cos(lat2 * d2r) * math.sin(dlon / 2) ** 2)
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def _last_point(st):
+    tr = st.get("track") or []
+    return tr[-1] if tr else None
+
+
+def match_extra_storm(extra, main_storms):
+    """把补充源的台风匹配到主列表：先精确名字，再位置+时间近似。"""
+    lp = _last_point(extra)
+    for m in main_storms:
+        if (extra.get("name_en") and m.get("name_en") and
+                extra["name_en"].upper() == m["name_en"].upper()):
+            return m
+        ex_id = str(extra.get("id") or "")
+        m_id = str(m.get("id") or "")
+        if (ex_id and m_id and ex_id == m_id and
+                ex_id.isdigit() and len(ex_id) == 6):
+            return m
+        if lp:
+            mlast = _last_point(m)
+            if mlast:
+                try:
+                    t1 = datetime.fromisoformat(lp["t"])
+                    t2 = datetime.fromisoformat(mlast["t"])
+                except ValueError:
+                    continue
+                if (abs((t1 - t2).total_seconds()) < 12 * 3600 and
+                        _haversine_km(lp["lat"], lp["lon"],
+                                      mlast["lat"], mlast["lon"]) < 400):
+                    return m
+    return None
+
+
+def merge_extra_into(main, extra, source_name):
+    """补充源并入主风暴：预报按 (agency, issued_at) 去重；实况轨迹点补缺。"""
+    fc = {(f["agency"], f.get("issued_at", "")): f
+          for f in main.get("forecasts", [])}
+    for f in extra.get("forecasts", []):
+        key = (f["agency"], f.get("issued_at", ""))
+        if key not in fc or len(f.get("points", [])) >= len(fc[key].get("points", [])):
+            fc[key] = f
+    by_t = {p["t"]: p for p in main.get("track", [])}
+    for p in extra.get("track", []):
+        if p["t"] not in by_t:
+            by_t[p["t"]] = p
+    main["track"] = sorted(by_t.values(), key=lambda p: p["t"])
+    main["forecasts"] = sorted(fc.values(),
+                               key=lambda f: (f["agency"], f.get("issued_at", "")))
+    if "sources" not in main:
+        main["sources"] = []
+    if source_name not in main["sources"]:
+        main["sources"].append(source_name)
+
+
 def run(source, year, out_dir, keep_days):
     now = datetime.now(TZ_BJ)
     fetched_at = now.isoformat()
     storms, used = None, None
 
     order = {"auto": ["zjwater", "nmc"], "zjwater": ["zjwater"],
-             "nmc": ["nmc"], "jma": ["jma"], "fixture": ["fixture"]}[source]
+             "nmc": ["nmc"], "jma": ["jma"], "fixture": ["fixture"],
+             "multi": ["zjwater", "nmc"]}[source]
     adapters = {"zjwater": ZjwaterAdapter(), "nmc": NmcAdapter(),
                 "jma": JmaAdapter()}
 
@@ -727,6 +792,28 @@ def run(source, year, out_dir, keep_days):
     if storms is None:
         log("全部真实数据源失败。")
         return 2
+
+    # multi 模式：抓补充源（KMA/HKO/PAGASA/CWA/JTWC-UCAR），并入主风暴
+    if source == "multi":
+        try:
+            import fetch_sources as fsrc
+        except ImportError:
+            fsrc = None
+            log("fetch_sources.py 缺失，跳过补充源")
+        if fsrc:
+            for src_name, extra_storms in fsrc.fetch_all_extra(year):
+                if not extra_storms:
+                    continue
+                matched = 0
+                for es in extra_storms:
+                    if not es.get("is_active"):
+                        continue
+                    m = match_extra_storm(es, storms)
+                    if m is not None:
+                        merge_extra_into(m, es, src_name)
+                        matched += 1
+                log("补充源 %s：%d 个台风，匹配并入 %d 个" %
+                    (src_name, len(extra_storms), matched))
 
     for s in storms:
         s["meta"] = {"source": used, "fetched_at": fetched_at}
@@ -843,7 +930,7 @@ def run_backfill(y0, y1, out_dir, delay=0.4):
 def main():
     ap = argparse.ArgumentParser(description="台风数据抓取管道")
     ap.add_argument("--source", default="auto",
-                    choices=["auto", "zjwater", "nmc", "jma", "fixture"])
+                    choices=["auto", "zjwater", "nmc", "jma", "fixture", "multi"])
     ap.add_argument("--year", type=int,
                     default=datetime.now(TZ_BJ).year)
     ap.add_argument("--out", default=os.path.join(
