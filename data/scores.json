@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-04T14:46:33.303Z",
+ "generated_at": "2026-08-04T15:34:55.236Z",
  "n_storms": 457,
- "n_points": 371797,
+ "n_points": 371812,
  "years": [
   "2000",
   "2001",
@@ -48,42 +48,43 @@
   "JMA",
   "JTWC",
   "KMA",
+  "PAGASA",
   "SELF"
  ],
  "overall": {
   "CMA": {
-   "n": 106878,
+   "n": 106886,
    "posMean": 109.4,
    "windMean": 4.4,
    "presMean": 7.8,
    "byLead": {
     "12": {
-     "n": 34336,
+     "n": 34337,
      "posMean": 48
     },
     "24": {
-     "n": 19422,
+     "n": 19423,
      "posMean": 78
     },
     "36": {
-     "n": 13452,
+     "n": 13453,
      "posMean": 95.7
     },
     "48": {
-     "n": 13214,
+     "n": 13215,
      "posMean": 132.8
     },
     "72": {
-     "n": 8746,
+     "n": 8747,
      "posMean": 200.8
     },
     "96": {
-     "n": 5119,
+     "n": 5120,
      "posMean": 265.9
     },
     "120": {
-     "n": 3143,
-     "posMean": 354.3
+     "n": 3144,
+     "posMean": 354.2
     }
    }
   },
@@ -160,17 +161,17 @@
    }
   },
   "JMA": {
-   "n": 63130,
+   "n": 63135,
    "posMean": 112.7,
    "windMean": 5,
    "presMean": 9.4,
    "byLead": {
     "12": {
-     "n": 15605,
+     "n": 15609,
      "posMean": 46.8
     },
     "24": {
-     "n": 19490,
+     "n": 19491,
      "posMean": 75
     },
     "36": {
@@ -247,15 +248,22 @@
     }
    }
   },
+  "PAGASA": {
+   "n": 0,
+   "posMean": null,
+   "windMean": null,
+   "presMean": null,
+   "byLead": {}
+  },
   "SELF": {
-   "n": 4,
-   "posMean": 35.6,
-   "windMean": 5.7,
+   "n": 6,
+   "posMean": 26.3,
+   "windMean": 4.6,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 4,
-     "posMean": 35.6
+     "n": 6,
+     "posMean": 26.3
     }
    }
   }
@@ -871,10 +879,10 @@
   },
   "2026": {
    "CMA": {
-    "n": 4400,
-    "posMean": 87.5,
-    "pos72Mean": 132.5,
-    "n72": 370
+    "n": 4408,
+    "posMean": 87.4,
+    "pos72Mean": 132.1,
+    "n72": 371
    },
    "CWA": {
     "n": 4646,
@@ -889,8 +897,8 @@
     "n72": 208
    },
    "JMA": {
-    "n": 3045,
-    "posMean": 90,
+    "n": 3050,
+    "posMean": 89.9,
     "pos72Mean": 131.3,
     "n72": 379
    },
@@ -906,9 +914,15 @@
     "pos72Mean": null,
     "n72": 0
    },
+   "PAGASA": {
+    "n": 0,
+    "posMean": null,
+    "pos72Mean": null,
+    "n72": 0
+   },
    "SELF": {
-    "n": 4,
-    "posMean": 35.6,
+    "n": 6,
+    "posMean": 26.3,
     "pos72Mean": null,
     "n72": 0
    }
