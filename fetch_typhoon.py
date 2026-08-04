@@ -839,6 +839,12 @@ def run(source, year, out_dir, keep_days):
                 fc["method"] = "|".join(fc.pop("methods", []))
                 s.setdefault("forecasts", []).append(fc)
                 n_self += 1
+                try:
+                    cone = self_predict.generate_cone(s, shapes_path)
+                    if cone:
+                        fc["cone"] = cone
+                except Exception as e:  # noqa: BLE001
+                    log("SELF 锥形生成失败 %s：%s" % (s.get("id"), e))
         except ImportError:
             log("scripts/predict.py 缺失，跳过 SELF 推演")
         if n_self:

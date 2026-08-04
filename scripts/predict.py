@@ -245,6 +245,61 @@ def _weights(h):
     return {"persistence": 1.0 - f, "steering": 0.55 * f, "analog": 0.45 * f}
 
 
+def _blend(methods, h):
+    """h 时刻三源加权合成 (方位角, km/h)。"""
+    nom = _weights(h)
+    wsum = sum(nom.get(name, 0.0) for name, _, _ in methods)
+    if wsum <= 1e-9:                       # 名义权重全落在不可用源 → 均分
+        wsum = len(methods)
+        nom = {name: 1.0 for name, _, _ in methods}
+    sx = sy = spd = tot = stot = 0.0
+    for name, br, sp in methods:
+        wt = nom.get(name, 0.0) / wsum
+        if not wt:
+            continue
+        tot += wt
+        sx += math.cos(br * D2R) * wt
+        sy += math.sin(br * D2R) * wt
+        if name != "analog":              # analog 只定方向，速度无时间戳不可信
+            spd += sp * wt
+            stot += wt
+    if tot <= 0:
+        return None
+    br = (math.degrees(math.atan2(sy, sx)) + 360.0) % 360.0
+    return br, (spd / stot if stot > 0 else 0.0)
+
+
+def _track(methods, start, t0, step=STEP_H, lead=LEAD_H,
+           rng=None, perturb=False, wind0=0):
+    """正推一条折线（每 step 一点）。start=(lat,lon)，t0=基准时刻(str)。
+
+    perturb=True 时做集合扰动：每步方向加高斯扰动（幅随提前量渐扩）、
+    速度乘对数正态扰动，产生一条"可能路径"成员。返回 [{t,lat,lon}]。"""
+    import random as _random
+    rng = rng or _random.Random(20260804)
+    lat, lon = start
+    prev_deg = None
+    pts = []
+    for k in range(1, int(lead / step) + 1):
+        h = k * step
+        r = _blend(methods, h)
+        if r is None:
+            continue
+        br, spd = r
+        if perturb:
+            dbr = 2.5 + 0.35 * h                       # 方向扰动度数（高斯σ）
+            br = (br + rng.gauss(0, dbr)) % 360.0
+            spd = max(0.3, spd * (1.0 + rng.gauss(0, 0.12)))
+        if prev_deg is not None:              # 平滑转向：夹在 ±8°/6h，防抖
+            dd = ((br - prev_deg + 540.0) % 360.0) - 180.0
+            br = prev_deg + max(-8.0, min(8.0, dd))
+        prev_deg = br
+        lat, lon = dest(lat, lon, br, spd * step)
+        pts.append({"t": (t0 + datetime.timedelta(hours=h)).isoformat(),
+                    "lat": round(lat, 3), "lon": round(lon, 3)})
+    return pts
+
+
 def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
     """引擎入口：storm 需含 track；shapes_path 指向 data/shapes.json（可缺）。
 
@@ -275,53 +330,77 @@ def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
     t_last = datetime.datetime.fromisoformat(last["t"])
     last_wind = last.get("wind_ms") or 0
 
-    # 每步算出方向/速度后打点；位置递推
-    lat, lon = last["lat"], last["lon"]
+    tr = _track(methods, (last["lat"], last["lon"]), t_last,
+                step=step, lead=lead, wind0=last_wind)
     points = []
-    prev_deg = None
-    for k in range(1, int(lead / step) + 1):
+    for k, q in enumerate(tr, 1):
         h = k * step
-        nom = _weights(h)
-        wsum = sum(nom.get(name, 0.0) for name, _, _ in methods)
-        if wsum <= 1e-9:                       # 名义权重全落在不可用源 → 均分
-            wsum = len(methods)
-            nom = {name: 1.0 for name, _, _ in methods}
-        sx = sy = spd = tot = 0.0
-        stot = 0.0
-        for name, br, sp in methods:
-            wt = nom.get(name, 0.0) / wsum
-            if not wt:
-                continue
-            tot += wt
-            sx += math.cos(br * D2R) * wt
-            sy += math.sin(br * D2R) * wt
-            if name != "analog":              # analog 只定方向，速度无时间戳不可信
-                spd += sp * wt
-                stot += wt
-        if tot <= 0:
-            continue
-        br = (math.degrees(math.atan2(sy, sx)) + 360.0) % 360.0
-        spd = spd / stot if stot > 0 else 0.0
-        dist = spd * step
-        if prev_deg is not None:                  # 平滑转向：夹在 ±8°/6h，防抖
-            dbr = ((br - prev_deg + 540.0) % 360.0) - 180.0
-            br = prev_deg + max(-8.0, min(8.0, dbr))
-        prev_deg = br
-        lat, lon = dest(lat, lon, br, dist)
         if last_wind:                              # 强度联动：随时间缓弱（不算实况）
-            wind = max(10.0, last_wind - k * step * 0.6)
+            wind = max(10.0, last_wind - h * 0.6)
         else:
-            wind = 28.0 - k * step * 0.4
-        points.append({
-            "t": (datetime.datetime.fromisoformat(last["t"]) +
-                  datetime.timedelta(hours=h)).isoformat(),
-            "lat": round(lat, 3), "lon": round(lon, 3),
-            "wind_ms": round(wind, 1),
-            "grade": grade_of(wind),
-        })
+            wind = 28.0 - h * 0.4
+        q["wind_ms"] = round(wind, 1)
+        q["grade"] = grade_of(wind)
+        points.append(q)
     return {
         "agency": "SELF",
         "issued_at": last["t"],
         "points": points,
         "methods": [m[0] for m in methods],
     }
+
+
+def generate_cone(storm, shapes_path=None, n_members=60,
+                  step=STEP_H, lead=LEAD_H, seed=20260804):
+    """蒙特卡洛集合：n_members 条扰动路径，按整条路径相对 P50 的平均偏移
+    排序，取 P10/P50/P90 三条折线（成员排序法，比逐坐标分位更抗畸形成员）。
+
+    返回 {"p10":[{t,lat,lon}..], "p50":[...], "p90":[...], "n":n} 或 None。"""
+    import random as _random
+    track = storm.get("track") or []
+    latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
+    if len(latlon) < 3:
+        return None
+    methods = []
+    pv = _persist_vector(track)
+    if pv:
+        methods.append(("persistence", pv[0], pv[1]))
+    try:
+        sv = fetch_steering(latlon[-1]["lat"], latlon[-1]["lon"])
+        methods.append(("steering", sv[0], sv[1]))
+    except Exception:
+        pass
+    if shapes_path:
+        av = analog_vector(track, shapes_path)
+        if av:
+            methods.append(("analog", av[0], av[1]))
+    if not methods:
+        return None
+    last = latlon[-1]
+    t_last = datetime.datetime.fromisoformat(last["t"])
+    start = (last["lat"], last["lon"])
+
+    base = _track(methods, start, t_last, step=step, lead=lead)
+    if not base:
+        return None
+    rng = _random.Random(seed)
+    members = []
+    for _ in range(n_members):
+        m = _track(methods, start, t_last, step=step, lead=lead,
+                   rng=rng, perturb=True)
+        if not m:
+            continue
+        off = sum(hav([b["lat"], b["lon"]], [q["lat"], q["lon"]])
+                  for b, q in zip(base, m)) / len(m)
+        members.append((off, m))
+    if not members:
+        return None
+    members.sort(key=lambda x: x[0])
+    idx = {10: max(0, int(len(members) * 0.10) - 1),
+           50: len(members) // 2,
+           90: min(len(members) - 1, int(len(members) * 0.90) - 1)}
+    out = {}
+    for pct, i in idx.items():
+        out["p%02d" % pct] = members[i][1]
+    out["n"] = len(members)
+    return out

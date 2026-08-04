@@ -1013,7 +1013,16 @@ function renderSim(){
     }
     map.getSource("ens").setData(sim._ensFC);
   } else map.getSource("ens").setData(emptyFC());
-  const ring = showCone ? TLPhys.forecastCone(p, s.forecasts) : null;
+  /* 锥形：优先画 SELF 专属概率锥（管道侧蒙特卡洛 P10/P90），无则回退共识锥 */
+  let ring = null;
+  if(showCone){
+    const selfFc = s.forecasts.find(f=>f.agency==="SELF" && f.cone);
+    if(selfFc && selfFc.cone.p10 && selfFc.cone.p90){
+      const pts = selfFc.cone.p10.map(q=>[q.lon,q.lat])
+        .concat(selfFc.cone.p90.slice().reverse().map(q=>[q.lon,q.lat]));
+      if(pts.length >= 4) ring = pts.concat([pts[0]]);
+    } else ring = TLPhys.forecastCone(p, s.forecasts);
+  }
   map.getSource("cone").setData(ring ? {type:"FeatureCollection",
     features:[{type:"Feature",properties:{},
       geometry:{type:"Polygon",coordinates:[ring]}}]} : emptyFC());

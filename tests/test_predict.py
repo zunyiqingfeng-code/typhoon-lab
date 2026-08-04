@@ -131,6 +131,59 @@ def test_grades_consistent():
     assert predict.grade_of(55) == "SuperTY"
 
 
+def test_cone_structure():
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
+                   (23, 133, 26), (24, 134, 28), (25, 135, 30)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    cone = predict.generate_cone(st, None, n_members=60)
+    assert cone is not None
+    assert set(cone) >= {"p10", "p50", "p90", "n"}
+    assert cone["n"] == 60
+    for k in ("p10", "p50", "p90"):
+        assert len(cone[k]) == 20
+        for q in cone[k]:
+            assert {"t", "lat", "lon"} <= set(q)
+
+
+def test_cone_width_grows():
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
+                   (23, 133, 26), (24, 134, 28), (25, 135, 30)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    cone = predict.generate_cone(st, None, n_members=120, seed=7)
+    # P10 与 P90 间距随提前量扩大（近端窄、远端宽）
+    d1 = predict.hav([cone["p10"][0]["lat"], cone["p10"][0]["lon"]],
+                     [cone["p90"][0]["lat"], cone["p90"][0]["lon"]])
+    d2 = predict.hav([cone["p10"][-1]["lat"], cone["p10"][-1]["lon"]],
+                     [cone["p90"][-1]["lat"], cone["p90"][-1]["lon"]])
+    assert d2 > d1 * 3
+
+
+def test_cone_reproducible():
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
+                   (23, 133, 26), (24, 134, 28), (25, 135, 30)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    a = predict.generate_cone(st, None, n_members=40, seed=11)
+    b = predict.generate_cone(st, None, n_members=40, seed=11)
+    assert a["p50"] == b["p50"]
+    assert a["p90"] == b["p90"]
+
+
+def test_cone_p50_near_deterministic():
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
+                   (23, 133, 26), (24, 134, 28), (25, 135, 30)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    fc = predict.generate_self(st, None)
+    cone = predict.generate_cone(st, None, n_members=80, seed=3)
+    det = [[q["lat"], q["lon"]] for q in fc["points"]]
+
+    def mean_off(lin):
+        return sum(predict.hav(a, b) for a, b in zip(det, lin)) / len(lin)
+
+    off50 = mean_off([[q["lat"], q["lon"]] for q in cone["p50"]])
+    off90 = mean_off([[q["lat"], q["lon"]] for q in cone["p90"]])
+    assert off50 < off90                               # 中位成员贴近确定性，极端成员发散
+
+
 def test_turn_smoothing():
     """转向平滑：即便引导风向强反向，逐 6h 方位角变化也受限 ≤8°。"""
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
