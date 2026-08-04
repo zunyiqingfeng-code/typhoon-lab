@@ -22,6 +22,17 @@ body{margin:0;background:
   font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .num,table{font-variant-numeric:tabular-nums}
 .wrap{max-width:1120px;margin:0 auto;padding:26px 22px 60px}
+header{position:relative}
+.back-home{
+  position:absolute;top:6px;right:22px;z-index:6;
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--sub);
+  background:var(--panel);border:1px solid var(--glass);border-radius:6px;
+  padding:5px 12px;text-decoration:none;backdrop-filter:blur(8px);
+  transition:color .18s,border-color .18s,box-shadow .18s;
+}
+.back-home:hover{color:var(--accent);border-color:var(--line);box-shadow:0 0 12px rgba(34,211,238,.25)}
+.back-home svg{flex-shrink:0}
 header .lab{font-size:11px;letter-spacing:.32em;color:var(--dim)}
 header h1{margin:8px 0 6px;font-size:26px;font-weight:700;letter-spacing:.04em;
   display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -58,6 +69,10 @@ footer{margin-top:28px;color:var(--dim);font-size:11px;line-height:1.9}
   <div class="lab">台风态势实验室 · 预报复盘</div>
   <h1>多机构预报 27 年总榜<span class="tag">回溯校验 · 非预报</span></h1>
   <div class="sub" id="sub">载入中…</div>
+  <a class="back-home" href="home.html" title="返回主页" aria-label="返回主页">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+    <span>主页</span>
+  </a>
 </header>
 <div id="err" style="display:none"></div>
 <main id="main" style="display:none">

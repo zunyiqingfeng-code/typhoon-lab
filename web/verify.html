@@ -30,6 +30,16 @@ body{background:
 
 /* 顶栏 */
 #brand{position:absolute;top:14px;left:16px;z-index:5;pointer-events:none}
+.back-home{
+  position:fixed;top:14px;right:16px;z-index:6;
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--sub);
+  background:var(--panel);border:1px solid var(--glass);border-radius:6px;
+  padding:5px 12px;text-decoration:none;backdrop-filter:blur(8px);
+  transition:color .18s,border-color .18s,box-shadow .18s;
+}
+.back-home:hover{color:var(--accent);border-color:var(--line);box-shadow:0 0 12px rgba(34,211,238,.25)}
+.back-home svg{flex-shrink:0}
 #brand .lab{font-size:11px;letter-spacing:.32em;color:var(--dim)}
 #brand .now{margin-top:6px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
   pointer-events:auto}
@@ -145,6 +155,10 @@ a{color:var(--accent)}
     <span class="en" id="s-en"></span>
     <span class="tag hind">回溯校验 · 非预报</span>
   </div>
+  <a class="back-home" href="home.html" title="返回主页" aria-label="返回主页">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+    <span>主页</span>
+  </a>
 </header>
 
 <div id="picker">
