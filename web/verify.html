@@ -190,6 +190,19 @@ a{color:var(--accent)}
       color:var(--accent);font:inherit;font-size:12px;padding:8px;border-radius:8px;cursor:pointer">寻找形状相似的台风</button>
     <div id="sim-list" style="margin-top:8px"></div>
   </section>
+  <section class="card" id="card-cmp">
+    <h3>双台风对比</h3>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input id="cmp-search" type="text" placeholder="输入台风名/编号" style="flex:1;background:rgba(255,255,255,.05);
+        border:1px solid var(--glass);border-radius:6px;padding:6px 8px;font:inherit;font-size:12px;color:var(--text)"
+        autocomplete="off">
+      <button id="cmp-btn" style="background:rgba(255,255,255,.05);border:1px solid var(--glass);border-radius:6px;
+        color:var(--accent);font:inherit;font-size:12px;padding:6px 12px;cursor:pointer">对比</button>
+    </div>
+    <div id="cmp-list" style="margin-top:6px"></div>
+    <button id="cmp-clear" style="width:100%;background:none;border:none;color:var(--dim);font:inherit;
+      font-size:11px;padding:6px 0 0;cursor:pointer;display:none">清除对比台风</button>
+  </section>
   <section class="card" id="card-bench">
     <h3>SELF 自研推演 · 回测基准</h3>
     <div id="bench-box" style="font-size:11px;color:var(--dim);margin-top:6px">
@@ -336,6 +349,7 @@ function buildPicker(){
 }
 
 async function selectStorm(meta){
+  clearCmp();                              // 切换主台风时清对比台风
   showNotice("载入 "+(meta.name_zh||meta.id)+" 的完整预报史…");
   let s;
   try{ s = await getJSON(`../data/archive/${meta.year}/${meta.id}.json`); }
@@ -445,6 +459,14 @@ function buildMap(){
     map.addSource("obs-pt",{type:"geojson",data:emptyFC()});
     map.addLayer({id:"obs-pt",type:"circle",source:"obs-pt",
       paint:{"circle-color":["get","c"],"circle-radius":3,
+        "circle-stroke-color":"#070b14","circle-stroke-width":1}});
+    // 对比台风（第二台风路径，双台风同屏）
+    map.addSource("cmp-line",{type:"geojson",data:emptyFC()});
+    map.addLayer({id:"cmp-line",type:"line",source:"cmp-line",
+      paint:{"line-color":["get","c"],"line-width":2.2,"line-opacity":.85}});
+    map.addSource("cmp-pt",{type:"geojson",data:emptyFC()});
+    map.addLayer({id:"cmp-pt",type:"circle",source:"cmp-pt",
+      paint:{"circle-color":["get","c"],"circle-radius":3.5,
         "circle-stroke-color":"#070b14","circle-stroke-width":1}});
     // 误差连线（预报点 → 同刻实况）
     map.addSource("err",{type:"geojson",data:emptyFC()});
@@ -624,6 +646,7 @@ function bindUI(){
   $("#scrub").addEventListener("input",e=>{ cursor=+e.target.value; stopPlay(); renderCursor(); });
   $("#play").onclick=()=> playing?stopPlay():startPlay();
   $("#sim-btn").onclick=findSimilar;
+  bindCmp();
 }
 function startPlay(){
   if(!stops.length) return;
@@ -633,6 +656,77 @@ function startPlay(){
   },700);
 }
 function stopPlay(){ playing=false; $("#play").textContent="▶"; clearInterval(timer); }
+
+/* ---------- 双台风对比（方案 4.3：两个不同台风路径同屏） ---------- */
+let cmpStorm = null;                       // 第二个台风（对象含 track）
+const CMP_C = "#f59e0b";                   // 对比台风色（橙色，与主台风灰蓝区分）
+
+function drawCmp(){
+  const line = map && map.getSource("cmp-line"), pts = map && map.getSource("cmp-pt");
+  if(!cmpStorm || !cmpStorm.track || !line || !pts) return;
+  const tr = cmpStorm.track;
+  const coords = tr.map(p=>[p.lon,p.lat]);
+  line.setData({type:"FeatureCollection",features:[{
+    type:"Feature",properties:{c:CMP_C},
+    geometry:{type:"LineString",coordinates:coords}}]});
+  pts.setData({type:"FeatureCollection",features:tr.map(p=>({
+    type:"Feature",properties:{c:CMP_C},
+    geometry:{type:"Point",coordinates:[p.lon,p.lat]}}))});
+}
+function clearCmp(){
+  cmpStorm=null;
+  if(map && map.getSource("cmp-line")){
+    map.getSource("cmp-line").setData(emptyFC());
+    map.getSource("cmp-pt").setData(emptyFC());
+  }
+  const c=$("#cmp-list"); if(c) c.innerHTML="";
+  const clearBtn=$("#cmp-clear"); if(clearBtn) clearBtn.style.display="none";
+}
+async function loadCmp(meta){
+  try{
+    const s = await getJSON(`../data/archive/${meta.year}/${meta.id}.json`);
+    cmpStorm = s;
+    drawCmp();
+    $("#cmp-list").innerHTML =
+      `<div style="font-size:11px;color:var(--dim);margin-top:6px">对比台风：`+
+      `<span style="color:${CMP_C}">${s.name_zh||s.name_en||s.id}</span> `+
+      `(${meta.year} · ${s.track.length}点)</div>`;
+    $("#cmp-clear").style.display="block";
+    // 视口包住两个台风
+    const all = storm.track.concat(s.track);
+    const lons=all.map(p=>p.lon), lats=all.map(p=>p.lat);
+    map.fitBounds([[Math.min(...lons),Math.min(...lats)],[Math.max(...lons),Math.max(...lats)]],
+      {padding:{top:120,bottom:150,left:60,right:320},duration:500,maxZoom:6});
+  }catch(e){ $("#cmp-list").innerHTML="<div style='font-size:10px;color:var(--warn)'>加载失败："+e.message+"</div>"; }
+}
+function bindCmp(){
+  const inp=$("#cmp-search"), btn=$("#cmp-btn");
+  const doSearch=()=>{
+    const q=(inp.value||"").trim().toLowerCase();
+    const list=$("#cmp-list");
+    if(!q){ list.innerHTML=""; return; }
+    if(!INDEX){ list.innerHTML=""; return; }
+    const hit=INDEX.storms.filter(s=>
+      (s.name_zh||"").toLowerCase().includes(q) ||
+      (s.name_en||"").toLowerCase().includes(q) ||
+      String(s.id).toLowerCase().includes(q)).slice(0,8);
+    list.innerHTML="";
+    if(!hit.length){ list.innerHTML="<div style='font-size:10px;color:var(--dim)'>无匹配台风</div>"; return; }
+    for(const s of hit){
+      const row=document.createElement("div");
+      row.style.cssText="display:flex;gap:8px;align-items:center;padding:5px 2px;"+
+        "border-top:1px solid var(--glass);cursor:pointer";
+      row.innerHTML=`<span style="flex:1;font-size:12px">${s.name_zh||s.name_en||s.id}</span>`+
+        `<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${s.year}</span>`;
+      row.onclick=()=>{ loadCmp({year:s.year,id:s.id,name_zh:s.name_zh,name_en:s.name_en}); };
+      list.appendChild(row);
+    }
+  };
+  btn.onclick=doSearch;
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doSearch(); } });
+  $("#cmp-clear").onclick=clearCmp;
+}
+
 </script>
 </body>
 </html>
