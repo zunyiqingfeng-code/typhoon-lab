@@ -129,86 +129,18 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 }
 .btn-ghost:hover{border-color:var(--line);background:rgba(71,226,242,.08)}
 
-/* 右侧主视觉：太空台风（CSS/SVG 合成，无外部图片依赖） */
+/* 右侧主视觉：真实素材背景 + 数据叠加层 */
 .hero-viz{position:relative;aspect-ratio:16/10;min-height:460px}
-/* 地球弧面 + 海洋 */
-.earth{
-  position:absolute;right:-6%;bottom:-14%;width:72%;aspect-ratio:1;border-radius:50%;
-  background:
-    radial-gradient(circle at 34% 30%,#0f2a4a 0%,#0a1a33 42%,#060f20 74%,#04090f 100%);
-  box-shadow:inset -26px -18px 80px rgba(0,0,0,.7), 0 0 120px rgba(16,52,96,.35);
-  overflow:hidden;
+.hero-img{
+  position:absolute;inset:0;border-radius:12px;overflow:hidden;
+  background:url("assets/bg-hero-typhoon-earth.webp") center/cover no-repeat;
+  box-shadow:0 0 80px rgba(16,52,96,.3),inset 0 0 120px rgba(4,8,16,.35);
 }
-.earth::before{  /* 大气辉光 */
-  content:"";position:absolute;inset:-3%;border-radius:50%;
-  border:1px solid rgba(71,226,242,.14);
-  box-shadow:0 0 60px rgba(71,226,242,.18),inset 0 0 60px rgba(71,226,242,.12);
+.hero-img::after{  /* 左侧渐暗，让文案可读 */
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(7,11,20,.55) 0%,transparent 45%),
+             linear-gradient(180deg,rgba(7,11,20,.25) 0%,transparent 40%,rgba(7,11,20,.4) 100%);
 }
-.earth::after{  /* 云带 */
-  content:"";position:absolute;inset:0;border-radius:50%;
-  background:
-    radial-gradient(120% 90% at 70% 20%,rgba(200,222,235,.12),transparent 50%),
-    radial-gradient(100% 80% at 30% 70%,rgba(160,195,220,.08),transparent 55%),
-    radial-gradient(140% 100% at 50% 50%,transparent 60%,rgba(140,180,210,.05) 78%,transparent 92%);
-}
-/* 陆地轮廓（抽象海岸线） */
-.land{
-  position:absolute;inset:0;border-radius:50%;
-  background:
-    radial-gradient(38% 30% at 62% 38%,#122b46 0%,#0d2238 55%,transparent 72%),   /* 中国东南沿海 */
-    radial-gradient(22% 18% at 74% 44%,#10263f 0%,transparent 70%),                /* 台湾 */
-    radial-gradient(30% 24% at 48% 66%,#122b46 0%,#0c2036 60%,transparent 78%),   /* 南海/东南亚 */
-    radial-gradient(20% 16% at 82% 62%,#0f263c 0%,transparent 70%);
-  opacity:.8;
-}
-/* 城市灯光星点 */
-.citylights{
-  position:absolute;inset:0;border-radius:50%;
-  background-image:
-    radial-gradient(1px 1px at 20% 30%,rgba(255,210,140,.5),transparent),
-    radial-gradient(1px 1px at 24% 34%,rgba(255,210,140,.35),transparent),
-    radial-gradient(1px 1px at 18% 37%,rgba(255,200,120,.4),transparent),
-    radial-gradient(1.5px 1.5px at 62% 40%,rgba(255,220,150,.6),transparent),
-    radial-gradient(1px 1px at 66% 44%,rgba(255,210,140,.45),transparent),
-    radial-gradient(1px 1px at 58% 48%,rgba(255,200,130,.5),transparent),
-    radial-gradient(1.5px 1.5px at 74% 46%,rgba(255,220,150,.5),transparent),
-    radial-gradient(1px 1px at 46% 70%,rgba(255,205,135,.5),transparent),
-    radial-gradient(1px 1px at 50% 74%,rgba(255,215,145,.4),transparent),
-    radial-gradient(1px 1px at 42% 76%,rgba(255,200,130,.45),transparent);
-  background-repeat:no-repeat;
-}
-/* 台风本体：旋涡云层 */
-.typhoon{position:absolute;right:8%;top:6%;width:58%;aspect-ratio:1;filter:drop-shadow(0 0 40px rgba(71,226,242,.2))}
-.typhoon .eye{
-  position:absolute;left:50%;top:50%;width:9%;aspect-ratio:1;margin:-4.5% 0 0 -4.5%;
-  border-radius:50%;background:radial-gradient(circle,#04101e 0%,#071527 60%,#0a1e36 100%);
-  box-shadow:0 0 20px rgba(0,0,0,.8),inset 0 0 12px rgba(71,226,242,.25);
-  z-index:3;
-}
-.typhoon .cloud{
-  position:absolute;inset:0;border-radius:50%;
-  background:
-    radial-gradient(60% 60% at 50% 50%,transparent 6%,rgba(120,170,205,.22) 16%,rgba(90,140,180,.3) 30%,rgba(150,195,225,.2) 44%,rgba(70,115,155,.28) 60%,rgba(40,75,110,.35) 78%,rgba(18,40,66,.5) 100%);
-  box-shadow:0 0 60px rgba(90,150,200,.2);
-  animation:spin 90s linear infinite;
-}
-.typhoon .spiral{position:absolute;inset:0;border-radius:50%;overflow:hidden;opacity:.9}
-.typhoon .spiral::before,.typhoon .spiral::after{
-  content:"";position:absolute;border-radius:50%;
-  background:conic-gradient(from 0deg,
-    transparent 0deg,rgba(180,215,240,.25) 14deg,rgba(110,165,205,.32) 30deg,
-    transparent 46deg,rgba(190,225,248,.2) 70deg,transparent 96deg);
-  animation:spin 60s linear infinite reverse;
-}
-.typhoon .spiral::before{inset:4%;}
-.typhoon .spiral::after{inset:12%;animation-duration:80s;}
-.typhoon .spiral3{position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from 120deg,
-    transparent 0deg,rgba(150,200,235,.18) 12deg,transparent 34deg,
-    rgba(200,230,250,.14) 58deg,transparent 80deg);
-  animation:spin 45s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 /* 路径线 + 节点 */
 .trackline{position:absolute;right:4%;top:12%;width:52%;z-index:4}
@@ -234,19 +166,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .datatag .k{color:var(--sub);font-family:var(--mono);font-size:10.5px}
 .datatag .v{font-family:var(--mono);color:var(--accent)}
 .datatag .lead{color:var(--tag);font-family:var(--mono)}
-/* 背景星点 */
+/* 背景星点（真实星空素材） */
 .stars{position:absolute;inset:0;z-index:1;pointer-events:none;
-  background-image:
-    radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.7),transparent),
-    radial-gradient(1px 1px at 28% 8%,rgba(255,255,255,.5),transparent),
-    radial-gradient(1.5px 1.5px at 44% 22%,rgba(255,255,255,.6),transparent),
-    radial-gradient(1px 1px at 62% 10%,rgba(255,255,255,.4),transparent),
-    radial-gradient(1px 1px at 76% 26%,rgba(255,255,255,.5),transparent),
-    radial-gradient(1.5px 1.5px at 88% 12%,rgba(255,255,255,.6),transparent),
-    radial-gradient(1px 1px at 6% 42%,rgba(255,255,255,.4),transparent),
-    radial-gradient(1px 1px at 38% 36%,rgba(255,255,255,.35),transparent),
-    radial-gradient(1px 1px at 92% 40%,rgba(255,255,255,.45),transparent),
-    radial-gradient(1px 1px at 18% 60%,rgba(255,255,255,.3),transparent);
+  background:url("assets/bg-stars.jpg") center/cover no-repeat;
+  opacity:.9;
 }
 /* Hero 底部渐隐过渡到卡片区 */
 .hero-fade{position:absolute;left:0;right:0;bottom:0;height:120px;z-index:3;
@@ -295,69 +218,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .fcard .go .arr{transition:transform .18s}
 .fcard .go:hover .arr{transform:translateX(2px)}
 
-/* 卡片内小图 */
-/* 1) 实时态势：迷你地图 */
-.minimap{position:absolute;inset:0;background:
-  radial-gradient(120% 100% at 50% 20%,#0e2440 0%,#081527 55%,#04090f 100%)}
-.minimap .g{position:absolute;inset:0;opacity:.5;
-  background-image:linear-gradient(rgba(71,226,242,.05) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(71,226,242,.05) 1px,transparent 1px);
-  background-size:22px 22px}
-.minimap .coast{position:absolute;left:8%;top:18%;width:58%;height:56%;
-  border-radius:50% 38% 52% 40%;border:1.5px solid rgba(71,226,242,.25);transform:rotate(-14deg)}
-.minimap .coast2{position:absolute;left:12%;top:52%;width:34%;height:30%;
-  border-radius:42% 48% 40% 52%;border:1.5px solid rgba(71,226,242,.18)}
-.track-pts{position:absolute;inset:0}
-.track-pts .tp{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 8px var(--accent)}
-.track-pts .tp::after{content:"";position:absolute;inset:-4px;border-radius:50%;
-  border:1px solid rgba(71,226,242,.5);animation:pulseD 2.2s ease-out infinite}
-@keyframes pulseD{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.8);opacity:0}}
-.track-line{position:absolute;border-top:1.5px solid rgba(71,226,242,.6);transform-origin:left}
-
-/* 2) 历史档案：档案感卫星条 */
-.arch{position:absolute;inset:0;overflow:hidden;
-  background:linear-gradient(180deg,#0b1d36 0%,#071224 60%,#04090f 100%)}
-.arch .bands{position:absolute;inset:0;opacity:.55;
-  background:
-    radial-gradient(60% 40% at 30% 30%,rgba(120,170,205,.2),transparent 70%),
-    radial-gradient(50% 35% at 70% 60%,rgba(90,140,180,.15),transparent 70%)}
-.arch .swirl{position:absolute;right:-12%;top:-14%;width:70%;aspect-ratio:1;border-radius:50%;
-  border:2px solid rgba(71,226,242,.14);
-  box-shadow:0 0 30px rgba(71,226,242,.08),inset 0 0 40px rgba(71,226,242,.06)}
-.arch .year{position:absolute;left:10px;bottom:6px;font-family:var(--mono);
-  font-size:10px;color:rgba(184,195,208,.6);letter-spacing:.2em}
-
-/* 3) 复盘台：3D 涡旋分析图 */
-.ana{position:absolute;inset:0;background:#050c17;overflow:hidden}
-.ana .ring{position:absolute;left:50%;top:50%;border-radius:50%;
-  border:1px solid rgba(71,226,242,.25);transform:translate(-50%,-50%)}
-.ana .ring.r1{width:52%;height:52%}
-.ana .ring.r2{width:76%;height:76%;border-style:dashed;border-color:rgba(71,226,242,.18)}
-.ana .ring.r3{width:96%;height:96%;border-color:rgba(71,226,242,.1)}
-.ana .core{position:absolute;left:50%;top:50%;width:14%;height:14%;transform:translate(-50%,-50%);
-  border-radius:50%;background:radial-gradient(circle,#0a1c33,#04101e 70%);
-  box-shadow:0 0 18px rgba(71,226,242,.35),inset 0 0 8px rgba(71,226,242,.4)}
-.ana .beam{position:absolute;left:50%;top:50%;width:2px;height:52%;transform-origin:top;
-  background:linear-gradient(180deg,transparent,rgba(71,226,242,.4),transparent)}
-.ana .axis-x,.ana .axis-y{position:absolute;background:rgba(71,226,242,.12)}
-.ana .axis-x{left:6%;right:6%;top:50%;height:1px}
-.ana .axis-y{top:8%;bottom:8%;left:50%;width:1px}
-
-/* 4) 27年总榜：环形图 + 柱状图 + 大数字 */
-.rank{position:absolute;inset:0;background:#050c17;overflow:hidden}
-.rank .donut{position:absolute;left:10px;top:12px;width:56%;aspect-ratio:1}
-.rank .donut svg{transform:rotate(-90deg)}
-.rank .donut .big{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;flex-direction:column;line-height:1.1}
-.rank .donut .big small{font-size:9px;color:var(--dim);font-weight:400;letter-spacing:.1em}
-.rank .bars{position:absolute;right:8px;bottom:10px;display:flex;align-items:flex-end;gap:5px;height:54%}
-.rank .bars i{width:12px;border-radius:2px 2px 0 0;
-  background:linear-gradient(180deg,rgba(71,226,242,.8),rgba(71,226,242,.12))}
-.rank .bars i.hot{background:linear-gradient(180deg,#f59e0b,rgba(245,158,11,.18))}
-.rank .bars i:nth-child(4){height:92%}
-.rank .bars i:nth-child(5){height:74%}
-.rank .bars i:nth-child(6){height:100%}
+/* 卡片内小图（真实素材背景 + 压暗遮罩） */
+.viz-bg{position:absolute;inset:0;background:center/cover no-repeat;
+  transform:scale(1.02);transition:transform .4s}
+.fcard:hover .viz-bg{transform:scale(1.08)}
+.viz-shade{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(4,9,18,.1) 0%,rgba(4,9,18,.2) 60%,rgba(4,9,18,.55) 100%)}
 
 /* ============ 数据指标栏 ============ */
 .stats{max-width:1440px;margin:30px auto 0;padding:0 56px}
@@ -478,16 +344,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
     <!-- 右侧主视觉 -->
     <div class="hero-viz" aria-hidden="true">
-      <div class="earth">
-        <div class="land"></div>
-        <div class="citylights"></div>
-      </div>
-      <div class="typhoon">
-        <div class="cloud"></div>
-        <div class="spiral"></div>
-        <div class="spiral3"></div>
-        <div class="eye"></div>
-      </div>
+      <div class="hero-img"></div>
       <!-- 路径：实线(已观测)+虚线(预测) + 发光节点 -->
       <div class="trackline">
         <svg viewBox="0 0 400 260">
@@ -520,9 +377,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <!-- 数据标签 -->
       <div class="labels">
-        <div class="datatag"><span class="dot"></span><span class="k">STORM</span><span class="v">HAIKUI 2025</span></div>
-        <div class="datatag"><span class="dot"></span><span class="k">INT</span><span class="v">强台风 950hPa</span></div>
-        <div class="datatag"><span class="lead">◆</span><span class="k">POS</span><span class="v">28.4N 126.7E</span></div>
+      <div class="datatag"><span class="dot"></span><span class="k">STORM</span><span class="v">HAIKUI 2025</span></div>
+      <div class="datatag"><span class="dot"></span><span class="k">INT</span><span class="v">强台风 950 hPa</span></div>
+      <div class="datatag"><span class="lead">◆</span><span class="k">POS</span><span class="v">28.4°N 126.7°E</span></div>
       </div>
     </div>
   </div>
@@ -544,18 +401,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="desc">全球台风实时监测与预报</div>
       <div class="viz">
-        <div class="minimap">
-          <div class="g"></div>
-          <div class="coast"></div><div class="coast2"></div>
-          <div class="track-line" style="left:16%;top:58%;width:56%;transform:rotate(-18deg)"></div>
-          <div class="track-pts">
-            <div class="tp" style="left:18%;top:60%"></div>
-            <div class="tp" style="left:34%;top:48%"></div>
-            <div class="tp" style="left:50%;top:38%"></div>
-            <div class="tp" style="left:66%;top:28%"></div>
-            <div class="tp" style="left:78%;top:22%"></div>
-          </div>
-        </div>
+        <div class="viz-bg" style="background-image:url('assets/card-live-map-bg.jpg.png')"></div>
+        <div class="viz-shade"></div>
       </div>
       <span class="go">进入实时监测 <span class="arr">→</span></span>
     </a>
@@ -567,11 +414,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="desc">2000–2026 全部 643 个台风</div>
       <div class="viz">
-        <div class="arch">
-          <div class="bands"></div>
-          <div class="swirl"></div>
-          <span class="year">ARCHIVE · 2000–2026</span>
-        </div>
+        <div class="viz-bg" style="background-image:url('assets/card-history-typhoon.jpg')"></div>
+        <div class="viz-shade"></div>
       </div>
       <span class="go">探索历史风暴 <span class="arr">→</span></span>
     </a>
@@ -583,15 +427,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="desc">多维复盘 · 模拟推演 · 对比分析</div>
       <div class="viz">
-        <div class="ana">
-          <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
-          <div class="axis-x"></div><div class="axis-y"></div>
-          <div class="beam" style="transform:rotate(28deg)"></div>
-          <div class="beam" style="transform:rotate(118deg)"></div>
-          <div class="beam" style="transform:rotate(208deg)"></div>
-          <div class="beam" style="transform:rotate(298deg)"></div>
-          <div class="core"></div>
-        </div>
+        <div class="viz-bg" style="background-image:url('assets/card-review-3d-hologram.jpg.png')"></div>
+        <div class="viz-shade"></div>
       </div>
       <span class="go">开始复盘分析 <span class="arr">→</span></span>
     </a>
@@ -603,24 +440,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       </div>
       <div class="desc">643 个台风，数据榜单与趋势</div>
       <div class="viz">
-        <div class="rank">
-          <div class="donut">
-            <svg viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(71,226,242,.1)" stroke-width="11"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dGrad)" stroke-width="11"
-                stroke-linecap="round" stroke-dasharray="251 251" stroke-dashoffset="78"/>
-              <defs><linearGradient id="dGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#47e2f2"/><stop offset="1" stop-color="#0d7cef"/>
-              </linearGradient></defs>
-            </svg>
-            <div class="big">643<small>台 风</small></div>
-          </div>
-          <div class="bars">
-            <i style="height:46%"></i><i style="height:58%"></i><i style="height:38%"></i>
-            <i style="height:92%"></i><i class="hot" style="height:100%"></i><i style="height:74%"></i>
-            <i style="height:62%"></i>
-          </div>
-        </div>
+        <div class="viz-bg" style="background-image:url('assets/card-stats-charts-bg.png.png')"></div>
+        <div class="viz-shade"></div>
       </div>
       <span class="go">查看完整榜单 <span class="arr">→</span></span>
     </a>
