@@ -145,14 +145,16 @@ def fetch_steering(lat, lon, radius_deg=6.0, at_time=None):
             target = _parse_dt(at_time)
             idxs = sorted(range(len(tms)),
                           key=lambda i: abs(_parse_dt(tms[i]) - target).total_seconds())
-            ph = [(spd[i], drc[i]) for i in idxs[:4]
+            ph = [(spd[i], drc[i]) for i in idxs[:12]
                   if spd[i] is not None and drc[i] is not None
                   and not math.isnan(spd[i]) and not math.isnan(drc[i])
-                  and abs(_parse_dt(tms[i]) - target).total_seconds() <= 6 * 3600]
+                  and abs(_parse_dt(tms[i]) - target).total_seconds() <= 12 * 3600]
         else:
+            # 取当前起 12h 窗口平均（12 个样本），平滑引导气流瞬时波动
+            # ——单点 1-3h 采样会传导 GFS 短时扰动，导致逐 6h 预报路径抖动
             ph = [(s, r) for s, r in zip(spd, drc)
                   if s is not None and r is not None and not math.isnan(s) and not math.isnan(r)]
-            ph = ph[:4]
+            ph = ph[:12]
         if not ph:
             continue
         m = len(ph)
