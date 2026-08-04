@@ -300,8 +300,12 @@ def _track(methods, start, t0, step=STEP_H, lead=LEAD_H,
     return pts
 
 
-def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
+def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H,
+                  offline=False):
     """引擎入口：storm 需含 track；shapes_path 指向 data/shapes.json（可缺）。
+
+    offline=True 时禁用一切网络请求（无 steering、SST 用默认 28°C），
+    用于回测/批量场景——路径退化为 persistence+analog，强度退化为固定松弛。
 
     返回 {"agency":"SELF","issued_at","points":[{t,lat,lon,wind_ms,grade}], "methods":[...]}
     轨迹样本不足返回 None。"""
@@ -314,11 +318,12 @@ def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
     methods = []
     if pv:
         methods.append(("persistence", pv[0], pv[1]))
-    try:
-        sv = fetch_steering(latlon[-1]["lat"], latlon[-1]["lon"])
-        methods.append(("steering", sv[0], sv[1]))
-    except Exception:
-        pass
+    if not offline:
+        try:
+            sv = fetch_steering(latlon[-1]["lat"], latlon[-1]["lon"])
+            methods.append(("steering", sv[0], sv[1]))
+        except Exception:
+            pass
     if shapes_path:
         av = analog_vector(track, shapes_path)
         if av:
@@ -332,7 +337,7 @@ def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
 
     tr = _track(methods, (last["lat"], last["lon"]), t_last,
                 step=step, lead=lead)
-    points = evolve_intensity(tr, last_wind)
+    points = evolve_intensity(tr, last_wind, use_net=not offline)
     return {
         "agency": "SELF",
         "issued_at": last["t"],

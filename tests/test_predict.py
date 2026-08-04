@@ -281,6 +281,21 @@ def test_intensity_suppressed_by_vws():
     assert w_lo > w_hi + 10                        # 高切变抑制增强 ≥10 m/s
 
 
+def test_offline_mode_no_network():
+    """offline=True：不触发任何网络函数（steering/SST/VWS/SSTA），路径仅
+    persistence+analog，用于回测。"""
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
+                   (23, 133, 26), (24, 134, 28), (25, 135, 30)])
+    for fn in ("fetch_steering", "fetch_sst", "fetch_vws", "fetch_ssta"):
+        setattr(predict, fn, lambda *a, **k: (_ for _ in ()).throw(AssertionError("offline 不应请求网络")))
+    fc = predict.generate_self(st, None, offline=True)
+    assert fc is not None
+    assert "steering" not in fc["methods"]
+    assert fc["methods"] == ["persistence"]
+    for p in fc["points"]:
+        assert 8 <= p["wind_ms"] <= 48
+
+
 # ---------------------------------------------------------------- 海温距平 SSTA
 
 def test_ssta_factor_clamp():
