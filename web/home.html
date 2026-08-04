@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>台风态势实验室 · Typhoon Lab — 台风科研可视化平台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2347e2f2' stroke-width='2' opacity='.5'/%3E%3Cpath d='M16 3a13 13 0 0 1 13 13' fill='none' stroke='%2347e2f2' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2347e2f2'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   台风态势实验室 · Typhoon Lab 首页
+   太空科研可视化平台 · 深色数据驾驶舱 · Glassmorphism
+   基准 1920×1080 · 16:9
+   ============================================================ */
+
+/* ---------- 设计令牌 ---------- */
+:root{
+  --bg0:#070b14;              /* 页底深蓝黑 */
+  --bg1:#0b1326;              /* 页底主蓝黑 */
+  --bg2:#122d4f;              /* 太空高光蓝 */
+  --sea:#0a1426;              /* 海洋 */
+  --panel:rgba(9,16,32,.55);  /* 玻璃面板底 */
+  --glass:rgba(255,255,255,.07);
+  --line:rgba(71,226,242,.16); /* 青色细边框 */
+  --text:#eef5fb;             /* 主文字 近白 */
+  --sub:#b8c3d0;              /* 次文字 浅灰蓝 */
+  --dim:#7189a3;              /* 弱文字 */
+  --accent:#47e2f2;           /* 荧光青 主强调 */
+  --accent2:#0d7cef;          /* 深科技蓝 渐变端 */
+  --tag:#22d4ee;              /* 标签青 */
+  --good:#2fe08a;             /* 活跃绿 */
+  --warm:#f59e0b;             /* 暖色点缀 极少 */
+  --mono:ui-monospace,"SF Mono",Consolas,"Liberation Mono",monospace;
+  --sans:Inter,"Segoe UI",system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --nav-h:60px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;
+  background:radial-gradient(1600px 900px at 78% -12%,rgba(13,44,79,.55),transparent 60%),
+             radial-gradient(1200px 800px at 8% 112%,rgba(18,45,79,.5),transparent 60%),
+             linear-gradient(180deg,var(--bg1) 0%,var(--bg0) 100%);
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.wrap{max-width:1440px;margin:0 auto;padding:0 56px}
+
+/* ============ 顶部导航 ============ */
+.nav{
+  position:sticky;top:0;z-index:100;
+  height:var(--nav-h);display:flex;align-items:center;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(6,10,20,.55);border-bottom:1px solid rgba(71,226,242,.08);
+}
+.nav .wrap{width:100%;display:flex;align-items:center;gap:36px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-logo{width:34px;height:34px;filter:drop-shadow(0 0 8px rgba(71,226,242,.45))}
+.brand-name{display:flex;flex-direction:column;line-height:1.15}
+.brand-name .zh{font-size:15px;font-weight:700;letter-spacing:.18em}
+.brand-name .en{font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.24em;margin-top:2px}
+.nav-menu{display:flex;gap:30px;margin:0 auto;flex:1;justify-content:center}
+.nav-menu a{
+  position:relative;font-size:13.5px;color:var(--sub);letter-spacing:.08em;
+  padding:6px 2px;transition:color .18s;
+}
+.nav-menu a:hover{color:var(--text)}
+.nav-menu a.active{color:var(--accent)}
+.nav-menu a.active::after{
+  content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;
+  background:linear-gradient(90deg,var(--accent),transparent 85%);
+  box-shadow:0 0 8px rgba(71,226,242,.5);
+}
+.nav-tools{display:flex;align-items:center;gap:16px}
+.nav-tools .icon{color:var(--dim);font-size:15px;transition:color .18s}
+.nav-tools .icon:hover{color:var(--accent)}
+.lang{font-size:12px;color:var(--sub);letter-spacing:.06em;cursor:pointer}
+.lang b{color:var(--accent);font-weight:600}
+.api-btn{
+  font-size:12px;letter-spacing:.1em;padding:7px 16px;border-radius:5px;
+  border:1px solid var(--line);color:var(--accent);
+  background:rgba(71,226,242,.06);transition:.18s;
+}
+.api-btn:hover{background:rgba(71,226,242,.14);box-shadow:0 0 14px rgba(71,226,242,.25)}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;min-height:calc(100vh - var(--nav-h));
+  display:flex;align-items:center;
+  background:radial-gradient(1200px 700px at 78% 18%,rgba(18,45,79,.5),transparent 60%);
+  overflow:hidden;
+}
+.hero .wrap{position:relative;z-index:2;width:100%;display:grid;
+  grid-template-columns:minmax(420px,44%) 1fr;align-items:center;gap:40px;padding-top:40px;padding-bottom:40px}
+/* 左侧文案 */
+.hero-copy .eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.34em;color:var(--tag);
+  margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.hero-copy .eyebrow::before{content:"";width:26px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
+.hero-copy h1{
+  font-size:clamp(52px,6.2vw,92px);font-weight:800;letter-spacing:.04em;line-height:1;
+  background:linear-gradient(180deg,#fff 30%,#9fd8ea 100%);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;text-fill-color:transparent;
+  filter:drop-shadow(0 0 26px rgba(71,226,242,.28));
+  white-space:nowrap;
+}
+.hero-copy .tagline{
+  font-family:var(--mono);font-size:14px;letter-spacing:.42em;color:var(--tag);
+  margin-top:18px;
+}
+.hero-copy .zh-slogan{font-size:22px;font-weight:600;letter-spacing:.1em;color:var(--text);margin-top:10px}
+.hero-copy .desc{color:var(--sub);font-size:15px;line-height:1.9;margin-top:20px;max-width:440px}
+.hero-copy .desc b{color:var(--accent);font-weight:600}
+.hero-btns{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:600;
+  letter-spacing:.06em;padding:13px 26px;border-radius:6px;transition:.2s;
+}
+.btn-primary{
+  color:#04121c;background:linear-gradient(92deg,var(--accent) 0%,var(--accent2) 100%);
+  box-shadow:0 4px 22px rgba(71,226,242,.3);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(71,226,242,.45)}
+.btn-ghost{
+  color:var(--text);border:1px solid var(--glass);background:rgba(255,255,255,.04);
+  backdrop-filter:blur(6px);
+}
+.btn-ghost:hover{border-color:var(--line);background:rgba(71,226,242,.08)}
+
+/* 右侧主视觉：太空台风（CSS/SVG 合成，无外部图片依赖） */
+.hero-viz{position:relative;aspect-ratio:16/10;min-height:460px}
+/* 地球弧面 + 海洋 */
+.earth{
+  position:absolute;right:-6%;bottom:-14%;width:72%;aspect-ratio:1;border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 30%,#0f2a4a 0%,#0a1a33 42%,#060f20 74%,#04090f 100%);
+  box-shadow:inset -26px -18px 80px rgba(0,0,0,.7), 0 0 120px rgba(16,52,96,.35);
+  overflow:hidden;
+}
+.earth::before{  /* 大气辉光 */
+  content:"";position:absolute;inset:-3%;border-radius:50%;
+  border:1px solid rgba(71,226,242,.14);
+  box-shadow:0 0 60px rgba(71,226,242,.18),inset 0 0 60px rgba(71,226,242,.12);
+}
+.earth::after{  /* 云带 */
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(120% 90% at 70% 20%,rgba(200,222,235,.12),transparent 50%),
+    radial-gradient(100% 80% at 30% 70%,rgba(160,195,220,.08),transparent 55%),
+    radial-gradient(140% 100% at 50% 50%,transparent 60%,rgba(140,180,210,.05) 78%,transparent 92%);
+}
+/* 陆地轮廓（抽象海岸线） */
+.land{
+  position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(38% 30% at 62% 38%,#122b46 0%,#0d2238 55%,transparent 72%),   /* 中国东南沿海 */
+    radial-gradient(22% 18% at 74% 44%,#10263f 0%,transparent 70%),                /* 台湾 */
+    radial-gradient(30% 24% at 48% 66%,#122b46 0%,#0c2036 60%,transparent 78%),   /* 南海/东南亚 */
+    radial-gradient(20% 16% at 82% 62%,#0f263c 0%,transparent 70%);
+  opacity:.8;
+}
+/* 城市灯光星点 */
+.citylights{
+  position:absolute;inset:0;border-radius:50%;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%,rgba(255,210,140,.5),transparent),
+    radial-gradient(1px 1px at 24% 34%,rgba(255,210,140,.35),transparent),
+    radial-gradient(1px 1px at 18% 37%,rgba(255,200,120,.4),transparent),
+    radial-gradient(1.5px 1.5px at 62% 40%,rgba(255,220,150,.6),transparent),
+    radial-gradient(1px 1px at 66% 44%,rgba(255,210,140,.45),transparent),
+    radial-gradient(1px 1px at 58% 48%,rgba(255,200,130,.5),transparent),
+    radial-gradient(1.5px 1.5px at 74% 46%,rgba(255,220,150,.5),transparent),
+    radial-gradient(1px 1px at 46% 70%,rgba(255,205,135,.5),transparent),
+    radial-gradient(1px 1px at 50% 74%,rgba(255,215,145,.4),transparent),
+    radial-gradient(1px 1px at 42% 76%,rgba(255,200,130,.45),transparent);
+  background-repeat:no-repeat;
+}
+/* 台风本体：旋涡云层 */
+.typhoon{position:absolute;right:8%;top:6%;width:58%;aspect-ratio:1;filter:drop-shadow(0 0 40px rgba(71,226,242,.2))}
+.typhoon .eye{
+  position:absolute;left:50%;top:50%;width:9%;aspect-ratio:1;margin:-4.5% 0 0 -4.5%;
+  border-radius:50%;background:radial-gradient(circle,#04101e 0%,#071527 60%,#0a1e36 100%);
+  box-shadow:0 0 20px rgba(0,0,0,.8),inset 0 0 12px rgba(71,226,242,.25);
+  z-index:3;
+}
+.typhoon .cloud{
+  position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(60% 60% at 50% 50%,transparent 6%,rgba(120,170,205,.22) 16%,rgba(90,140,180,.3) 30%,rgba(150,195,225,.2) 44%,rgba(70,115,155,.28) 60%,rgba(40,75,110,.35) 78%,rgba(18,40,66,.5) 100%);
+  box-shadow:0 0 60px rgba(90,150,200,.2);
+  animation:spin 90s linear infinite;
+}
+.typhoon .spiral{position:absolute;inset:0;border-radius:50%;overflow:hidden;opacity:.9}
+.typhoon .spiral::before,.typhoon .spiral::after{
+  content:"";position:absolute;border-radius:50%;
+  background:conic-gradient(from 0deg,
+    transparent 0deg,rgba(180,215,240,.25) 14deg,rgba(110,165,205,.32) 30deg,
+    transparent 46deg,rgba(190,225,248,.2) 70deg,transparent 96deg);
+  animation:spin 60s linear infinite reverse;
+}
+.typhoon .spiral::before{inset:4%;}
+.typhoon .spiral::after{inset:12%;animation-duration:80s;}
+.typhoon .spiral3{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 120deg,
+    transparent 0deg,rgba(150,200,235,.18) 12deg,transparent 34deg,
+    rgba(200,230,250,.14) 58deg,transparent 80deg);
+  animation:spin 45s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 路径线 + 节点 */
+.trackline{position:absolute;right:4%;top:12%;width:52%;z-index:4}
+.trackline svg{width:100%;height:auto;overflow:visible}
+.trackline .pulse{
+  animation:pulseRing 2.6s ease-out infinite;
+  transform-origin:center;
+}
+@keyframes pulseRing{
+  0%{r:7;opacity:.9}
+  100%{r:26;opacity:0}
+}
+/* 数据标签 */
+.labels{position:absolute;right:0;top:8%;z-index:5;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.datatag{
+  display:flex;align-items:center;gap:8px;font-size:12px;color:#fff;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  border:1px solid rgba(71,226,242,.12);border-radius:6px;
+  padding:5px 11px;letter-spacing:.05em;
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+.datatag .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.datatag .k{color:var(--sub);font-family:var(--mono);font-size:10.5px}
+.datatag .v{font-family:var(--mono);color:var(--accent)}
+.datatag .lead{color:var(--tag);font-family:var(--mono)}
+/* 背景星点 */
+.stars{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.7),transparent),
+    radial-gradient(1px 1px at 28% 8%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 44% 22%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 62% 10%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 76% 26%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.5px 1.5px at 88% 12%,rgba(255,255,255,.6),transparent),
+    radial-gradient(1px 1px at 6% 42%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 38% 36%,rgba(255,255,255,.35),transparent),
+    radial-gradient(1px 1px at 92% 40%,rgba(255,255,255,.45),transparent),
+    radial-gradient(1px 1px at 18% 60%,rgba(255,255,255,.3),transparent);
+}
+/* Hero 底部渐隐过渡到卡片区 */
+.hero-fade{position:absolute;left:0;right:0;bottom:0;height:120px;z-index:3;
+  background:linear-gradient(180deg,transparent,rgba(7,11,20,.9));pointer-events:none}
+
+/* ============ 四功能卡片 ============ */
+.cards{padding:0 56px 26px;max-width:1440px;margin:0 auto}
+.cards-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+.cards-head h2{font-size:20px;font-weight:700;letter-spacing:.14em;color:var(--text)}
+.cards-head h2 span{color:var(--accent)}
+.cards-head .hint{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.fcard{
+  position:relative;border-radius:12px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(15,28,52,.6),rgba(7,13,26,.7));
+  border:1px solid var(--line);
+  padding:20px 22px 18px;min-height:250px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:transform .22s,border-color .22s,box-shadow .22s;
+}
+.fcard:hover{transform:translateY(-4px);border-color:rgba(71,226,242,.4);
+  box-shadow:0 10px 40px rgba(71,226,242,.12),0 0 0 1px rgba(71,226,242,.1)}
+.fcard::after{ /* 角部发光装饰线 */
+  content:"";position:absolute;right:0;top:0;width:70px;height:70px;
+  background:linear-gradient(225deg,rgba(71,226,242,.22),transparent 60%);
+  clip-path:polygon(100% 0,100% 100%,0 0);
+  pointer-events:none;
+}
+.fcard-top{display:flex;align-items:center;gap:9px}
+.fcard-top .ico{width:26px;height:26px;color:var(--accent)}
+.fcard-top h3{font-size:16px;font-weight:700;letter-spacing:.1em}
+.live-tag{
+  font-size:9.5px;font-weight:700;letter-spacing:.18em;color:#04150b;
+  background:var(--good);padding:2px 7px;border-radius:3px;margin-left:6px;
+  box-shadow:0 0 10px rgba(47,224,138,.4);
+}
+.fcard .desc{font-size:12.5px;color:var(--sub);margin-top:8px;letter-spacing:.03em}
+.fcard .viz{flex:1;margin:14px 0 4px;border-radius:8px;overflow:hidden;position:relative;
+  min-height:118px;background:rgba(3,8,16,.5);border:1px solid rgba(255,255,255,.04)}
+.fcard .go{
+  display:inline-flex;align-items:center;gap:7px;align-self:flex-start;
+  font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:.06em;margin-top:12px;
+  transition:gap .18s;
+}
+.fcard .go:hover{gap:12px}
+.fcard .go .arr{transition:transform .18s}
+.fcard .go:hover .arr{transform:translateX(2px)}
+
+/* 卡片内小图 */
+/* 1) 实时态势：迷你地图 */
+.minimap{position:absolute;inset:0;background:
+  radial-gradient(120% 100% at 50% 20%,#0e2440 0%,#081527 55%,#04090f 100%)}
+.minimap .g{position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(71,226,242,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(71,226,242,.05) 1px,transparent 1px);
+  background-size:22px 22px}
+.minimap .coast{position:absolute;left:8%;top:18%;width:58%;height:56%;
+  border-radius:50% 38% 52% 40%;border:1.5px solid rgba(71,226,242,.25);transform:rotate(-14deg)}
+.minimap .coast2{position:absolute;left:12%;top:52%;width:34%;height:30%;
+  border-radius:42% 48% 40% 52%;border:1.5px solid rgba(71,226,242,.18)}
+.track-pts{position:absolute;inset:0}
+.track-pts .tp{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 8px var(--accent)}
+.track-pts .tp::after{content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(71,226,242,.5);animation:pulseD 2.2s ease-out infinite}
+@keyframes pulseD{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.8);opacity:0}}
+.track-line{position:absolute;border-top:1.5px solid rgba(71,226,242,.6);transform-origin:left}
+
+/* 2) 历史档案：档案感卫星条 */
+.arch{position:absolute;inset:0;overflow:hidden;
+  background:linear-gradient(180deg,#0b1d36 0%,#071224 60%,#04090f 100%)}
+.arch .bands{position:absolute;inset:0;opacity:.55;
+  background:
+    radial-gradient(60% 40% at 30% 30%,rgba(120,170,205,.2),transparent 70%),
+    radial-gradient(50% 35% at 70% 60%,rgba(90,140,180,.15),transparent 70%)}
+.arch .swirl{position:absolute;right:-12%;top:-14%;width:70%;aspect-ratio:1;border-radius:50%;
+  border:2px solid rgba(71,226,242,.14);
+  box-shadow:0 0 30px rgba(71,226,242,.08),inset 0 0 40px rgba(71,226,242,.06)}
+.arch .year{position:absolute;left:10px;bottom:6px;font-family:var(--mono);
+  font-size:10px;color:rgba(184,195,208,.6);letter-spacing:.2em}
+
+/* 3) 复盘台：3D 涡旋分析图 */
+.ana{position:absolute;inset:0;background:#050c17;overflow:hidden}
+.ana .ring{position:absolute;left:50%;top:50%;border-radius:50%;
+  border:1px solid rgba(71,226,242,.25);transform:translate(-50%,-50%)}
+.ana .ring.r1{width:52%;height:52%}
+.ana .ring.r2{width:76%;height:76%;border-style:dashed;border-color:rgba(71,226,242,.18)}
+.ana .ring.r3{width:96%;height:96%;border-color:rgba(71,226,242,.1)}
+.ana .core{position:absolute;left:50%;top:50%;width:14%;height:14%;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(circle,#0a1c33,#04101e 70%);
+  box-shadow:0 0 18px rgba(71,226,242,.35),inset 0 0 8px rgba(71,226,242,.4)}
+.ana .beam{position:absolute;left:50%;top:50%;width:2px;height:52%;transform-origin:top;
+  background:linear-gradient(180deg,transparent,rgba(71,226,242,.4),transparent)}
+.ana .axis-x,.ana .axis-y{position:absolute;background:rgba(71,226,242,.12)}
+.ana .axis-x{left:6%;right:6%;top:50%;height:1px}
+.ana .axis-y{top:8%;bottom:8%;left:50%;width:1px}
+
+/* 4) 27年总榜：环形图 + 柱状图 + 大数字 */
+.rank{position:absolute;inset:0;background:#050c17;overflow:hidden}
+.rank .donut{position:absolute;left:10px;top:12px;width:56%;aspect-ratio:1}
+.rank .donut svg{transform:rotate(-90deg)}
+.rank .donut .big{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;flex-direction:column;line-height:1.1}
+.rank .donut .big small{font-size:9px;color:var(--dim);font-weight:400;letter-spacing:.1em}
+.rank .bars{position:absolute;right:8px;bottom:10px;display:flex;align-items:flex-end;gap:5px;height:54%}
+.rank .bars i{width:12px;border-radius:2px 2px 0 0;
+  background:linear-gradient(180deg,rgba(71,226,242,.8),rgba(71,226,242,.12))}
+.rank .bars i.hot{background:linear-gradient(180deg,#f59e0b,rgba(245,158,11,.18))}
+.rank .bars i:nth-child(4){height:92%}
+.rank .bars i:nth-child(5){height:74%}
+.rank .bars i:nth-child(6){height:100%}
+
+/* ============ 数据指标栏 ============ */
+.stats{max-width:1440px;margin:30px auto 0;padding:0 56px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.stat{
+  border-radius:10px;padding:22px 24px;
+  background:rgba(9,16,32,.45);border:1px solid rgba(71,226,242,.1);
+  backdrop-filter:blur(10px);display:flex;align-items:center;gap:18px;
+  transition:border-color .2s;
+}
+.stat:hover{border-color:rgba(71,226,242,.28)}
+.stat .ico{width:34px;height:34px;flex-shrink:0;color:var(--accent);opacity:.85}
+.stat .val{font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:.02em;
+  color:#fff;line-height:1}
+.stat .val small{font-size:13px;color:var(--sub);font-weight:400;margin-left:3px}
+.stat .meta{margin-top:5px}
+.stat .meta .t{font-size:13px;color:var(--sub);letter-spacing:.06em}
+.stat .meta .d{font-size:10.5px;color:var(--dim);margin-top:1px;letter-spacing:.04em}
+.stat .live-dot{width:8px;height:8px;border-radius:50%;background:var(--good);
+  box-shadow:0 0 10px var(--good);animation:blink 2.2s ease-in-out infinite;margin-left:auto}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ============ 页脚 ============ */
+.foot{margin-top:44px;border-top:1px solid rgba(71,226,242,.08);
+  background:rgba(4,8,14,.5);padding:20px 56px}
+.foot-inner{max-width:1440px;margin:0 auto;display:flex;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;font-size:11px;color:var(--dim);letter-spacing:.04em;line-height:1.9}
+.foot .src b{color:var(--sub);font-weight:600}
+.foot .src span{color:var(--dim)}
+
+/* ============ 响应式 ============ */
+@media (max-width:1100px){
+  .wrap{padding:0 28px}
+  .hero .wrap{grid-template-columns:1fr;gap:30px}
+  .hero-viz{order:-1;min-height:380px}
+  .hero-copy h1{font-size:56px}
+  .cards{padding:0 28px}
+  .stats{padding:0 28px}
+  .foot{padding:20px 28px}
+}
+@media (max-width:880px){
+  .nav-menu{display:none}
+  .cards-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .nav .wrap{gap:16px}
+  .nav-tools{gap:10px}
+  .api-btn{padding:6px 11px;font-size:11px}
+}
+@media (max-width:560px){
+  .cards-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr}
+  .hero-copy h1{font-size:44px;white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){
+  .typhoon .cloud,.typhoon .spiral::before,.typhoon .spiral::after,.typhoon .spiral3{animation:none}
+  .trackline .pulse{animation:none}
+  .stat .live-dot{animation:none}
+  .track-pts .tp::after{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 顶部导航 ============ -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="home.html">
+      <svg class="brand-logo" viewBox="0 0 32 32" fill="none" stroke="#47e2f2" stroke-width="1.8">
+        <circle cx="16" cy="16" r="12.5" opacity=".5"/>
+        <path d="M16 3.5a12.5 12.5 0 0 1 12.5 12.5" opacity=".85" stroke-linecap="round"/>
+        <path d="M16 6.5a9.5 9.5 0 0 1 9.5 9.5" opacity=".6" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="3.4" fill="#47e2f2" stroke="none"/>
+      </svg>
+      <span class="brand-name">
+        <span class="zh">台风态势实验室</span>
+        <span class="en">typhoon-lab</span>
+      </span>
+    </a>
+    <nav class="nav-menu">
+      <a href="home.html" class="active">首页</a>
+      <a href="index.html">实时态势</a>
+      <a href="archive.html">历史档案</a>
+      <a href="verify.html">复盘台</a>
+      <a href="trends.html">27年总榜</a>
+    </nav>
+    <div class="nav-tools">
+      <button class="icon" title="搜索" aria-label="搜索">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      </button>
+      <span class="lang" title="语言切换"><b>简</b> / EN</span>
+      <button class="api-btn" title="数据 API 文档">数据API</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="stars"></div>
+  <div class="wrap">
+    <div class="hero-copy">
+      <div class="eyebrow">WEST PACIFIC TROPICAL CYCLONE RESEARCH PLATFORM</div>
+      <h1>Typhoon Lab</h1>
+      <div class="tagline">EVERY STORM HAS A STORY</div>
+      <div class="zh-slogan">每一次台风，都有它的轨迹</div>
+      <p class="desc">
+        集<b>官方实时数据</b>、<b>全球预报模型</b>与<b>历史档案</b>于一体，<br>
+        探索台风的过去、现在与未来。
+      </p>
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="index.html">进入实时态势
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="archive.html">查看历史风暴
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- 右侧主视觉 -->
+    <div class="hero-viz" aria-hidden="true">
+      <div class="earth">
+        <div class="land"></div>
+        <div class="citylights"></div>
+      </div>
+      <div class="typhoon">
+        <div class="cloud"></div>
+        <div class="spiral"></div>
+        <div class="spiral3"></div>
+        <div class="eye"></div>
+      </div>
+      <!-- 路径：实线(已观测)+虚线(预测) + 发光节点 -->
+      <div class="trackline">
+        <svg viewBox="0 0 400 260">
+          <defs>
+            <linearGradient id="pLine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#47e2f2" stop-opacity=".25"/>
+              <stop offset=".55" stop-color="#47e2f2" stop-opacity=".9"/>
+              <stop offset="1" stop-color="#bfeef7" stop-opacity=".95"/>
+            </linearGradient>
+            <linearGradient id="fLine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#47e2f2" stop-opacity=".7"/>
+              <stop offset="1" stop-color="#0d7cef" stop-opacity=".35"/>
+            </linearGradient>
+          </defs>
+          <!-- 已观测路径（实线） -->
+          <path d="M18 205 L70 178 L120 150 L176 122 L232 104" fill="none" stroke="url(#pLine)" stroke-width="2.4" stroke-linecap="round"/>
+          <!-- 预测路径（虚线） -->
+          <path d="M232 104 L292 88 L344 78 L392 72" fill="none" stroke="url(#fLine)" stroke-width="2" stroke-dasharray="7 7" stroke-linecap="round"/>
+          <!-- 节点 -->
+          <circle cx="18" cy="205" r="3" fill="#47e2f2" opacity=".5"/>
+          <circle cx="70" cy="178" r="3.4" fill="#47e2f2" opacity=".7"/>
+          <circle cx="120" cy="150" r="4" fill="#47e2f2"/>
+          <circle cx="176" cy="122" r="4.4" fill="#bfeef7"/>
+          <circle cx="232" cy="104" r="5" fill="#bfeef7">
+            <animate attributeName="r" values="5;12" dur="2.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".9;0" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="232" cy="104" r="5" fill="#fff" opacity=".9"/>
+        </svg>
+      </div>
+      <!-- 数据标签 -->
+      <div class="labels">
+        <div class="datatag"><span class="dot"></span><span class="k">STORM</span><span class="v">HAIKUI 2025</span></div>
+        <div class="datatag"><span class="dot"></span><span class="k">INT</span><span class="v">强台风 950hPa</span></div>
+        <div class="datatag"><span class="lead">◆</span><span class="k">POS</span><span class="v">28.4N 126.7E</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-fade"></div>
+</section>
+
+<!-- ============ 四功能卡片 ============ -->
+<section class="cards">
+  <div class="cards-head">
+    <h2>核心功能 <span>·</span> CAPABILITIES</h2>
+    <span class="hint">REAL DATA · PARAMETRIC PHYSICS · FULL ARCHIVE</span>
+  </div>
+  <div class="cards-grid">
+
+    <a class="fcard" href="index.html">
+      <div class="fcard-top">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+        <h3>实时态势 <span class="live-tag">LIVE</span></h3>
+      </div>
+      <div class="desc">全球台风实时监测与预报</div>
+      <div class="viz">
+        <div class="minimap">
+          <div class="g"></div>
+          <div class="coast"></div><div class="coast2"></div>
+          <div class="track-line" style="left:16%;top:58%;width:56%;transform:rotate(-18deg)"></div>
+          <div class="track-pts">
+            <div class="tp" style="left:18%;top:60%"></div>
+            <div class="tp" style="left:34%;top:48%"></div>
+            <div class="tp" style="left:50%;top:38%"></div>
+            <div class="tp" style="left:66%;top:28%"></div>
+            <div class="tp" style="left:78%;top:22%"></div>
+          </div>
+        </div>
+      </div>
+      <span class="go">进入实时监测 <span class="arr">→</span></span>
+    </a>
+
+    <a class="fcard" href="archive.html">
+      <div class="fcard-top">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 3h8v2H8z"/></svg>
+        <h3>历史档案</h3>
+      </div>
+      <div class="desc">2000–2026 全部 643 个台风</div>
+      <div class="viz">
+        <div class="arch">
+          <div class="bands"></div>
+          <div class="swirl"></div>
+          <span class="year">ARCHIVE · 2000–2026</span>
+        </div>
+      </div>
+      <span class="go">探索历史风暴 <span class="arr">→</span></span>
+    </a>
+
+    <a class="fcard" href="verify.html">
+      <div class="fcard-top">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 4v5c0 4-3 7-7 8-4-1-7-4-7-8V7z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg>
+        <h3>复盘台</h3>
+      </div>
+      <div class="desc">多维复盘 · 模拟推演 · 对比分析</div>
+      <div class="viz">
+        <div class="ana">
+          <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+          <div class="axis-x"></div><div class="axis-y"></div>
+          <div class="beam" style="transform:rotate(28deg)"></div>
+          <div class="beam" style="transform:rotate(118deg)"></div>
+          <div class="beam" style="transform:rotate(208deg)"></div>
+          <div class="beam" style="transform:rotate(298deg)"></div>
+          <div class="core"></div>
+        </div>
+      </div>
+      <span class="go">开始复盘分析 <span class="arr">→</span></span>
+    </a>
+
+    <a class="fcard" href="trends.html">
+      <div class="fcard-top">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <h3>27年总榜</h3>
+      </div>
+      <div class="desc">643 个台风，数据榜单与趋势</div>
+      <div class="viz">
+        <div class="rank">
+          <div class="donut">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(71,226,242,.1)" stroke-width="11"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dGrad)" stroke-width="11"
+                stroke-linecap="round" stroke-dasharray="251 251" stroke-dashoffset="78"/>
+              <defs><linearGradient id="dGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#47e2f2"/><stop offset="1" stop-color="#0d7cef"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="big">643<small>台 风</small></div>
+          </div>
+          <div class="bars">
+            <i style="height:46%"></i><i style="height:58%"></i><i style="height:38%"></i>
+            <i style="height:92%"></i><i class="hot" style="height:100%"></i><i style="height:74%"></i>
+            <i style="height:62%"></i>
+          </div>
+        </div>
+      </div>
+      <span class="go">查看完整榜单 <span class="arr">→</span></span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ============ 数据指标栏 ============ -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>
+      <div>
+        <div class="val" id="st-active">3<small>个</small></div>
+        <div class="meta"><div class="t">当前活跃台风</div><div class="d">ACTIVE STORMS</div></div>
+      </div>
+      <div class="live-dot"></div>
+    </div>
+    <div class="stat">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <div>
+        <div class="val" id="st-time">--:--<small>北京时</small></div>
+        <div class="meta"><div class="t">最新预报更新</div><div class="d">LAST ISSUE</div></div>
+      </div>
+    </div>
+    <div class="stat">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <div>
+        <div class="val" id="st-arch">643<small>个</small></div>
+        <div class="meta"><div class="t">历史档案总数</div><div class="d">ARCHIVED STORMS</div></div>
+      </div>
+    </div>
+    <div class="stat">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 16l4-6 3 4 4-8"/></svg>
+      <div>
+        <div class="val" id="st-model">12<small>组</small></div>
+        <div class="meta"><div class="t">模型对比数量</div><div class="d">MODEL SCORES</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 页脚 ============ -->
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="src">
+      <b>数据来源：</b>浙江省水利厅台风路径系统 / 中央气象台台风网 / 日本气象厅 / 美国联合台风警报中心 (JTWC)
+    </div>
+    <div class="src">
+      本平台用于科研与可视化研究，不构成正式预报依据。<span>台风防范，请以当地气象部门发布为准。</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* 指标栏真实数据：活跃台风数 + 更新时间，读取 latest.json；失败保持静态 */
+(function(){
+  const $ = s => document.getElementById(s);
+  fetch("../data/latest.json").then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(d=>{
+    const storms = (d.storms||[]).filter(s=>s.is_active);
+    if(storms.length){
+      $("st-active").innerHTML = storms.length + "<small>个</small>";
+    }
+    if(d.generated_at){
+      const t = new Date(d.generated_at);
+      const hh = String(t.getHours()).padStart(2,"0"), mm = String(t.getMinutes()).padStart(2,"0");
+      $("st-time").innerHTML = hh + ":" + mm + "<small>北京时</small>";
+    }
+  }).catch(()=>{ /* 静态值兜底 */ });
+})();
+</script>
+</body>
+</html>

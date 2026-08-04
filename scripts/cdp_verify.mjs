@@ -39,7 +39,7 @@ const BASE = process.argv.includes("--base")
   ? process.argv[process.argv.indexOf("--base") + 1]
   : "file:///C:/Users/%E6%9B%BE%E9%87%91%E6%98%8C/Desktop/%E9%A1%B9%E7%9B%AE/%E5%8F%B0%E9%A3%8E%E7%BD%91%E9%A1%B5/typhoon-lab/typhoon-lab/web/";
 
-const PAGES = ["index.html", "verify.html", "trends.html", "archive.html"];
+const PAGES = ["home.html", "index.html", "verify.html", "trends.html", "archive.html"];
 const STANDS = [
   "C:/Users/曾金昌/Desktop/项目/台风网页/typhoon-lab/typhoon-lab/台风态势_index_standalone.html",
   "C:/Users/曾金昌/Desktop/项目/台风网页/typhoon-lab/typhoon-lab/台风态势_archive_standalone.html",
