@@ -281,6 +281,37 @@ def test_intensity_suppressed_by_vws():
     assert w_lo > w_hi + 10                        # 高切变抑制增强 ≥10 m/s
 
 
+def test_analog_turn_series():
+    """analog 携带转向序列：h 越大 blend 方向越接近序列尾（渐变转向），
+    而非全程固定方向。"""
+    tmp = tempfile.mkdtemp()
+    shp = os.path.join(tmp, "shapes.json")
+    # 构造东行→北转的历史段（后续转向）
+    lat0, lon0 = 20.0, 125.0
+    raw = []
+    for j in range(20):
+        if j < 8:
+            lat, lon = lat0, lon0 + j * 1.5          # 东行
+        else:
+            lat, lon = lat0 + (j - 8) * 1.2, lon0 + 8 * 1.5   # 北转
+        raw.append([round((lat - lat0) * 1e5), round((lon - lon0) * 1e5)])
+    shapes = {"shapes": [{
+        "id": "h1", "year": 1999, "path_km": 4000,
+        "origin": [lat0 * 1e5, lon0 * 1e5], "pts": raw}]}
+    with open(shp, "w", encoding="utf-8") as f:
+        json.dump(shapes, f)
+    st = storm_of([(20, 130, 20), (20.5, 131, 22), (21, 132, 24),
+                   (21.5, 133, 26), (22, 134, 28), (22.5, 135, 30)])
+    no_net()
+    fc = predict.generate_self(st, shp)
+    assert "analog" in fc["methods"]
+    # 检查转向：末点应明显北偏（lat 增幅大）——analog 序列捕捉北转
+    p0, pN = fc["points"][0], fc["points"][-1]
+    dlat = pN["lat"] - p0["lat"]
+    dlon = pN["lon"] - p0["lon"]
+    assert dlat > 2.5                       # 纯东行则 dlat≈0，北转则显著
+
+
 def test_offline_mode_no_network():
     """offline=True：不触发任何网络函数（steering/SST/VWS/SSTA），路径仅
     persistence+analog，用于回测。"""

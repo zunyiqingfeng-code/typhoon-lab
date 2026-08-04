@@ -186,7 +186,10 @@ def analog_vector(track, shapes_path, top_n=3):
     """data/shapes.json 相似路径检索 → 后续运动参考 (方位角, km/h)。
 
     当前最近段与每个历史台风 32 点签名逐窗比较形状，取最相似 top 窗口的
-    "后续段"位移加权平均作为长期趋势。返回 None 表示无可用资料。"""
+    "后续段"位移加权平均作为长期趋势。返回 None 表示无可用资料。
+
+    增强：返回值第二元素扩展为 (speed, series)，series 为相似段后续
+    8 点的相对方向序列（供 _track 渐变转向用）；无 series 时退化为标量。"""
     latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
     if len(latlon) < 6 or not shapes_path or not os.path.exists(shapes_path):
         return None
@@ -211,42 +214,73 @@ def analog_vector(track, shapes_path, top_n=3):
                 continue
             sim = _window_sim(cur, w)
             if (s.get("path_km") or 0) > 250:
-                bests.append((sim, w))
+                bests.append((sim, k, hist))
     if not bests:
         return None
     bests.sort(key=lambda x: x[0])
-    refs = bests[:top_n]
     vecs = []
-    for sim, w in refs:
-        tail = w[-3:]
+    series = []
+    for sim, k, hist in bests[:top_n]:
+        tail = hist[k + 16:k + 19]
         if len(tail) < 2:
             continue
         spd = hav(tail[0], tail[-1]) / (2.0 * STEP_H)
         br = bearing(tail[0], tail[-1])
-        vecs.append((br, max(spd, 1e-6), 1.0 / (sim + 1e-6)))
+        wt = 1.0 / (sim + 1e-6)
+        vecs.append((br, max(spd, 1e-6), wt))
+        # 相似段后续 8 点方向序列（等时距 6h），用于渐变转向
+        nxt = hist[k + 16:k + 25]
+        if len(nxt) >= 3:
+            seq = []
+            for a, b2 in zip(nxt[:-1], nxt[1:]):
+                seq.append(bearing(a, b2))
+            if seq:
+                series.append((wt, seq))
     if not vecs:
         return None
     tot = sum(v for _, _, v in vecs)
     sx = sum(math.cos(br * D2R) * wt for br, _, wt in vecs) / tot
     sy = sum(math.sin(br * D2R) * wt for br, _, wt in vecs) / tot
     spd = sum(sp * wt for _, sp, wt in vecs) / tot
+    # 加权平均转向序列：按步融合各相似段的逐段方向
+    if series:
+        maxlen = max(len(s) for _, s in series)
+        agg = []
+        for i in range(maxlen):
+            xs = ys = ts = 0.0
+            for wt, s in series:
+                if i < len(s):
+                    xs += math.cos(s[i] * D2R) * wt
+                    ys += math.sin(s[i] * D2R) * wt
+                    ts += wt
+            if ts > 0:
+                agg.append((math.degrees(math.atan2(ys, xs)) + 360.0) % 360.0)
+        return (math.degrees(math.atan2(sy, sx)) % 360.0, spd, agg)
     return (math.degrees(math.atan2(sy, sx)) % 360.0, spd)
 
 
 # ---------------------------------------------------------------- 融合
 
 def _weights(h):
-    """提前量 h(h) 的三源权重。0~24h 持续性为主；>72h 趋稳 steering+analog。"""
-    if h <= 24:
+    """提前量 h(h) 的三源权重。
+
+    0~18h 持续性主导（短时惯性最强）；18h 起 analog 渐入（相似路径的
+    转向信息应尽早生效，真实台风 24h 内即开始偏转）；>72h 趋稳
+    steering+analog，persistence 完全退出（直线外推在长提前量必然发散）。"""
+    if h <= 18:
         return {"persistence": 1.0, "steering": 0.0, "analog": 0.0}
     if h >= 72:
         return {"persistence": 0.0, "steering": 0.55, "analog": 0.45}
-    f = min(1.0, (h - 24) / 48.0)
+    # 18h→72h 线性过渡：persistence 1→0，analog 0→0.45，steering 0→0.55
+    f = min(1.0, (h - 18) / 54.0)
     return {"persistence": 1.0 - f, "steering": 0.55 * f, "analog": 0.45 * f}
 
 
 def _blend(methods, h):
-    """h 时刻三源加权合成 (方位角, km/h)。"""
+    """h 时刻三源加权合成 (方位角, km/h)。
+
+    analog 方法项可携带转向序列（第 3 元素为 list，逐 6h 步的方向），
+    该方向随 h 推进而渐变，模拟真实台风连续转弯而非折线段。"""
     nom = _weights(h)
     wsum = sum(nom.get(name, 0.0) for name, _, _ in methods)
     if wsum <= 1e-9:                       # 名义权重全落在不可用源 → 均分
@@ -258,6 +292,15 @@ def _blend(methods, h):
         if not wt:
             continue
         tot += wt
+        if name == "analog" and isinstance(sp, (list, tuple)) and len(sp) >= 2 \
+                and isinstance(sp[1], list) and len(sp[1]) >= 2:
+            # 转向序列：sp=(spd, series)，取对应步方向（约每 6h 一步）
+            series = sp[1]
+            idx = max(0, min(len(series) - 1, int(h / STEP_H) - 1))
+            br_a = series[idx]
+            sx += math.cos(br_a * D2R) * wt
+            sy += math.sin(br_a * D2R) * wt
+            continue
         sx += math.cos(br * D2R) * wt
         sy += math.sin(br * D2R) * wt
         if name != "analog":              # analog 只定方向，速度无时间戳不可信
@@ -327,7 +370,10 @@ def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H,
     if shapes_path:
         av = analog_vector(track, shapes_path)
         if av:
-            methods.append(("analog", av[0], av[1]))
+            if len(av) >= 3:
+                methods.append(("analog", av[0], (av[1], av[2])))   # (spd, 转向序列)
+            else:
+                methods.append(("analog", av[0], av[1]))
     if not methods:
         return None
 
@@ -488,7 +534,10 @@ def generate_cone(storm, shapes_path=None, n_members=60,
     if shapes_path:
         av = analog_vector(track, shapes_path)
         if av:
-            methods.append(("analog", av[0], av[1]))
+            if len(av) >= 3:
+                methods.append(("analog", av[0], (av[1], av[2])))
+            else:
+                methods.append(("analog", av[0], av[1]))
     if not methods:
         return None
     last = latlon[-1]
