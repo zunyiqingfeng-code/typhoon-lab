@@ -1025,10 +1025,20 @@ function renderSim(){
     const key = s.id + "|" + p.t;
     if(sim._ensKey !== key){
       sim._ensKey = key;
-      sim._ensFC = {type:"FeatureCollection",
-        features: TLPhys.ensembleTracks(p, s.forecasts, 40).map(t=>({
+      /* 优先真实模型系综（ECMWF 51 成员，管道侧生成），无则回退蒙特卡洛模拟 */
+      const selfEns = (s.forecasts.find(f=>f.agency==="SELF" && f.ensemble)||{}).ensemble;
+      let feats = [];
+      if(selfEns && selfEns.members && selfEns.members.length){
+        feats = selfEns.members.map(m=>({
+          type:"Feature",
+          properties:{member:m.member, model:selfEns.model||"ens"},
+          geometry:{type:"LineString",coordinates:m.points.map(q=>[q.lon,q.lat])}}));
+      } else {
+        feats = TLPhys.ensembleTracks(p, s.forecasts, 40).map(t=>({
           type:"Feature",properties:{},
-          geometry:{type:"LineString",coordinates:t.map(q=>[q[1],q[0]])}}))};
+          geometry:{type:"LineString",coordinates:t.map(q=>[q[1],q[0]])}}));
+      }
+      sim._ensFC = {type:"FeatureCollection",features:feats};
     }
     map.getSource("ens").setData(sim._ensFC);
   } else map.getSource("ens").setData(emptyFC());

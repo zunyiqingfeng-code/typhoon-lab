@@ -178,6 +178,65 @@ def fetch_steering(lat, lon, radius_deg=6.0, at_time=None):
     return res
 
 
+# ---------------------------------------------------------------- 系综预报
+
+def fetch_steering_ensemble(lat, lon, model="ecmwf_ifs025", lead_h=120,
+                            radius_deg=6.0):
+    """真实模型系综引导风：拉 ECMWF/GFS 系综 500hPa 风场，每成员算一个
+    steering 向量——中心 ±radius 五点空间平均稀释台风自身环流（同单点
+    逻辑），保留成员间分歧作为路径不确定性。
+
+    系综 API 一次请求返回全部成员；5 个采样点 = 5 次请求（对活跃台风
+    每小时管线可接受）。返回 [(member, br, kmh), ...] 或 None（全失败）。"""
+    pts = [(lat, lon), (lat + radius_deg, lon), (lat - radius_deg, lon),
+           (lat, lon + radius_deg), (lat, lon - radius_deg)]
+    # member -> (sx, sy, count) 累积
+    acc = {}
+    for plat, plon in pts:
+        url = ("https://ensemble-api.open-meteo.com/v1/ensemble?latitude=%.4f&longitude=%.4f"
+               "&hourly=wind_speed_500hPa,wind_direction_500hPa"
+               "&forecast_days=%d&models=%s&wind_speed_unit=ms"
+               % (plat, plon, max(1, int(lead_h / 24) + 1), model))
+        try:
+            d = _http_json(url, 20)
+        except Exception:
+            continue
+        hh = d.get("hourly") or {}
+        members = ["ctl"]
+        seen = set()
+        for k in hh:
+            if k.startswith("wind_speed_500hPa_member"):
+                m = k.split("_member")[1]
+                if m not in seen:
+                    seen.add(m)
+                    members.append("member" + m)
+        for mid in members:
+            key_sp = "wind_speed_500hPa" if mid == "ctl" else "wind_speed_500hPa_" + mid
+            key_dr = "wind_direction_500hPa" if mid == "ctl" else "wind_direction_500hPa_" + mid
+            sp = hh.get(key_sp) or []
+            dr = hh.get(key_dr) or []
+            ph = [(s, r) for s, r in zip(sp, dr)
+                  if s is not None and r is not None and not math.isnan(s) and not math.isnan(r)]
+            if not ph:
+                continue
+            m = min(len(ph), 12)                  # 前 12h 平均平滑
+            wx = sum(s * math.sin(r * D2R) for s, r in ph[:m]) / m
+            wy = sum(s * math.cos(r * D2R) for s, r in ph[:m]) / m
+            a = acc.setdefault(mid, [0.0, 0.0, 0])
+            a[0] += wx; a[1] += wy; a[2] += 1
+    out = []
+    for mid, (wx, wy, n) in acc.items():
+        if n == 0:
+            continue
+        u, v = wx / n, wy / n
+        speed = math.hypot(u, v)
+        if speed < 0.5:
+            continue
+        br = (math.degrees(math.atan2(u, v)) + 180.0 + 360.0) % 360.0
+        out.append((mid, br, min(speed * 3.6 * 0.7, 55.0)))
+    return out if out else None
+
+
 def _persist_vector(track):
     """最近 ≤18h 实况位移 → (方位角, km/h)；样本不足返回 None。"""
     latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
@@ -622,3 +681,51 @@ def generate_cone(storm, shapes_path=None, n_members=60,
         out["p%02d" % pct] = members[i][1]
     out["n"] = len(members)
     return out
+
+
+def generate_ensemble(storm, shapes_path=None, model="ecmwf_ifs025",
+                      step=STEP_H, lead=LEAD_H):
+    """真实模型系综路径集合：每系综成员一个 steering 向量 → 一条 SELF 路径。
+
+    区别于 generate_cone（SELF 蒙特卡洛模拟），本函数用 ECMWF/GFS 真实
+    系综成员的引导风分歧驱动路径——反映真实模型对路径的不确定性。
+
+    返回 {"model":model, "members":[{"member":mid, "points":[{t,lat,lon}]}],
+          "n":N} 或 None。系综失败降级返回 None（上游保持单点 SELF）。"""
+    track = storm.get("track") or []
+    latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
+    if len(latlon) < 3:
+        return None
+    last = latlon[-1]
+    t_last = datetime.datetime.fromisoformat(last["t"])
+    start = (last["lat"], last["lon"])
+
+    pv = _persist_vector(track)
+    av = None
+    if shapes_path:
+        try:
+            av = analog_vector(track, shapes_path)
+        except Exception:
+            av = None
+
+    ens = fetch_steering_ensemble(start[0], start[1], model=model, lead_h=lead)
+    if not ens:
+        return None
+
+    members = []
+    for mid, br, spd in ens:
+        methods = []
+        if pv:
+            methods.append(("persistence", pv[0], pv[1]))
+        methods.append(("steering", br, spd))
+        if av:
+            if len(av) >= 3:
+                methods.append(("analog", av[0], (av[1], av[2])))
+            else:
+                methods.append(("analog", av[0], av[1]))
+        pts = _track(methods, start, t_last, step=step, lead=lead)
+        if pts:
+            members.append({"member": mid, "points": pts})
+    if not members:
+        return None
+    return {"model": model, "members": members, "n": len(members)}

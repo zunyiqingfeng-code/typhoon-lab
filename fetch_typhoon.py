@@ -645,7 +645,14 @@ def merge_storm(old, new):
     for f in new.get("forecasts", []):
         key = (f["agency"], f.get("issued_at", ""))
         if key not in fc or len(f.get("points", [])) >= len(fc[key].get("points", [])):
-            fc[key] = f
+            fc[key] = dict(f)
+    # 系综体积大且是"当前预测"语义：archive 只保留最新一条 SELF 预报的 ensemble
+    self_issued = [k for k in fc if k[0] == "SELF"]
+    if self_issued:
+        latest_key = max(self_issued, key=lambda k: k[1])
+        for k in self_issued:
+            if k != latest_key:
+                fc[k].pop("ensemble", None)
     merged = dict(old)
     merged.update({k: v for k, v in new.items()
                    if k not in ("track", "forecasts")})
@@ -845,6 +852,13 @@ def run(source, year, out_dir, keep_days):
                         fc["cone"] = cone
                 except Exception as e:  # noqa: BLE001
                     log("SELF 锥形生成失败 %s：%s" % (s.get("id"), e))
+                try:
+                    ens = self_predict.generate_ensemble(s, shapes_path,
+                                                         model="ecmwf_ifs025")
+                    if ens and ens.get("members"):
+                        fc["ensemble"] = ens
+                except Exception as e:  # noqa: BLE001
+                    log("SELF 系综生成失败 %s：%s" % (s.get("id"), e))
         except ImportError:
             log("scripts/predict.py 缺失，跳过 SELF 推演")
         if n_self:

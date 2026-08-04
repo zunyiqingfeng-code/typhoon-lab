@@ -338,6 +338,61 @@ def test_offline_mode_no_network():
         assert 8 <= p["wind_ms"] <= 48
 
 
+# ---------------------------------------------------------------- 系综预报
+
+def test_ensemble_steering_five_point_average():
+    """系综 steering 五点空间平均：同一成员在中心+偏移点的风矢量正确累积。"""
+    calls = []
+    def fake_http(url, timeout=8):
+        calls.append(1)
+        lat = float(url.split("latitude=")[1].split("&")[0])
+        lon = float(url.split("longitude=")[1].split("&")[0])
+        # 中心东风，偏移点也东风（统一，检验平均逻辑）
+        ph = {"hourly": {"time": ["2026-08-01T00:00"],
+                         "wind_speed_500hPa": [10.0],
+                         "wind_direction_500hPa": [270.0],
+                         "wind_speed_500hPa_member01": [12.0],
+                         "wind_direction_500hPa_member01": [270.0]}}
+        return ph
+    old_http = predict._http_json
+    predict._http_json = fake_http
+    try:
+        ens = predict.fetch_steering_ensemble(20.0, 130.0, model="ecmwf_ifs025")
+    finally:
+        predict._http_json = old_http
+    assert ens is not None
+    assert len(calls) == 5                      # 五点采样
+    bymid = dict((m, (b, s)) for m, b, s in ens)
+    assert "ctl" in bymid and "member01" in bymid
+    # 东风(270°) → 流向西(90°)；ctl 速度 10 m/s × 0.7 × 3.6 = 25.2 km/h
+    br, spd = bymid["ctl"]
+    assert abs(br - 90.0) < 1e-6
+    assert abs(spd - 10.0 * 3.6 * 0.7) < 0.01
+
+
+def test_ensemble_generation_structure():
+    """generate_ensemble 用 mock steering 生成多成员路径。"""
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
+                   (23, 133, 26), (24, 134, 28), (25, 135, 30)])
+    no_net()
+    old = predict.fetch_steering_ensemble
+    predict.fetch_steering_ensemble = lambda *a, **k: [
+        ("ctl", 270.0, 25.0), ("m1", 280.0, 25.0), ("m2", 260.0, 25.0)]
+    try:
+        ens = predict.generate_ensemble(st, None, model="ecmwf_ifs025")
+    finally:
+        predict.fetch_steering_ensemble = old
+    assert ens is not None
+    assert ens["model"] == "ecmwf_ifs025"
+    assert ens["n"] == 3
+    assert len(ens["members"]) == 3
+    for m in ens["members"]:
+        assert m["points"] and "t" in m["points"][0] and "lat" in m["points"][0]
+    # 不同成员（不同方向）末点应不同
+    ends = set(round(m["points"][-1]["lon"], 1) for m in ens["members"])
+    assert len(ends) > 1
+
+
 # ---------------------------------------------------------------- 海温距平 SSTA
 
 def test_ssta_factor_clamp():
