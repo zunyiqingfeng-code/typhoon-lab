@@ -39,7 +39,13 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-SCHEMA_VERSION = "1.1"
+# Schema 演进（供版本追溯与迁移判断）：
+#   1.0 初版：轨迹 + 每机构一份最新预报
+#   1.1 归档保全：按 (机构, 发布时刻) 保留全部历史预报；latest 每机构最新一份
+#   1.2 SELF 系综：SELF 预报附加 ensemble（ECMWF/GFS 真实系综成员），
+#       archive 仅保留最新 SELF 的 ensemble（体积受控），latest 完整保留；
+#       新增 ensemble 结构自检
+SCHEMA_VERSION = "1.2"
 TZ_BJ = timezone(timedelta(hours=8))
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -698,13 +704,34 @@ def health_check(latest_payload, index_payload):
     for s in storms:
         if not s.get("track"):
             issues.append("台风 %s 无轨迹点" % s.get("id"))
+        for p in s.get("track", []):
+            if not (p.get("t") and p.get("lat") is not None and p.get("lon") is not None):
+                issues.append("台风 %s 轨迹点缺 t/lat/lon：%s" % (s.get("id"), p.get("t")))
         for f in s.get("forecasts", []):
             if not f.get("points"):
                 issues.append("台风 %s 机构 %s 预报无点" %
                               (s.get("id"), f.get("agency")))
+            for q in f.get("points", []):
+                if not (q.get("t") and q.get("lat") is not None and q.get("lon") is not None):
+                    issues.append("台风 %s 预报点缺字段：%s" % (s.get("id"), q.get("t")))
+            # SELF 系综结构自检：members 非空、每成员有点
+            ens = f.get("ensemble")
+            if ens is not None:
+                if not isinstance(ens.get("members"), list) or not ens.get("members"):
+                    issues.append("台风 %s SELF 系综 members 异常" % s.get("id"))
+                for m in ens.get("members", []):
+                    if not m.get("points"):
+                        issues.append("台风 %s 系综成员 %s 无点" %
+                                      (s.get("id"), m.get("member")))
     n_idx = len(index_payload.get("storms", []))
     if not latest_payload.get("fixture") and n_idx == 0:
         issues.append("当年索引为空——源站列表可能异常，非淡季需排查")
+    # 索引与 latest 一致性：latest 活跃台风应存在于索引
+    if index_payload.get("year") == latest_payload.get("year"):
+        idx_ids = {s.get("id") for s in index_payload.get("storms", [])}
+        for s in storms:
+            if s.get("is_active") and s.get("id") and s.get("id") not in idx_ids:
+                issues.append("活跃台风 %s 不在当年索引中——索引可能过期" % s.get("id"))
     for m in issues:
         log("  [健康检查] " + m)
     log("健康检查：%d 项异常，当年索引 %d 个台风" % (len(issues), n_idx))

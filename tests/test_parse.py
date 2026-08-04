@@ -20,7 +20,7 @@ def check(cond, msg):
     print("  ok -", msg)
 
 
-check(ft.SCHEMA_VERSION == "1.1", "schema 版本 1.1")
+check(ft.SCHEMA_VERSION == "1.2", "schema 版本 1.2")
 check(ft.norm_pressure("915") == 915 and ft.norm_pressure("9") is None and
       ft.norm_pressure("0") is None and ft.norm_pressure(None) is None,
       "气压物理区间 [850,1050]，挡掉风力等级等垃圾")
