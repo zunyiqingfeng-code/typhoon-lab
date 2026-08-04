@@ -34,6 +34,12 @@ def storm_of(points, sid="202699", name="TEST"):
             "track": track_of(points)}
 
 
+def no_net():
+    """mock 全部境外网络函数抛异常：引导风/SST/VWS/SSTA 全离线，测试确定化。"""
+    for fn in ("fetch_steering", "fetch_sst", "fetch_vws", "fetch_ssta"):
+        setattr(predict, fn, lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net")))
+
+
 def mk_shapes(path, n_shapes=0):
     """生成 shapes.json：可选项——写入 n_shapes 条东行直线历史（起点 20N 130E 往东）。"""
     if n_shapes == 0:
@@ -65,12 +71,8 @@ def test_insufficient_track_returns_none():
 def test_persistence_only_no_network():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    old = predict.fetch_steering
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
-    try:
-        fc = predict.generate_self(st, None)
-    finally:
-        predict.fetch_steering = old
+    no_net()
+    fc = predict.generate_self(st, None)
     assert fc is not None
     assert fc["agency"] == "SELF"
     assert fc["methods"] == ["persistence"]
@@ -92,11 +94,14 @@ def test_steering_turns_toward_wind():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
     predict.fetch_steering = lambda lat, lon: (270.0, 40.0)   # 东风引导：流向西（270°）
+    predict.fetch_sst = lambda *a, **k: 28.0
+    predict.fetch_ssta = lambda *a, **k: 28.0
+    predict.fetch_vws = lambda *a, **k: 5.0
     fc = predict.generate_self(st, None)
     assert "steering" in fc["methods"]
     p0, pN = fc["points"][0], fc["points"][-1]
     # 对比无引导的纯持续性：被东风拉应明显偏西（终经度更小）
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     fc0 = predict.generate_self(st, None)
     q0, qN = fc0["points"][0], fc0["points"][-1]
     assert (qN["lon"] - pN["lon"]) > 15                        # 东风把路径拉西 >15°经度
@@ -108,7 +113,7 @@ def test_analog_with_shapes():
     mk_shapes(shp, n_shapes=3)
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     fc = predict.generate_self(st, shp)
     assert "analog" in fc["methods"]
 
@@ -116,7 +121,7 @@ def test_analog_with_shapes():
 def test_analog_missing_shapes_ok():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     fc = predict.generate_self(st, os.path.join(os.path.dirname(__file__), "nope.json"))
     assert fc is not None and "analog" not in fc["methods"]
 
@@ -133,7 +138,7 @@ def test_grades_consistent():
 def test_cone_structure():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     cone = predict.generate_cone(st, None, n_members=60)
     assert cone is not None
     assert set(cone) >= {"p10", "p50", "p90", "n"}
@@ -147,7 +152,7 @@ def test_cone_structure():
 def test_cone_width_grows():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     cone = predict.generate_cone(st, None, n_members=120, seed=7)
     # P10 与 P90 间距随提前量扩大（近端窄、远端宽）
     d1 = predict.hav([cone["p10"][0]["lat"], cone["p10"][0]["lon"]],
@@ -160,7 +165,7 @@ def test_cone_width_grows():
 def test_cone_reproducible():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     a = predict.generate_cone(st, None, n_members=40, seed=11)
     b = predict.generate_cone(st, None, n_members=40, seed=11)
     assert a["p50"] == b["p50"]
@@ -170,7 +175,7 @@ def test_cone_reproducible():
 def test_cone_p50_near_deterministic():
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24),
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     fc = predict.generate_self(st, None)
     cone = predict.generate_cone(st, None, n_members=80, seed=3)
     det = [[q["lat"], q["lon"]] for q in fc["points"]]
@@ -189,6 +194,9 @@ def test_turn_smoothing():
                    (23, 133, 26), (24, 134, 28), (25, 135, 30)])
     # 流向 270°（西）强吹欲把东行的台风扯向西，考验转向限幅
     predict.fetch_steering = lambda lat, lon: (270.0, 60.0)
+    predict.fetch_sst = lambda *a, **k: 28.0
+    predict.fetch_ssta = lambda *a, **k: 28.0
+    predict.fetch_vws = lambda *a, **k: 5.0
     fc = predict.generate_self(st, None)
     brs = []
     for a, b in zip(fc["points"][:-1], fc["points"][1:]):
@@ -213,8 +221,9 @@ def test_sst_mpi_formula():
 def test_intensity_grows_on_warm_sst():
     # 低温台风 20 m/s 进入 31°C 暖池 → 明显增强向 MPI 靠拢
     st = storm_of([(20, 130, 20)] * 6)
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     predict.fetch_sst = lambda *a, **k: 31.0
+    predict.fetch_ssta = lambda *a, **k: 31.0      # 距平 0，纯 SST 效应
     fc = predict.generate_self(st, None)
     w0 = fc["points"][0]["wind_ms"]
     wN = fc["points"][-1]["wind_ms"]
@@ -226,8 +235,9 @@ def test_intensity_decays_on_cold():
     # 强台风 强场遇到 24°C 冷水 → 衰减至 TD/TS 区间
     st = storm_of([(20, 130, 45), (21, 131, 45), (22, 132, 45),
                    (23, 133, 45), (24, 134, 45), (25, 135, 45)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     predict.fetch_sst = lambda *a, **k: 24.0
+    predict.fetch_ssta = lambda *a, **k: 24.0      # 距平 0，纯 SST 效应
     fc = predict.generate_self(st, None)
     w0 = fc["points"][0]["wind_ms"]
     wN = fc["points"][-1]["wind_ms"]
@@ -238,9 +248,7 @@ def test_intensity_decays_on_cold():
 def test_intensity_offline_still_finite():
     """SST 全失败（无网络）：仍在 28°C 默认值下可得到有限强度，不崩。"""
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
-    predict.fetch_sst = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
-    predict.fetch_vws = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     fc = predict.generate_self(st, None)
     assert fc is not None
     for p in fc["points"]:
@@ -260,8 +268,9 @@ def test_vws_factor_clamp():
 def test_intensity_suppressed_by_vws():
     """同 SST 下，强切变路径的风速上限明显低于弱切变。"""
     st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24)])
-    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    no_net()
     predict.fetch_sst = lambda *a, **k: 30.0
+    predict.fetch_ssta = lambda *a, **k: 30.0      # 距平 0，纯切变效应
 
     predict.fetch_vws = lambda *a, **k: 5.0
     lo = predict.generate_self(st, None)
@@ -270,6 +279,32 @@ def test_intensity_suppressed_by_vws():
     w_lo = lo["points"][-1]["wind_ms"]
     w_hi = hi["points"][-1]["wind_ms"]
     assert w_lo > w_hi + 10                        # 高切变抑制增强 ≥10 m/s
+
+
+# ---------------------------------------------------------------- 海温距平 SSTA
+
+def test_ssta_factor_clamp():
+    assert predict.ssta_factor(None) == 1.0
+    assert abs(predict.ssta_factor(1.0) - 1.03) < 1e-9   # +1°C → +3%
+    assert abs(predict.ssta_factor(-2.0) - 0.94) < 1e-9
+    assert predict.ssta_factor(10.0) == 1.12            # 封顶 ±12%
+    assert predict.ssta_factor(-10.0) == 0.88
+
+
+def test_intensity_boosted_by_warm_anomaly():
+    """同 SST 30°C，暖距平(+2°C)末点风速 > 冷距平(-2°C)。"""
+    no_net()
+    predict.fetch_sst = lambda *a, **k: 30.0
+    predict.fetch_vws = lambda *a, **k: 5.0
+    pts = [{"t": "2026-08-01T%02d:00:00+08:00" % (i % 24),
+            "lat": 20 + i * 0.2, "lon": 130 + i * 0.2} for i in range(20)]
+    predict.fetch_ssta = lambda *a, **k: 28.0      # 气候态 28 → 距平 +2°C（暖）
+    warm = predict.evolve_intensity(pts, 20.0, sst_step=1)
+    predict.fetch_ssta = lambda *a, **k: 32.0      # 气候态 32 → 距平 -2°C（冷）
+    cold = predict.evolve_intensity(pts, 20.0, sst_step=1)
+    w_warm = warm[-1]["wind_ms"]
+    w_cold = cold[-1]["wind_ms"]
+    assert w_warm > w_cold + 5
 
 
 if __name__ == "__main__":

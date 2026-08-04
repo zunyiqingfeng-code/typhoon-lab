@@ -391,16 +391,47 @@ def vws_factor(vws):
     return max(0.35, min(1.0, 1.0 - 0.04 * max(0.0, vws - 8.0)))
 
 
+def fetch_ssta(lat, lon):
+    """去年同期 ±7 天窗口 ERA5 海表温度均值（℃），作气候态参照。
+
+    Open-Meteo archive-api 的 ERA5 仅覆盖约 2025 年中起（实测更早年份无
+    该海域样本），故用去年同期窗口单年均值近似气候态（工程妥协，误差
+    约 ±0.5℃ 量级）。海温距平 SSTA = 实时 SST − 本值。失败抛异常降级。"""
+    now = datetime.datetime.now()
+    last = now.year - 1
+    lo = datetime.datetime(last, now.month, now.day) - datetime.timedelta(days=7)
+    hi = datetime.datetime(last, now.month, now.day) + datetime.timedelta(days=7)
+    url = ("https://archive-api.open-meteo.com/v1/era5?latitude=%.4f&longitude=%.4f"
+           "&start_date=%s&end_date=%s&hourly=sea_surface_temperature"
+           % (lat, lon, lo.strftime("%Y-%m-%d"), hi.strftime("%Y-%m-%d")))
+    d = _http_json(url, 12)
+    vals = [v for v in (d.get("hourly") or {}).get("sea_surface_temperature") or []
+            if v is not None and not math.isnan(v)]
+    if not vals:
+        raise ValueError("ERA5 无气候态 SST 样本")
+    return float(sum(vals) / len(vals))
+
+
+def ssta_factor(ssta):
+    """海温距平（℃）对 MPI 的乘性修正：暖异常增强、冷异常削弱。
+    标定：每 +1℃ 距平 → MPI +3%，封顶 ±12%（±4℃ 量级），防离群海洋波。"""
+    if ssta is None:
+        return 1.0
+    return 1.0 + max(-0.12, min(0.12, 0.03 * ssta))
+
+
 def evolve_intensity(fc_points, last_wind, sst_step=4, use_net=True,
                      default_sst=28.0):
     """给预报路径点（[{t,lat,lon}]）附 wind_ms/grade：强度向该点 SST 对应 MPI
-    指数松弛（近 6h 增量受限 ±9.5 m/s），并叠加垂直风切变对 MPI 的折扣。
+    指数松弛（近 6h 增量受限 ±9.5 m/s），并叠加垂直风切变折扣 + 海温距平修正。
 
-    每 sst_step 个点采一次 SST/VWS（省请求频次），失败/离线回落默认 28°C，
-    保证任何环境产出有限强度。返回带强度字段的新点列表。"""
+    每 sst_step 个点采一次 SST/VWS/SSTA（省请求频次），失败各自独立降级
+    （SST 失败回落默认 28°C，VWS/SSTA 失败置无修正因子），离线产出仍有限。
+    返回带强度字段的新点列表。"""
     wind = last_wind
     sst = default_sst
     vws = None
+    ssta = None
     res = []
     for k, q in enumerate(fc_points):
         if (k + 1) % sst_step == 0 and use_net:
@@ -413,8 +444,14 @@ def evolve_intensity(fc_points, last_wind, sst_step=4, use_net=True,
             try:
                 vws = fetch_vws(q["lat"], q["lon"])
             except Exception:
-                vws = vws if vws is not None else None
-        mpi = sst_mpi(sst) * vws_factor(vws)
+                pass
+            try:
+                clim = fetch_ssta(q["lat"], q["lon"])
+                if clim and 8.0 < clim < 40.0:
+                    ssta = sst - clim
+            except Exception:
+                pass
+        mpi = sst_mpi(sst) * vws_factor(vws) * ssta_factor(ssta)
         d = mpi - wind
         wind = max(8.0, min(78.0, wind + max(-9.5, min(9.5, 0.12 * d))))
         w = round(wind, 1)
