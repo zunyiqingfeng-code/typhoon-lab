@@ -299,6 +299,55 @@
    * 每组 [[latE5,lonE5]...]）逐点取大圆距离均值。平移/尺度不变（各减自身起点、除以
    * 自身总长），方向敏感（反向走的不算相似）。返回等效 km（在两条路径平均尺度上），
    * 0 为完全同形。预筛由调用方做（长度比/起点距离）。 */
+  /* DTW 相似路径（Dynamic Time Warping）：允许时间轴非线性扭曲匹配
+     形状相似的路径——区别于 shapeSimilarity 的等长逐点比较，DTW 能识别
+     "先慢后快/先快后慢"但几何轨迹近似的台风对。
+
+     输入 pts 为 [lat, lon, (可选 wind)] 点序列（已抽稀到相近规模），
+     w 为强度维度权重（0=纯形状，>0 叠加强度曲线差异）。
+     返回 { dist: 归一化 DTW 距离, path: 匹配对数 }。 */
+  function dtwSimilarity(aPts, bPts, w) {
+    w = w == null ? 0 : w;
+    var n = aPts.length, m = bPts.length;
+    if (n < 4 || m < 4) return null;
+    // 归一化：相对起点、按路径尺度缩放
+    var la = shapeLen(aPts), lb = shapeLen(bPts);
+    if (la <= 0 || lb <= 0) return null;
+    var sa = function (p) {
+      return [ (p[1] - aPts[0][1]) / la * 1e-5 * 111.32,
+               (p[0] - aPts[0][0]) / la * 1e-5 * 110.57,
+               p.length > 2 && p[2] != null ? p[2] / 60 : 0 ];
+    };
+    var sb = function (p) {
+      return [ (p[1] - bPts[0][1]) / lb * 1e-5 * 111.32,
+               (p[0] - bPts[0][0]) / lb * 1e-5 * 110.57,
+               p.length > 2 && p[2] != null ? p[2] / 60 : 0 ];
+    };
+    var cost = function (i, j) {
+      var A = sa(aPts[i]), B = sb(bPts[j]);
+      return Math.hypot(A[0] - B[0], A[1] - B[1]) + w * Math.abs(A[2] - B[2]);
+    };
+    // DP 累积距离矩阵（只保留两行，节省内存）
+    var INF = 1e18;
+    var prev = new Array(m).fill(INF), cur = new Array(m).fill(0);
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < m; j++) {
+        var c = cost(i, j);
+        if (i === 0 && j === 0) cur[j] = c;
+        else {
+          var best = Math.min(
+            j > 0 ? cur[j - 1] : INF,     // 横向（a 前进）
+            i > 0 ? prev[j] : INF,        // 纵向（b 前进）
+            i > 0 && j > 0 ? prev[j - 1] : INF); // 对角
+          cur[j] = c + best;
+        }
+      }
+      prev = cur.slice();
+    }
+    var dist = prev[m - 1] / Math.max(n, m);   // 归一化到每步平均
+    return { dist: dist, n: n, m: m };
+  }
+
   function shapeSimilarity(aPts, bPts, aLenKm, bLenKm) {
     var n = Math.min(aPts.length, bPts.length);
     if (n < 4) return null;
@@ -330,5 +379,6 @@
     haversineKm: haversineKm, pathKm: pathKm, statsOf: statsOf,
     decimate: decimate, intensityChart: intensityChart,
     shapeSimilarity: shapeSimilarity, smoothLine: smoothLine,
+    dtwSimilarity: dtwSimilarity,
   };
 });

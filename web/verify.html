@@ -582,14 +582,23 @@ async function findSimilar(){
       const d0=TL.haversineKm([cur.origin[0]/1e5,cur.origin[1]/1e5],
         [s.origin[0]/1e5,s.origin[1]/1e5]);
       if(d0>2600) continue;                                    // 起端不在同海域
-      const r=TL.shapeSimilarity(cur.pts,s.pts,cur.path_km,s.path_km);
-      if(r) hits.push({s,r});
+      /* DTW 形状匹配（容忍时间轴扭曲）+ 月份相近约束（方案 4.2 多维匹配） */
+      const dtw = TL.dtwSimilarity(cur.pts, s.pts, 0);
+      if(!dtw) continue;
+      // 月份接近度：生成月份差 ≤3 月为佳
+      const curM = (cur.start||"").slice(5,7), sM = (s.start||"").slice(5,7);
+      let monthPen = 1.0;
+      if(curM && sM){
+        const dm = Math.abs(+curM - +sM) > 6 ? 12 - Math.abs(+curM - +sM) : Math.abs(+curM - +sM);
+        monthPen = 1 + Math.max(0, dm - 1) * 0.15;             // 差 1 月内无惩罚，每多 1 月 +15%
+      }
+      hits.push({s, r:{ dist: dtw.dist, eqKm: dtw.dist * (cur.path_km + s.path_km) / 2, monthPen }});
     }
-    hits.sort((a,b)=>a.r.eqKm-b.r.eqKm);
+    hits.sort((a,b)=>(a.r.dist*a.r.monthPen)-(b.r.dist*b.r.monthPen));
     box.innerHTML="";
     const note=document.createElement("div");
     note.style.cssText="font-size:10px;color:var(--dim);margin-bottom:6px";
-    note.textContent="按起点对齐、总长归一化后的形状偏差排序（km）；尺度比超 3 倍或起端远离的不参与。";
+    note.textContent="DTW 动态时间规整形状匹配（容忍节奏差异）+ 生成月份相近加权排序（km）；尺度比超 3 倍或起端远离的不参与。";
     box.appendChild(note);
     for(const h of hits.slice(0,10)){
       const row=document.createElement("div");
