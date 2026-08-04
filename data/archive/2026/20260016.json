@@ -2,7 +2,7 @@
  "id": "20260016",
  "name_zh": "热带低压",
  "name_en": "NAMELESS",
- "is_active": true,
+ "is_active": false,
  "basin": "WP",
  "track": [
   {
@@ -50,6 +50,22 @@
    "wind_ms": 15.277777777777777,
    "pressure_hpa": 1000.0,
    "grade": "TD"
+  },
+  {
+   "t": "2026-08-05T02:00:00+08:00",
+   "lat": 16.9,
+   "lon": 118.1,
+   "pressure_hpa": 998.0,
+   "wind_ms": 19.0,
+   "grade": "TD",
+   "move_dir_deg": 315,
+   "move_speed_kmh": 5.0,
+   "r7": {
+    "ne": 200,
+    "se": 200,
+    "sw": 200,
+    "nw": 50
+   }
   }
  ],
  "forecasts": [
@@ -184,6 +200,54 @@
      "lon": 122.2,
      "wind_ms": 11.11111111111111,
      "grade": "TD"
+    }
+   ]
+  },
+  {
+   "agency": "KMA",
+   "issued_at": "2026-08-05T02:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-08-05T14:00:00+08:00",
+     "lat": 17.3,
+     "lon": 119.1,
+     "pressure_hpa": 998.0,
+     "wind_ms": 19.0,
+     "grade": "TD",
+     "move_dir_deg": 67.5,
+     "move_speed_kmh": 9.0,
+     "r7": {
+      "ne": 200,
+      "se": 200,
+      "sw": 200,
+      "nw": 50
+     }
+    },
+    {
+     "t": "2026-08-06T02:00:00+08:00",
+     "lat": 17.5,
+     "lon": 120.3,
+     "pressure_hpa": 998.0,
+     "wind_ms": 19.0,
+     "grade": "TD",
+     "move_dir_deg": 90,
+     "move_speed_kmh": 11.0,
+     "r7": {
+      "ne": 180,
+      "se": 180,
+      "sw": 180,
+      "nw": 50
+     }
+    },
+    {
+     "t": "2026-08-06T14:00:00+08:00",
+     "lat": 17.6,
+     "lon": 121.3,
+     "pressure_hpa": 1000.0,
+     "wind_ms": 15.0,
+     "grade": "TD",
+     "move_dir_deg": 90,
+     "move_speed_kmh": 8.0
     }
    ]
   },
@@ -11080,9 +11144,10 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-05T02:01:11.365484+08:00"
+  "fetched_at": "2026-08-05T03:52:30.662932+08:00"
  },
  "sources": [
+  "kma",
   "pagasa"
  ]
 }
