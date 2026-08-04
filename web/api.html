@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>数据 API · 台风态势实验室</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2347e2f2' stroke-width='2' opacity='.5'/%3E%3Cpath d='M16 3a13 13 0 0 1 13 13' fill='none' stroke='%2347e2f2' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2347e2f2'/%3E%3C/svg%3E">
+<style>
+:root{--bg0:#070b14;--bg1:#0b1326;--panel:rgba(9,16,32,.55);--glass:rgba(255,255,255,.07);
+  --line:rgba(71,226,242,.16);--text:#eef5fb;--sub:#b8c3d0;--dim:#7189a3;
+  --accent:#47e2f2;--mono:ui-monospace,Consolas,monospace;--sans:system-ui,"Segoe UI","Microsoft YaHei",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;
+  background:linear-gradient(180deg,var(--bg1),var(--bg0));min-height:100vh}
+.wrap{max-width:920px;margin:0 auto;padding:34px 24px 60px}
+header{position:relative}
+.back-home{position:absolute;top:4px;right:0;display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--sub);border:1px solid var(--glass);background:var(--panel);
+  border-radius:6px;padding:6px 14px;text-decoration:none;transition:.18s}
+.back-home:hover{color:var(--accent);border-color:var(--line)}
+.lab{font-size:11px;letter-spacing:.32em;color:var(--dim)}
+h1{font-size:26px;font-weight:700;letter-spacing:.06em;margin:10px 0 4px}
+.sub{color:var(--sub);font-size:13px}
+h2{font-size:15px;margin:30px 0 12px;letter-spacing:.1em;color:var(--accent);
+  border-left:3px solid var(--accent);padding-left:10px}
+.card{background:var(--panel);border:1px solid var(--glass);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.card h3{font-size:13px;margin-bottom:8px;color:var(--text);letter-spacing:.05em}
+code{font-family:var(--mono);font-size:12px;background:rgba(71,226,242,.08);
+  border:1px solid rgba(71,226,242,.12);border-radius:4px;padding:1px 6px;color:var(--accent)}
+pre{background:rgba(3,8,16,.7);border:1px solid var(--glass);border-radius:8px;
+  padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+th{text-align:left;font-weight:600;color:var(--sub);border-bottom:1px solid var(--glass);padding:6px 8px;font-size:11px;letter-spacing:.1em}
+td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--sub)}
+td b{color:var(--text);font-weight:500}
+.method{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:3px;margin-right:8px}
+.get{background:rgba(71,226,242,.15);color:var(--accent)}
+.url{font-family:var(--mono);font-size:12.5px;color:var(--accent)}
+.dim{color:var(--dim);font-size:12px}
+a{color:var(--accent)}
+@media(max-width:720px){.wrap{padding:22px 16px 50px}h1{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="lab">台风态势实验室 · DATA API</div>
+  <h1>开放数据接口</h1>
+  <div class="sub">所有数据以静态 JSON 发布，GitHub Pages 直连，无鉴权、无密钥，可自由用于研究与教学。</div>
+  <a class="back-home" href="home.html">← 返回主页</a>
+</header>
+
+<h2>基础信息</h2>
+<div class="card">
+  <h3>Base URL</h3>
+  <code>https://zunyiqingfeng-code.github.io/typhoon-lab/data/</code>
+  <p class="dim" style="margin-top:6px">所有接口 GET 返回 UTF-8 JSON。数据由 GitHub Actions 每小时自动抓取更新。</p>
+</div>
+
+<h2>接口列表</h2>
+<div class="card">
+  <h3>实时态势</h3>
+  <table>
+    <tr><th>接口</th><th>说明</th><th>更新</th></tr>
+    <tr><td><b>latest.json</b></td><td>活跃台风 + 每机构最新预报 + SELF 系综（ECMWF/GFS）</td><td>每小时</td></tr>
+    <tr><td><b>realtime/jma_latest.json</b></td><td>JMA 实时镜像（前端直连降级通道）</td><td>每小时</td></tr>
+  </table>
+</div>
+<div class="card">
+  <h3>历史档案</h3>
+  <table>
+    <tr><th>接口</th><th>说明</th><th>更新</th></tr>
+    <tr><td><b>archive/index.json</b></td><td>全部台风索引（年份/名称/峰值/预报数）</td><td>每小时</td></tr>
+    <tr><td><b>archive/{year}/{id}.json</b></td><td>单台风完整档案（轨迹 + 全机构历史预报）</td><td>每小时</td></tr>
+    <tr><td><b>records.json</b></td><td>归档预计算指标（路径长度/生命时长等）</td><td>每小时</td></tr>
+    <tr><td><b>shapes.json</b></td><td>643 台风形状签名（相似路径检索用）</td><td>每周</td></tr>
+  </table>
+</div>
+<div class="card">
+  <h3>复盘与评分</h3>
+  <table>
+    <tr><th>接口</th><th>说明</th><th>更新</th></tr>
+    <tr><td><b>scores.json</b></td><td>全机构跨年评分（位置/强度误差按提前量档）</td><td>每小时</td></tr>
+    <tr><td><b>self_benchmark.json</b></td><td>SELF 自研推演回测（vs 官方误差对比）</td><td>手动</td></tr>
+  </table>
+</div>
+
+<h2>数据结构</h2>
+<div class="card">
+  <h3>latest.json 摘要</h3>
+  <pre>{
+  "schema_version": "1.2",
+  "generated_at": "2026-08-05T03:12:00+08:00",
+  "source": "zjwater",
+  "storms": [{
+    "id": "202613", "name_zh": "白海豚", "name_en": "DOLPHIN",
+    "is_active": true,
+    "track": [{"t": "...", "lat": 25.2, "lon": 141.4, "wind_ms": 44,
+               "pressure_hpa": 950, "grade": "STY"}],
+    "forecasts": [{
+      "agency": "SELF", "issued_at": "...", "method": "persistence|steering|analog",
+      "points": [{"t": "...", "lat": 25.4, "lon": 136.6, "wind_ms": 49}],
+      "cone": {"p10": [...], "p50": [...], "p90": [...], "n": 60},
+      "ensemble": {"model": "ecmwf_ifs025", "members": [{"member": "ctl", "points": [...]}]},
+      "ensemble_gfs": {"model": "gfs_seamless", "members": [...]}
+    }]
+  }]
+}</pre>
+</div>
+
+<div class="card">
+  <h3>单台风档案 archive/{year}/{id}.json</h3>
+  <pre>{
+  "id": "202613", "name_zh": "白海豚",
+  "track": [ /* 实况轨迹，6h 步进 */ ],
+  "forecasts": [ /* 全部机构全部发布时次的历史预报，按(机构,发布时刻)归档 */ ]
+}</pre>
+</div>
+
+<h2>SELF 自研推演说明</h2>
+<div class="card">
+  <p class="dim" style="line-height:1.9">
+    <b style="color:var(--text)">SELF</b>（Self-Evolving Learning Forecast）为自研情景推演引擎，
+    融合三方法外推 120h：持续性外推 + Open-Meteo 引导气流（500hPa）+ 相似路径检索；
+    强度用 DeMaria-Kaplan MPI + 垂直风切变 + 海温距平修正；概率锥为蒙特卡洛集合，
+    <b style="color:var(--text)">ensemble</b> 为真实 ECMWF/GFS 系综引导风驱动。
+    <b style="color:var(--warn,#f87171)">SELF 为情景模拟，不构成正式预报</b>。
+  </p>
+</div>
+
+<footer style="margin-top:40px;color:var(--dim);font-size:11px;line-height:1.9">
+  数据来源：浙江省水利厅台风路径系统 / 中央气象台台风网 / 日本气象厅 / 美国联合台风警报中心 (JTWC)。
+  本平台用于科研与可视化研究，不构成正式预报依据。
+</footer>
+</div>
+</body>
+</html>
