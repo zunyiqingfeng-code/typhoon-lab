@@ -314,14 +314,15 @@ def _weights(h):
 
     0~18h 持续性主导（短时惯性最强）；18h 起 analog 渐入（相似路径的
     转向信息应尽早生效，真实台风 24h 内即开始偏转）；>72h 趋稳
-    steering+analog，persistence 完全退出（直线外推在长提前量必然发散）。"""
+    analog 权重略高于 steering（形状参考比单点引导更稳，防过度转向），
+    persistence 完全退出（直线外推在长提前量必然发散）。"""
     if h <= 18:
         return {"persistence": 1.0, "steering": 0.0, "analog": 0.0}
     if h >= 72:
-        return {"persistence": 0.0, "steering": 0.55, "analog": 0.45}
-    # 18h→72h 线性过渡：persistence 1→0，analog 0→0.45，steering 0→0.55
+        return {"persistence": 0.0, "steering": 0.45, "analog": 0.55}
+    # 18h→72h 线性过渡：persistence 1→0，steering 0→0.45，analog 0→0.55
     f = min(1.0, (h - 18) / 54.0)
-    return {"persistence": 1.0 - f, "steering": 0.55 * f, "analog": 0.45 * f}
+    return {"persistence": 1.0 - f, "steering": 0.45 * f, "analog": 0.55 * f}
 
 
 def _blend(methods, h):
