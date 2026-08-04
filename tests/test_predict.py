@@ -38,8 +38,6 @@ def no_net():
     """mock 全部境外网络函数抛异常：引导风/SST/VWS/SSTA 全离线，测试确定化。"""
     for fn in ("fetch_steering", "fetch_sst", "fetch_vws", "fetch_ssta"):
         setattr(predict, fn, lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net")))
-
-
 def mk_shapes(path, n_shapes=0):
     """生成 shapes.json：可选项——写入 n_shapes 条东行直线历史（起点 20N 130E 往东）。"""
     if n_shapes == 0:
@@ -310,6 +308,19 @@ def test_analog_turn_series():
     dlat = pN["lat"] - p0["lat"]
     dlon = pN["lon"] - p0["lon"]
     assert dlat > 2.5                       # 纯东行则 dlat≈0，北转则显著
+
+
+def test_steer_history_cache():
+    """at_time 历史 steering：同整点+位置 key 一致（cache 命中前提），
+    不同整点/位置 key 不同。"""
+    k1 = predict._steer_key("2026-08-01T00:15:00+08:00", 20.1, 130.4)
+    k2 = predict._steer_key("2026-08-01T00:45:00+08:00", 20.1, 130.4)  # 同整点
+    k3 = predict._steer_key("2026-08-01T01:00:00+08:00", 20.1, 130.4)  # 不同整点
+    k4 = predict._steer_key("2026-08-01T00:15:00+08:00", 20.8, 130.4)  # 不同位置
+    assert k1 == k2
+    assert k1 != k3
+    assert k1 != k4
+    assert predict._steer_key(None, 20.0, 130.0) is None      # 当前预报不缓存
 
 
 def test_offline_mode_no_network():

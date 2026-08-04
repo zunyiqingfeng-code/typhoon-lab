@@ -73,7 +73,7 @@ def trim_history(track, n=6, step_h=6):
     return picked if len(picked) >= 4 else track[-n:]
 
 
-def backtest_storm(storm, shapes_path, offline=True):
+def backtest_storm(storm, shapes_path, offline=True, history=False):
     """对单个台风滚动回测：返回 {lead: [err, ...]} 与 n。"""
     track = storm.get("track") or []
     track = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
@@ -99,7 +99,9 @@ def backtest_storm(storm, shapes_path, offline=True):
         st = {"id": storm.get("id"), "name_en": storm.get("name_en"),
               "is_active": False, "track": hist}
         try:
-            fc = predict.generate_self(st, shapes_path, offline=offline)
+            fc = predict.generate_self(st, shapes_path, offline=True,
+                                       at_time=(hist[-1]["t"] if history else None),
+                                       steer_history=history)
         except Exception:
             continue
         if not fc or not fc.get("points"):
@@ -177,8 +179,11 @@ def main():
     ap.add_argument("--out", default="data/self_benchmark.json")
     ap.add_argument("--online", action="store_true",
                     help="启用网络环境场（steering/SST/切变，慢）")
+    ap.add_argument("--history", action="store_true",
+                    help="用 Open-Meteo past_days 历史 500hPa 引导风（近 30 天台风）")
     args = ap.parse_args()
     offline = not args.online
+    history = args.history
 
     shapes_path = args.shapes if os.path.exists(args.shapes) else None
     storms = []
@@ -197,7 +202,7 @@ def main():
 
     agg = {"self": {}, "official": {}, "storms": len(storms), "used": 0}
     for st in storms:
-        r = backtest_storm(st, shapes_path, offline=offline)
+        r = backtest_storm(st, shapes_path, offline=offline, history=history)
         o = collect_official(st, None)
         if not r and not o:
             continue

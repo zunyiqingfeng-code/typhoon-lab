@@ -91,11 +91,39 @@ def _http_json(url, timeout=8):
         return json.load(r)
 
 
-def fetch_steering(lat, lon, radius_deg=6.0):
+_STEER_CACHE = {}
+
+
+def _steer_key(at_time, lat, lon):
+    if not at_time:
+        return None
+    return (datetime.datetime.fromisoformat(at_time).strftime("%Y-%m-%dT%H"),
+            round(lat, 1), round(lon, 1))
+
+
+def _parse_dt(s):
+    """容错解析时间字符串（ISO，带或不带时区 → 统一转 UTC aware）。"""
+    try:
+        dt = datetime.datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt
+
+
+def fetch_steering(lat, lon, radius_deg=6.0, at_time=None):
     """大尺度引导气流近似：台风中心 ±radius_deg 五点（中心/北/南/东/西）500hPa
     风矢量平均——台风自身环流半径可达数百 km，单点采样会被涡旋污染。
     经验关系：台风移动速度 ≈ 0.7 × 引导风速（beta 效应折减），并设物理上限。
-    返回 (流向方位角, km/h)。失败抛异常由调用方降级。"""
+    返回 (流向方位角, km/h)。失败抛异常由调用方降级。
+
+    at_time 给出历史时刻（ISO），则用 past_days 窗口拉历史风场并取该时刻
+    附近 ±6h 样本平均——供回测近 30 天台风时使用真实历史引导气流。
+    历史请求按 (时刻, 位置) 缓存，避免回测重复拉取。"""
+    ck = _steer_key(at_time, lat, lon)
+    if ck and ck in _STEER_CACHE:
+        return _STEER_CACHE[ck]
     pts = [(lat, lon), (lat + radius_deg, lon), (lat - radius_deg, lon),
            (lat, lon + radius_deg), (lat, lon - radius_deg)]
     sx = sy = ws = 0.0
@@ -103,18 +131,33 @@ def fetch_steering(lat, lon, radius_deg=6.0):
     for plat, plon in pts:
         url = ("https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                "&hourly=wind_speed_500hPa,wind_direction_500hPa"
-               "&forecast_days=2&wind_speed_unit=ms" % (plat, plon))
+               % (plat, plon))
+        if at_time:
+            url += "&past_days=30&forecast_days=1&wind_speed_unit=ms"
+        else:
+            url += "&forecast_days=2&wind_speed_unit=ms"
         d = _http_json(url, 8)
         hh = d.get("hourly") or {}
         spd = hh.get("wind_speed_500hPa") or []
         drc = hh.get("wind_direction_500hPa") or []
-        ph = [(s, r) for s, r in zip(spd, drc)
-              if s is not None and r is not None and not math.isnan(s) and not math.isnan(r)]
+        tms = hh.get("time") or []
+        if at_time and tms:
+            target = _parse_dt(at_time)
+            idxs = sorted(range(len(tms)),
+                          key=lambda i: abs(_parse_dt(tms[i]) - target).total_seconds())
+            ph = [(spd[i], drc[i]) for i in idxs[:4]
+                  if spd[i] is not None and drc[i] is not None
+                  and not math.isnan(spd[i]) and not math.isnan(drc[i])
+                  and abs(_parse_dt(tms[i]) - target).total_seconds() <= 6 * 3600]
+        else:
+            ph = [(s, r) for s, r in zip(spd, drc)
+                  if s is not None and r is not None and not math.isnan(s) and not math.isnan(r)]
+            ph = ph[:4]
         if not ph:
             continue
-        m = min(len(ph), 4)
-        wx = sum(s * math.sin(r * D2R) for s, r in ph[:m]) / m
-        wy = sum(s * math.cos(r * D2R) for s, r in ph[:m]) / m
+        m = len(ph)
+        wx = sum(s * math.sin(r * D2R) for s, r in ph) / m
+        wy = sum(s * math.cos(r * D2R) for s, r in ph) / m
         sx += wx
         sy += wy
         ws += math.hypot(wx, wy)
@@ -127,7 +170,10 @@ def fetch_steering(lat, lon, radius_deg=6.0):
     if speed < 0.5:
         raise ValueError("引导风近似静稳")
     br = (math.degrees(math.atan2(u, v)) + 180.0 + 360.0) % 360.0
-    return br, min(speed * 3.6 * 0.7, 55.0)                   # km/h，0.7 折减，≤55
+    res = (br, min(speed * 3.6 * 0.7, 55.0))      # km/h，0.7 折减，≤55
+    if ck:
+        _STEER_CACHE[ck] = res
+    return res
 
 
 def _persist_vector(track):
@@ -344,11 +390,15 @@ def _track(methods, start, t0, step=STEP_H, lead=LEAD_H,
 
 
 def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H,
-                  offline=False):
+                  offline=False, at_time=None, steer_history=False):
     """引擎入口：storm 需含 track；shapes_path 指向 data/shapes.json（可缺）。
 
-    offline=True 时禁用一切网络请求（无 steering、SST 用默认 28°C），
-    用于回测/批量场景——路径退化为 persistence+analog，强度退化为固定松弛。
+    offline=True 时禁用网络环境场（无 steering、SST 用默认 28°C）——
+    用于纯形状回测/批量场景，路径退化为 persistence+analog。
+
+    at_time / steer_history：历史回测用。steer_history=True 时即使 offline
+    也拉 at_time 时刻的历史 500hPa 引导风（Open-Meteo past_days ~30 天回溯），
+    路径含 steering；强度仍按 offline 处理（无历史强度场，用固定松弛）。
 
     返回 {"agency":"SELF","issued_at","points":[{t,lat,lon,wind_ms,grade}], "methods":[...]}
     轨迹样本不足返回 None。"""
@@ -361,9 +411,10 @@ def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H,
     methods = []
     if pv:
         methods.append(("persistence", pv[0], pv[1]))
-    if not offline:
+    if not offline or steer_history:
         try:
-            sv = fetch_steering(latlon[-1]["lat"], latlon[-1]["lon"])
+            kw = {"at_time": at_time} if at_time else {}
+            sv = fetch_steering(latlon[-1]["lat"], latlon[-1]["lon"], **kw)
             methods.append(("steering", sv[0], sv[1]))
         except Exception:
             pass

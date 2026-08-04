@@ -1,31 +1,31 @@
 {
  "schema": "self-benchmark-v1",
- "generated_at": "2026-08-04T02:12:24.329392",
+ "generated_at": "2026-08-04T02:37:38.562282",
  "note": "SELF 回测：2025-06 起环境场覆盖期；路径主由 persistence+analog 驱动",
  "aggregate": {
   "24": {
-   "self_mean_km": 231.0,
-   "self_n": 348,
-   "official_mean_km": 55.0,
-   "official_n": 8583
+   "self_mean_km": 227.7,
+   "self_n": 58,
+   "official_mean_km": 70.7,
+   "official_n": 670
   },
   "48": {
-   "self_mean_km": 578.8,
-   "self_n": 265,
-   "official_mean_km": 85.2,
-   "official_n": 4907
+   "self_mean_km": 493.5,
+   "self_n": 42,
+   "official_mean_km": 95.8,
+   "official_n": 455
   },
   "72": {
-   "self_mean_km": 873.6,
-   "self_n": 192,
-   "official_mean_km": 135.1,
-   "official_n": 3002
+   "self_mean_km": 691.4,
+   "self_n": 35,
+   "official_mean_km": 151.8,
+   "official_n": 366
   },
   "120": {
-   "self_mean_km": 1284.3,
-   "self_n": 62,
-   "official_mean_km": 393.6,
-   "official_n": 944
+   "self_mean_km": 1046.5,
+   "self_n": 16,
+   "official_mean_km": 302.4,
+   "official_n": 225
   }
  }
 }
