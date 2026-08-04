@@ -325,16 +325,30 @@ async function selectStorm(meta){
 
 function renderStorm(){
   const s = storm, tr = s._dtrack;
-  /* 轨迹线段 + 点 */
+  /* 轨迹线段 + 点：按等级连续段合并成平滑线（Catmull-Rom），
+     feature 数从 N 段降到等级段数，maplibre 渲染更快且路径更流畅 */
   const gradeColor = ["match",["get","grade"],
     ...Object.entries(TL.GRADE).flatMap(([k,v])=>[k,v.c]), "#8fa5b8"];
   const segs = [], pts = [];
+  // 按等级连续段切分
+  const runs = [];            // [{grade, pts:[[lon,lat]...]}]
+  let cur = null;
   for(let i=0;i<tr.length;i++){
     const p = tr[i];
     pts.push({type:"Feature",properties:{...p, idx:i, future:0},
       geometry:{type:"Point",coordinates:[p.lon,p.lat]}});
-    if(i>0) segs.push({type:"Feature",properties:{grade:p.grade},
-      geometry:{type:"LineString",coordinates:[[tr[i-1].lon,tr[i-1].lat],[p.lon,p.lat]]}});
+    if(!cur || cur.grade !== p.grade){
+      if(cur) runs.push(cur);
+      cur = {grade:p.grade, pts:[[p.lon,p.lat]]};
+    } else cur.pts.push([p.lon,p.lat]);
+  }
+  if(cur) runs.push(cur);
+  for(const r of runs){
+    if(r.pts.length >= 2){
+      const sm = TL.smoothLine(r.pts, 3);
+      segs.push({type:"Feature",properties:{grade:r.grade},
+        geometry:{type:"LineString",coordinates:sm}});
+    }
   }
   map.getSource("trk-line").setData({type:"FeatureCollection",features:segs});
   trkPtFC = {type:"FeatureCollection",features:pts};

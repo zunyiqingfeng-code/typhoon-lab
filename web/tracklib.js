@@ -93,8 +93,34 @@
   }
 
   /* 抽稀：单台风点超 maxN 时，保留首末、强度极值点与等级跳变点，其余均匀取点 */
-  function decimate(track, maxN) {
-    var n = track.length;
+  /* Catmull-Rom 样条平滑：对轨迹点列插值，消除折线棱角。
+     返回 [[lon,lat],...] 平滑坐标列；点数少或不平滑则原样返回。 */
+  function smoothLine(coords, segsPerSeg) {
+    segsPerSeg = segsPerSeg || 3;
+    if (!coords || coords.length < 3) return coords;
+    var out = [coords[0]];
+    for (var i = 0; i < coords.length - 1; i++) {
+      var p0 = coords[Math.max(0, i - 1)];
+      var p1 = coords[i];
+      var p2 = coords[i + 1];
+      var p3 = coords[Math.min(coords.length - 1, i + 2)];
+      for (var s = 1; s <= segsPerSeg; s++) {
+        var t = s / segsPerSeg;
+        var t2 = t * t, t3 = t2 * t;
+        out.push([
+          0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t +
+            (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 +
+            (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
+          0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t +
+            (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 +
+            (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3),
+        ]);
+      }
+    }
+    return out;
+  }
+
+  function decimate(track, maxN) {    var n = track.length;
     if (n <= maxN) return track;
     var keep = { 0: 1, [n - 1]: 1 };
     for (var i = 1; i < n - 1; i++) {
@@ -303,6 +329,6 @@
     fmtT: fmtT, fmtFull: fmtFull, bjHour: bjHour, grade: grade, deg2zh: deg2zh,
     haversineKm: haversineKm, pathKm: pathKm, statsOf: statsOf,
     decimate: decimate, intensityChart: intensityChart,
-    shapeSimilarity: shapeSimilarity,
+    shapeSimilarity: shapeSimilarity, smoothLine: smoothLine,
   };
 });
