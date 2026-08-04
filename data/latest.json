@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-04T11:32:33.127477+08:00",
+ "generated_at": "2026-08-04T11:43:06.542082+08:00",
  "source": "zjwater",
  "fixture": false,
  "storms": [
@@ -176,7 +176,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-04T11:32:33.127477+08:00"
+    "fetched_at": "2026-08-04T11:43:06.542082+08:00"
    },
    "sources": [
     "hko",
@@ -2414,141 +2414,141 @@
        "t": "2026-08-04T17:00:00+08:00",
        "lat": 25.198,
        "lon": 141.4,
-       "wind_ms": 46.4,
+       "wind_ms": 49.2,
        "grade": "STY"
       },
       {
        "t": "2026-08-04T23:00:00+08:00",
        "lat": 25.195,
        "lon": 140.2,
-       "wind_ms": 42.8,
+       "wind_ms": 48.5,
        "grade": "STY"
       },
       {
        "t": "2026-08-05T05:00:00+08:00",
        "lat": 25.193,
        "lon": 139.0,
-       "wind_ms": 39.2,
-       "grade": "TY"
+       "wind_ms": 47.8,
+       "grade": "STY"
       },
       {
        "t": "2026-08-05T11:00:00+08:00",
        "lat": 25.19,
        "lon": 137.8,
-       "wind_ms": 35.6,
-       "grade": "TY"
+       "wind_ms": 49.5,
+       "grade": "STY"
       },
       {
        "t": "2026-08-05T17:00:00+08:00",
        "lat": 25.16,
        "lon": 136.599,
-       "wind_ms": 32.0,
-       "grade": "STS"
+       "wind_ms": 50.9,
+       "grade": "STY"
       },
       {
        "t": "2026-08-05T23:00:00+08:00",
        "lat": 25.1,
        "lon": 135.398,
-       "wind_ms": 28.4,
-       "grade": "STS"
+       "wind_ms": 52.1,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-06T05:00:00+08:00",
        "lat": 25.009,
        "lon": 134.198,
-       "wind_ms": 24.8,
-       "grade": "STS"
+       "wind_ms": 53.2,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-06T11:00:00+08:00",
        "lat": 24.887,
        "lon": 133.0,
-       "wind_ms": 21.2,
-       "grade": "TS"
+       "wind_ms": 54.3,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-06T17:00:00+08:00",
        "lat": 24.733,
        "lon": 131.804,
-       "wind_ms": 17.6,
-       "grade": "TS"
+       "wind_ms": 55.3,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-06T23:00:00+08:00",
        "lat": 24.544,
        "lon": 130.613,
-       "wind_ms": 14.0,
-       "grade": "TD"
+       "wind_ms": 56.1,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-07T05:00:00+08:00",
        "lat": 24.321,
        "lon": 129.427,
-       "wind_ms": 10.4,
-       "grade": "TD"
+       "wind_ms": 56.8,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-07T11:00:00+08:00",
        "lat": 24.062,
        "lon": 128.247,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.0,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-07T17:00:00+08:00",
        "lat": 23.803,
        "lon": 127.069,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.1,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-07T23:00:00+08:00",
        "lat": 23.545,
        "lon": 125.894,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.2,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-08T05:00:00+08:00",
        "lat": 23.286,
        "lon": 124.721,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.3,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-08T11:00:00+08:00",
        "lat": 23.027,
        "lon": 123.551,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.2,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-08T17:00:00+08:00",
        "lat": 22.768,
        "lon": 122.382,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.1,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-08T23:00:00+08:00",
        "lat": 22.51,
        "lon": 121.216,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.1,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-09T05:00:00+08:00",
        "lat": 22.251,
        "lon": 120.052,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 57.0,
+       "grade": "SuperTY"
       },
       {
        "t": "2026-08-09T11:00:00+08:00",
        "lat": 21.992,
        "lon": 118.89,
-       "wind_ms": 10.0,
-       "grade": "TD"
+       "wind_ms": 56.8,
+       "grade": "SuperTY"
       }
      ],
      "method": "persistence|steering|analog",
@@ -2865,7 +2865,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-04T11:32:33.127477+08:00"
+    "fetched_at": "2026-08-04T11:43:06.542082+08:00"
    },
    "sources": [
     "kma",

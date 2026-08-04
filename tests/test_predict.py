@@ -82,11 +82,10 @@ def test_persistence_only_no_network():
     t0 = datetime.datetime.fromisoformat(fc["points"][0]["t"])
     t1 = datetime.datetime.fromisoformat(fc["points"][1]["t"])
     assert (t1 - t0).total_seconds() == 6 * 3600
-    # 强度联动：缓弱且不超过实况
-    assert fc["points"][-1]["wind_ms"] < fc["points"][0]["wind_ms"]
+    # 强度联动：受 MPI 上界约束（默认 SST 28°C → MPI≈43 m/s，含 10% 裕度）
     for p in fc["points"]:
-        assert 0 < p["wind_ms"] <= 35
-        assert p["grade"] in predict.GRADE_BY_WIND or predict.grade_of(p["wind_ms"]) == p["grade"]
+        assert 8 <= p["wind_ms"] <= 48
+        assert predict.grade_of(p["wind_ms"]) == p["grade"]
 
 
 def test_steering_turns_toward_wind():
@@ -197,6 +196,55 @@ def test_turn_smoothing():
     for x, y in zip(brs[:-1], brs[1:]):
         d = ((y - x + 540.0) % 360.0) - 180.0
         assert abs(d) <= 8.1
+
+
+# ---------------------------------------------------------------- SST 强度耦合
+
+def test_sst_mpi_formula():
+    # DeMaria-Kaplan 1994：28°C≈43 m/s(STY)，30°C≈56(SuperTY)，26°C≈34(TC)
+    m28 = predict.sst_mpi(28.0)
+    m30 = predict.sst_mpi(30.0)
+    m26 = predict.sst_mpi(26.0)
+    assert 40 < m28 < 46
+    assert m30 > m28 and m30 < 60
+    assert m26 < m28 and m26 > 30
+
+
+def test_intensity_grows_on_warm_sst():
+    # 低温台风 20 m/s 进入 31°C 暖池 → 明显增强向 MPI 靠拢
+    st = storm_of([(20, 130, 20)] * 6)
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    predict.fetch_sst = lambda *a, **k: 31.0
+    fc = predict.generate_self(st, None)
+    w0 = fc["points"][0]["wind_ms"]
+    wN = fc["points"][-1]["wind_ms"]
+    assert wN > w0 + 10                          # 120h 内显著增强
+    assert all(p["wind_ms"] <= 62 for p in fc["points"])   # MHz 上界约束
+
+
+def test_intensity_decays_on_cold():
+    # 强台风 强场遇到 24°C 冷水 → 衰减至 TD/TS 区间
+    st = storm_of([(20, 130, 45), (21, 131, 45), (22, 132, 45),
+                   (23, 133, 45), (24, 134, 45), (25, 135, 45)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    predict.fetch_sst = lambda *a, **k: 24.0
+    fc = predict.generate_self(st, None)
+    w0 = fc["points"][0]["wind_ms"]
+    wN = fc["points"][-1]["wind_ms"]
+    assert wN < w0 - 5
+    assert wN < 32                              # 冷水 MPI≈28m/s 承不起超强台风
+
+
+def test_intensity_offline_still_finite():
+    """SST 全失败（无网络）：仍在 28°C 默认值下可得到有限强度，不崩。"""
+    st = storm_of([(20, 130, 20), (21, 131, 22), (22, 132, 24)])
+    predict.fetch_steering = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    predict.fetch_sst = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no net"))
+    fc = predict.generate_self(st, None)
+    assert fc is not None
+    for p in fc["points"]:
+        assert 8 <= p["wind_ms"] <= 50
+        assert predict.grade_of(p["wind_ms"]) == p["grade"]
 
 
 if __name__ == "__main__":

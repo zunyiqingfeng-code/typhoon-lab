@@ -270,7 +270,7 @@ def _blend(methods, h):
 
 
 def _track(methods, start, t0, step=STEP_H, lead=LEAD_H,
-           rng=None, perturb=False, wind0=0):
+           rng=None, perturb=False):
     """正推一条折线（每 step 一点）。start=(lat,lon)，t0=基准时刻(str)。
 
     perturb=True 时做集合扰动：每步方向加高斯扰动（幅随提前量渐扩）、
@@ -331,23 +331,61 @@ def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
     last_wind = last.get("wind_ms") or 0
 
     tr = _track(methods, (last["lat"], last["lon"]), t_last,
-                step=step, lead=lead, wind0=last_wind)
-    points = []
-    for k, q in enumerate(tr, 1):
-        h = k * step
-        if last_wind:                              # 强度联动：随时间缓弱（不算实况）
-            wind = max(10.0, last_wind - h * 0.6)
-        else:
-            wind = 28.0 - h * 0.4
-        q["wind_ms"] = round(wind, 1)
-        q["grade"] = grade_of(wind)
-        points.append(q)
+                step=step, lead=lead)
+    points = evolve_intensity(tr, last_wind)
     return {
         "agency": "SELF",
         "issued_at": last["t"],
         "points": points,
         "methods": [m[0] for m in methods],
     }
+
+
+def fetch_sst(lat, lon):
+    """Open-Meteo 海表温度（℃）。失败抛异常由调用方降级。"""
+    url = ("https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
+           "&hourly=sea_surface_temperature&forecast_days=1" % (lat, lon))
+    d = _http_json(url, 8)
+    sst = (d.get("hourly") or {}).get("sea_surface_temperature") or []
+    vals = [v for v in sst if v is not None and not math.isnan(v)]
+    if not vals:
+        raise ValueError("Open-Meteo 无 SST 样本")
+    return float(vals[0])
+
+
+def sst_mpi(sst_c):
+    """DeMaria-Kaplan 1994 简式最大潜在强度 → m/s。
+
+    Vmax = 28.2 + 55.8·exp(0.1813·(SST−28))，单位 kt，×0.5144 转 m/s。
+    物理上界：28°C ~ 43 m/s(STY)、30°C ~ 56 m/s(SuperTY)，与观测量级一致。"""
+    return (28.2 + 55.8 * math.exp(0.1813 * (sst_c - 28.0))) * 0.5144
+
+
+def evolve_intensity(fc_points, last_wind, sst_step=4, use_net=True,
+                     default_sst=28.0):
+    """给预报路径点（[{t,lat,lon}]）附 wind_ms/grade：强度向该点 SST 对应的
+    MPI 指数松弛，近 6h 增量受限 ±9 m/s，逼近真实增强/衰减速率。
+
+    每 sst_step 个点采一次 SST（省请求频次），失败/离线回落默认 28°C，
+    保证任何环境产出有限强度。返回带强度字段的新点列表。"""
+    wind = last_wind
+    sst = default_sst
+    res = []
+    for k, q in enumerate(fc_points):
+        if (k + 1) % sst_step == 0 and use_net:
+            try:
+                v = fetch_sst(q["lat"], q["lon"])
+                if v and 8.0 < v < 40.0:
+                    sst = v
+            except Exception:
+                pass
+        mpi = sst_mpi(sst)
+        d = mpi - wind
+        wind = max(8.0, min(78.0, wind + max(-9.5, min(9.5, 0.12 * d))))
+        w = round(wind, 1)
+        res.append({"t": q["t"], "lat": q["lat"], "lon": q["lon"],
+                    "wind_ms": w, "grade": grade_of(w)})
+    return res
 
 
 def generate_cone(storm, shapes_path=None, n_members=60,
