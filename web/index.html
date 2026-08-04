@@ -980,6 +980,7 @@ const steer = {
 
 function renderSim(){
   const s = storm(), tr = track();
+  if(!s || !tr || !tr.length) return;          // 数据未就绪（JMA 到达竞态）时静默
   const atLatest = tIdx === tr.length-1;
   const p = stormMotionFilled(tr[tIdx], tr, tIdx);
   sim.state = TLPhys.makeState(p);
