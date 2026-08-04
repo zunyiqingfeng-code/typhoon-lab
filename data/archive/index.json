@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-04T17:48:27.877181+08:00",
+ "generated_at": "2026-08-04T20:16:17.032694+08:00",
  "n_storms": 648,
  "years": [
   2000,
@@ -10731,9 +10731,10 @@
    "start": "2026-08-04T17:00:00+08:00",
    "end": "2026-08-04T17:00:00+08:00",
    "n_points": 1,
-   "n_forecasts": 1,
+   "n_forecasts": 2,
    "agencies": [
-    "CMA"
+    "CMA",
+    "HKO"
    ],
    "peak_wind_ms": 15.0,
    "min_pressure_hpa": 1002.0
