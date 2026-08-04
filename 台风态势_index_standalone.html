@@ -1843,6 +1843,7 @@ function setSpeed(i){
     return;
   }
   selectInitial();
+  window.__LOCAL_STORMS__ = DATA.storms || [];
   bindSource(DATA.source);
   bindUI();
   buildMap();
@@ -1867,6 +1868,30 @@ function setSpeed(i){
 })();
 
 function applyJMA(src, storms){
+  /* 合并本地自研 SELF 预报：JMA 台风与本地活跃台风按最新位置接近匹配，
+     命中则把本地非 JMA 预报（含 SELF）并入，使 JMA 直连模式也可见 SELF 线/锥 */
+  const locals = (window.__LOCAL_STORMS__ || []);
+  const matchLocal = j => {
+    const jp = j.track[j.track.length-1];
+    if(!jp) return null;
+    let best = null, bestD = 2.0;
+    for(const s of locals){
+      if(!s.is_active || !s.track.length) continue;
+      const sp = s.track[s.track.length-1];
+      const dt = Math.abs(Date.parse(sp.t) - Date.parse(jp.t));
+      if(dt > 12*3600*1000) continue;
+      const d = Math.hypot(sp.lat-jp.lat, (sp.lon-jp.lon)*Math.cos(sp.lat*Math.PI/180));
+      if(d < bestD){ bestD = d; best = s; }
+    }
+    return best;
+  };
+  for(const j of storms){
+    const l = matchLocal(j);
+    if(l && l.forecasts){
+      const extra = l.forecasts.filter(f=>f.agency!=="JMA");
+      if(extra.length) j.forecasts = (j.forecasts||[]).concat(extra);
+    }
+  }
   DATA = {schema_version:"1.1", generated_at:new Date().toISOString(),
           source:src, fixture:false, storms:storms};
   stormIdx = 0;
