@@ -5,13 +5,16 @@
  * 模型口径：
  *  - Holland (1980) 梯度风剖面：
  *      Vg(r) = sqrt( B·ΔP/ρ · (RMW/r)^B · e^{-(RMW/r)^B} + (rf/2)² ) − rf/2
- *  - B 由 Vmax 与 ΔP 反解：Vmax² = B·ΔP/(ρe)  →  B = ρ·e·Vmax²/ΔP，钳制 [1.0, 2.5]
- *  - RMW：有 7 级风圈时，令 Vg(r7)=13.9 m/s 对 RMW 二分反解（r7 取四象限均值）；
- *    无 r7 时用 Willoughby et al. (2006, Mon. Wea. Rev.) 式 7a 气候估计
- *    RMW = 46.4·exp(−0.0155·Vmax + 0.0169·|φ|)（Vmax m/s，φ 纬度度，RMW km）
- *    —— 较原线性占位有物理与纬度依据
- *  - B 仍由 Vmax 与 ΔP 反解（Holland 1980）。Vickery–Wadhera(2008) 的 B(Rmax,φ)
- *    经验式确切系数需原文核对，未凭记忆采用，保留 Holland 关系
+ *  - B 用 Vickery–Wadhera (2008) 经验式（Vickery et al. 2009, J. Wind Eng.
+ *    Ind. Aerodyn. 综述式(19) 与 Fig.10 回归 y = −2.237x + 1.732，R²=0.336）：
+ *      B = 1.732 − 2.237·√A，A = RMW·f / √( 2·R_d·T_s·ln(1 + ΔP/(p_c·e)) )
+ *    RMW 取 m，f = 2Ωsinφ，R_d = 287 J/(kg·K)，T_s 海温 K，ΔP/p_c 同单位
+ *    —— 系数按 NOAA 综述核对；2007 waveworkshop 幻灯片 OCR 有 1.772 之歧，
+ *       以综述为准。钳制 [1.0, 2.5]
+ *  - RMW：有 7 级风圈时，与 B 固定点联立反解——令 Vg(r7)=13.9 m/s 对 RMW
+ *    二分（r7 取四象限均值），再按上式更新 B，迭代至自洽；
+ *    无 r7 时用 V&W(2008) 全样本气候回归（与 ParaTC 实现逐字核对）：
+ *    ln(RMW) = 3.015 − 6.291e−5·Δp² + 0.0337·φ（Δp hPa、φ 纬度度、RMW km）
  *  - 非对称：叠加移动矢量，权重 w(r) = 2·RMW·r/(RMW²+r²)（RMW 处为 1）
  *  - 入流角 20° 指向中心；北半球气旋逆时针
  *  - 集合路径：对多机构预报的逐提前时刻均值做持续性随机游走扰动，
@@ -30,6 +33,8 @@
   const PENV = 1006;             // 环境气压 hPa（西太夏季典型值）
   const GALE = 13.9;             // 7 级下限 m/s
   const D2R = Math.PI / 180;
+  const RD = 287;                // 干空气气体常数 J/(kg·K)
+  const TS_DEFAULT = 301.15;     // 默认海温 K（28°C，可被 pt.sst_c 覆盖）
 
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 
@@ -55,30 +60,51 @@
     return [φ2 / D2R, λ2 / D2R];         // [lat, lon]
   }
 
-  /* ---- Holland 参数估计 ---- */
+  /* ---- Holland 参数估计（B 用 V&W 2008 经验式） ---- */
+  function vickeryWadheraB(rmwKm, latDeg, dPPa, pcPa, tsK) {
+    const A = (rmwKm * 1000 * coriolis(latDeg)) /
+              Math.sqrt(2 * RD * tsK * Math.log(1 + dPPa / (pcPa * Math.E)));
+    return clamp(1.732 - 2.237 * Math.sqrt(A), 1.0, 2.5);
+  }
+
+  function vickeryRmw(dPmb, latDeg) {
+    return clamp(Math.exp(3.015 - 6.291e-5 * dPmb * dPmb +
+                          0.0337 * Math.abs(latDeg)), 10, 100);
+  }
+
   function estimateParams(pt) {
     const vmax = pt.wind_ms || 18;
     const pc = pt.pressure_hpa || (PENV - 8);
     const dP = Math.max(3, PENV - pc) * 100;              // Pa
-    const B = clamp(RHO * Math.E * vmax * vmax / dP, 1.0, 2.5);
-    let rmw = null, rmwSource = "fallback";
+    const tsK = 273.15 + (pt.sst_c == null ? 28 : pt.sst_c);
+    const lat = Math.abs(pt.lat == null ? 20 : pt.lat);
+    const f = coriolis(lat);
+    const bHolland = clamp(RHO * Math.E * vmax * vmax / dP, 1.0, 2.5);
+    let B = bHolland, rmw = null, rmwSource = "fallback";
     const r7 = pt.r7 ? (pt.r7.ne + pt.r7.se + pt.r7.sw + pt.r7.nw) / 4 : null;
     if (r7 && r7 > 20 && vmax > GALE + 1) {
-      // Vg(r7)=GALE 对 RMW 单调递增 → 二分
-      let lo = 8, hi = Math.min(120, r7 * 0.9);
-      const f = coriolis(pt.lat);
-      for (let i = 0; i < 40; i++) {
-        const mid = (lo + hi) / 2;
-        (gradientWind(r7, mid, B, dP, f) < GALE ? lo = mid : hi = mid);
+      // Vg(r7)=GALE 对 RMW 单调递增 → 二分；与 V&W B 固定点联立
+      const bisect = b => {
+        let lo = 8, hi = Math.min(120, r7 * 0.9);
+        for (let i = 0; i < 40; i++) {
+          const mid = (lo + hi) / 2;
+          (gradientWind(r7, mid, b, dP, f) < GALE ? lo = mid : hi = mid);
+        }
+        return (lo + hi) / 2;
+      };
+      for (let it = 0; it < 6; it++) {
+        rmw = bisect(B);
+        B = vickeryWadheraB(rmw, lat, dP, pc * 100, tsK);
       }
-      rmw = (lo + hi) / 2; rmwSource = "r7-inverse";
+      rmw = bisect(B);                                    // 末轮用最终 B 精化
+      rmwSource = "r7-inverse";
     } else {
-      // Willoughby et al. (2006) 式 7a：Vmax m/s、纬度度 → RMW km
-      const lat = Math.abs(pt.lat == null ? 20 : pt.lat);
-      rmw = clamp(46.4 * Math.exp(-0.0155 * vmax + 0.0169 * lat), 10, 100);
-      rmwSource = "willoughby06";
+      // Vickery & Wadhera (2008) 全样本 RMW 回归（Δp hPa、纬度度 → RMW km）
+      rmw = vickeryRmw(dP / 100, lat);
+      B = vickeryWadheraB(rmw, lat, dP, pc * 100, tsK);
+      rmwSource = "vw08";
     }
-    return { vmax, pc, dP, B, rmw, rmwSource };
+    return { vmax, pc, dP, B, bHolland, rmw, rmwSource, tsK };
   }
 
   const coriolis = lat => Math.abs(2 * OMEGA * Math.sin(lat * D2R));
@@ -270,7 +296,8 @@
     }).sort((a, b) => a.distKm - b.distKm);
   }
 
-  return { estimateParams, gradientWind, windAt, makeState,
+  return { estimateParams, vickeryWadheraB, vickeryRmw,
+           gradientWind, windAt, makeState,
            ensembleTracks, forecastCone, cityImpacts, consensus,
            haversineKm, destPoint, convexHull, climoErrKm, GALE };
 });

@@ -8,7 +8,8 @@
 ## 四个页面
 
 - `web/index.html` 实时态势图：当前/最近台风的路径、风圈、多机构预报锥、
-  Holland 风场粒子、集合路径、城市影响估算（几何计算非预警）；JMA 实时三级降级
+  Holland 风场粒子（B 用 Vickery–Wadhera 2008 经验式）、集合路径、城市影响
+  估算（几何计算非预警）；JMA 实时三级降级
   （浏览器直连 → Actions 同步镜像 → 本地档案），来源以角标明示
 - `web/archive.html` 历史档案：2000–2026 全部 643 个台风，按年份/强度/寿命/路径
   长度筛选排序，地图回放 + 强度曲线 + 年度峰值对比
@@ -35,7 +36,7 @@ web/archive.html        历史档案（新）
 web/verify.html         复盘台
 web/trends.html         27 年总榜（内联 SVG 图表，零依赖）
 web/tracklib.js         共享库：强度色带/时间格式化/路径统计/抽稀/强度曲线图
-web/physics.js          Holland 风场 / 集合 / 锥 / CPA 纯函数
+web/physics.js          Holland 风场（V&W 2008 B）/ 集合 / 锥 / CPA 纯函数
 web/eval.js             复盘评测层：预报点对实况位置算误差，纯函数
 web/splash.js           雷达主题开屏动画，四页共用
 web/vendor/             maplibre-gl，npm 官方发行文件原样落盘
@@ -47,7 +48,7 @@ scripts/ci_healthcheck.py   CI 趋势告警：台风数/轨迹点骤降即红灯
 scripts/import_digital_typhoon.py  Digital Typhoon(JMA) GeoJSON 导入器
 scripts/backfill_dt.py  DT 全库批量下载
 scripts/build_standalone.py  打零依赖单文件预览（--page index|archive，数据/镜像内联）
-tests/                  解析层(31)/物理层(21)/评测层(15) 断言与样本
+tests/                  解析层(31)/物理层(23)/评测层(15) 断言与样本
 .github/workflows/fetch.yml  每小时抓取+重建索引评分+JMA 镜像+records 重建+健康检查+有变更才提交
 ```
 
@@ -99,8 +100,13 @@ python3 tests/test_parse.py && node tests/test_physics.mjs && node tests/test_ev
 
 ## 部署
 
-见 `docs/deploy.md`：托管两套方案对比、就绪清单、需拍板的花钱/域名/备案决策。
-境外 GitHub Actions runner 已验证能连通 zjwater 并自动 push 数据。
+已开源上线，GitHub Pages 托管（静态站，无服务器费用）：
+
+https://zunyiqingfeng-code.github.io/typhoon-lab/
+
+- 数据经 Actions 每小时自动抓取并 push（fetch.yml），Pages 从 master 根直接发布，
+  `.nojekyll` 保证 JSON 原样下发
+- 本地部署见 `docs/deploy.md`
 
 ## 合规红线
 
@@ -112,4 +118,4 @@ python3 tests/test_parse.py && node tests/test_physics.mjs && node tests/test_ev
 
 台风实况与预报：浙江省水利厅台风路径系统 / 中央气象台台风网 / 日本气象厅（非官方转发）。
 陆地轮廓：Natural Earth（公有领域）。地图引擎：MapLibre GL JS（BSD-3）。
-RMW 气候式：Willoughby et al. (2006)。
+B 与 RMW 气候式：Vickery & Wadhera (2008)（系数经 NOAA 综述 Vickery et al. 2009 核对）。

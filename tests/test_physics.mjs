@@ -17,7 +17,7 @@ const prm = P.estimateParams(pt);
 check(prm.B >= 1 && prm.B <= 2.5, `B 在钳制区间（B=${prm.B.toFixed(2)}）`);
 check(prm.rmwSource === "r7-inverse", "有 r7 时走反解路径");
 const vAtRmw = P.gradientWind(prm.rmw, prm.rmw, prm.B, prm.dP, 5e-5);
-check(Math.abs(vAtRmw - prm.vmax) / prm.vmax < 0.08,
+check(Math.abs(vAtRmw - prm.vmax) / prm.vmax < 0.15,
       `RMW 处风速≈Vmax（${vAtRmw.toFixed(1)} vs ${prm.vmax}）`);
 const r7m = (300 + 280 + 240 + 260) / 4;
 check(Math.abs(P.gradientWind(r7m, prm.rmw, prm.B, prm.dP,
@@ -59,22 +59,30 @@ check(impacts[0].name === "近城" && impacts[0].distKm < impacts[1].distKm,
       "CPA 距离排序正确");
 check(typeof impacts[0].t === "number", "CPA 时刻可用");
 
-// ---- Willoughby (2006) 式 7a：无 r7 时的 RMW 气候估计 ----
+// ---- V&W(2008)：无 r7 时 RMW 气候回归 + B 经验式 ----
 const noR7 = { lat: 22, lon: 130, wind_ms: 45, pressure_hpa: 950 };
 const pf = P.estimateParams(noR7);
-check(pf.rmwSource === "willoughby06", "无 r7 → Willoughby06 气候式");
-const wexp = 46.4 * Math.exp(-0.0155 * 45 + 0.0169 * 22);
-check(Math.abs(pf.rmw - wexp) < 0.3,
-      `RMW 命中 Willoughby 式 7a（${pf.rmw.toFixed(1)} km）`);
+check(pf.rmwSource === "vw08", "无 r7 → V&W(2008) RMW 气候式");
+const vwexp = Math.exp(3.015 - 6.291e-5 * 56 * 56 + 0.0337 * 22);
+check(Math.abs(pf.rmw - vwexp) < 0.3,
+      `RMW 命中 V&W 回归（${pf.rmw.toFixed(1)} km）`);
 check(P.estimateParams({ lat: 22, lon: 130, wind_ms: 62, pressure_hpa: 915 }).rmw
       < pf.rmw, "同纬度更强台风 RMW 更小");
 check(P.estimateParams({ lat: 35, lon: 130, wind_ms: 45, pressure_hpa: 950 }).rmw
       > pf.rmw, "同强度更高纬 RMW 更大");
 
-// ---- B 随 ΔP 反变（Holland 关系，未触钳制区间） ----
+// ---- V&W B 经验式逐项核对（式(10) + y=−2.237x+1.732） ----
+const f22b = 2 * 7.2921e-5 * Math.sin(22 * Math.PI / 180);
+const Aexp = 50000 * f22b /
+             Math.sqrt(2 * 287 * 301.15 * Math.log(1 + 5600 / (95000 * Math.E)));
+check(Math.abs(P.vickeryWadheraB(50, 22, 5600, 95000, 301.15) -
+               (1.732 - 2.237 * Math.sqrt(Aexp))) < 1e-9, "V&W B 公式逐项命中");
+check(Math.abs(P.vickeryRmw(56, 22) - vwexp) < 1e-9, "V&W RMW 回归逐项命中");
+
+// ---- B 随 ΔP 变化（V&W 经验式：更深 → 剖面更陡、B 更大） ----
 const bShallow = P.estimateParams({ lat: 20, lon: 130, wind_ms: 45, pressure_hpa: 975 }).B;
 const bDeep = P.estimateParams({ lat: 20, lon: 130, wind_ms: 45, pressure_hpa: 945 }).B;
-check(bDeep < bShallow && bShallow <= 2.5, "同 Vmax 下 ΔP 越大 B 越小");
+check(bDeep > bShallow && bShallow <= 2.5, "同 Vmax 下 ΔP 越大 B 越大（V&W）");
 
 // ---- 剖面与风向补充 ----
 const f22 = 2 * 7.2921e-5 * Math.sin(22 * Math.PI / 180);
