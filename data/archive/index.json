@@ -1,7 +1,7 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-04T14:39:03.186983+08:00",
- "n_storms": 647,
+ "generated_at": "2026-08-04T17:48:27.877181+08:00",
+ "n_storms": 648,
  "years": [
   2000,
   2001,
@@ -10724,6 +10724,21 @@
    "min_pressure_hpa": 1002.0
   },
   {
+   "id": "20260016",
+   "year": 2026,
+   "name_zh": "热带低压",
+   "name_en": "NAMELESS",
+   "start": "2026-08-04T17:00:00+08:00",
+   "end": "2026-08-04T17:00:00+08:00",
+   "n_points": 1,
+   "n_forecasts": 1,
+   "agencies": [
+    "CMA"
+   ],
+   "peak_wind_ms": 15.0,
+   "min_pressure_hpa": 1002.0
+  },
+  {
    "id": "202601",
    "year": 2026,
    "name_zh": "洛鞍",
@@ -10955,9 +10970,9 @@
    "name_zh": "白海豚",
    "name_en": "DOLPHIN",
    "start": "2026-07-27T08:00:00+08:00",
-   "end": "2026-08-04T14:00:00+08:00",
-   "n_points": 66,
-   "n_forecasts": 264,
+   "end": "2026-08-04T17:00:00+08:00",
+   "n_points": 67,
+   "n_forecasts": 270,
    "agencies": [
     "CMA",
     "CWA",
