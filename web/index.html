@@ -514,6 +514,9 @@ function buildMap(){
     },
     center:[128,24], zoom:3.6, minZoom:2.4, maxZoom:9,
     maxBounds:[[84,-12],[182,58]],
+    fadeDuration:0,               // 禁用图层淡入淡出——海量系综线/轨迹点高频更新时省 GPU
+    antialias:false,              // 矢量细线已平滑，省 MSAA 开销
+    canvasContextAttributes:{alpha:false, antialias:false, preserveDrawingBuffer:true},
   });
   map.addControl(new maplibregl.NavigationControl({showCompass:false}), "bottom-left");
   map.addControl(new maplibregl.AttributionControl({compact:true,

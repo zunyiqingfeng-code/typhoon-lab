@@ -428,6 +428,7 @@ function buildMap(){
       {id:"coast",type:"line",source:"land",paint:{"line-color":"#2c4a63","line-width":1}},
     ]},
     center:[128,24], zoom:3.4, minZoom:2.2, maxZoom:9, maxBounds:[[84,-12],[182,58]],
+    fadeDuration:0, antialias:false,
   });
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-left");
   map.addControl(new maplibregl.AttributionControl({compact:true,
