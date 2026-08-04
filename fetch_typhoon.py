@@ -886,6 +886,14 @@ def run(source, year, out_dir, keep_days):
                         fc["ensemble"] = ens
                 except Exception as e:  # noqa: BLE001
                     log("SELF 系综生成失败 %s：%s" % (s.get("id"), e))
+                # GFS 系综作第二套（多模型对比；ECMWF 失败时天然互补）
+                try:
+                    ens_g = self_predict.generate_ensemble(s, shapes_path,
+                                                           model="gfs_seamless")
+                    if ens_g and ens_g.get("members"):
+                        fc["ensemble_gfs"] = ens_g
+                except Exception as e:  # noqa: BLE001
+                    log("SELF GFS 系综失败 %s：%s" % (s.get("id"), e))
         except ImportError:
             log("scripts/predict.py 缺失，跳过 SELF 推演")
         if n_self:
