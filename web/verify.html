@@ -71,6 +71,8 @@ body{background:
 #rail{position:absolute;top:92px;right:16px;z-index:5;width:280px;
   display:flex;flex-direction:column;gap:10px;max-height:calc(100% - 210px);
   overflow-y:auto;scrollbar-width:thin}
+#rail-head{display:none}   /* 桌面不显示抽屉头 */
+#rail-body{display:flex;flex-direction:column;gap:10px}  /* 桌面直接展示 */
 .card{background:var(--panel);border:1px solid var(--glass);border-radius:var(--r);
   padding:10px 12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .card h3{margin:0 0 8px;font-size:10px;font-weight:400;color:var(--dim);
@@ -132,9 +134,18 @@ a{color:var(--accent)}
 @media(max-width:720px){
   #picker{left:12px;right:12px;width:auto;top:64px}
   #plist{max-height:240px}
-  #rail{left:12px;right:12px;top:auto;bottom:126px;width:auto;max-height:150px;
-    flex-direction:row;overflow-x:auto;overflow-y:hidden}
-  #rail .card{min-width:230px;flex:none}
+  /* rail → 底部抽屉：默认收起为一条横条，点击展开滚动面板 */
+  #rail{left:12px;right:12px;top:auto;bottom:126px;width:auto;max-height:none;
+    flex-direction:column;gap:0;overflow:visible;background:none;border:none}
+  #rail-head{display:flex;align-items:center;gap:10px;height:42px;flex:none;
+    padding:0 12px;border:1px solid var(--glass);border-radius:12px;
+    background:var(--panel);backdrop-filter:blur(10px);cursor:pointer}
+  #rail-head .grip{width:34px;height:3px;border-radius:2px;background:rgba(255,255,255,.18)}
+  #rail-title{font-size:11px;letter-spacing:.2em;color:var(--dim)}
+  #rail-chev{margin-left:auto;color:var(--dim);font-size:12px;transition:transform .25s}
+  #rail.open #rail-chev{transform:rotate(180deg)}
+  #rail-body{display:none;padding-top:6px;max-height:calc(38vh - 42px);overflow-y:auto}
+  #rail.open #rail-body{display:flex;flex-direction:column;gap:10px}
   #brand .zh{font-size:19px}
   #tl-lab{display:none}
   #play{width:44px;height:44px;border-radius:10px}
@@ -167,6 +178,12 @@ a{color:var(--accent)}
 </div>
 
 <aside id="rail">
+  <div id="rail-head" aria-expanded="false">
+    <span class="grip"></span>
+    <span id="rail-title">分析面板</span>
+    <span id="rail-chev">▲</span>
+  </div>
+  <div id="rail-body">
   <section class="card" id="card-ag">
     <h3>机构 · 本次发布误差</h3>
     <div id="ag-list"></div>
@@ -210,6 +227,7 @@ a{color:var(--accent)}
       <code>scripts/backtest_self.py</code>）
     </div>
   </section>
+  </div><!-- /rail-body -->
 </aside>
 
 <div id="tl">
@@ -647,6 +665,13 @@ function bindUI(){
   $("#play").onclick=()=> playing?stopPlay():startPlay();
   $("#sim-btn").onclick=findSimilar;
   bindCmp();
+  /* 移动端抽屉：点击头部展开/收起（桌面 rail-head 隐藏不受影响） */
+  const rh=$("#rail-head");
+  if(rh) rh.addEventListener("click",()=>{
+    const open=$("#rail").classList.toggle("open");
+    rh.setAttribute("aria-expanded", open?"true":"false");
+    if(open && map) setTimeout(()=>map.resize(), 250);
+  });
 }
 function startPlay(){
   if(!stops.length) return;
