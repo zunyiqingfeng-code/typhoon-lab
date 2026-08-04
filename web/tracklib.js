@@ -26,6 +26,7 @@
     HKO: { c: "#63e0b8", zh: "香港天文台" },
     CWA: { c: "#f2a0e0", zh: "台湾气象署" },
     KMA: { c: "#c9d86b", zh: "韩国气象厅" },
+    SELF: { c: "#ff9d2e", zh: "SELF 自研" },
   };
   var R_EARTH = 6371.0;
   var D2R = Math.PI / 180;

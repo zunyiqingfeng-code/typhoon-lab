@@ -815,6 +815,35 @@ def run(source, year, out_dir, keep_days):
                 log("补充源 %s：%d 个台风，匹配并入 %d 个" %
                     (src_name, len(extra_storms), matched))
 
+    # SELF 自研推演：对每个活跃台风生成 SELF 预报线（三方法融合外推 120h）
+    # 失败只记日志不阻断；fixture 模式不生成（无真实轨迹）
+    if used != "fixture":
+        n_self = 0
+        try:
+            _self_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     "scripts")
+            if _self_dir not in sys.path:
+                sys.path.insert(0, _self_dir)
+            import predict as self_predict
+            shapes_path = os.path.join(out_dir, "shapes.json")
+            for s in storms:
+                if not s.get("is_active"):
+                    continue
+                try:
+                    fc = self_predict.generate_self(s, shapes_path)
+                except Exception as e:  # noqa: BLE001
+                    log("SELF 推演失败 %s：%s" % (s.get("id"), e))
+                    continue
+                if not fc:
+                    continue
+                fc["method"] = "|".join(fc.pop("methods", []))
+                s.setdefault("forecasts", []).append(fc)
+                n_self += 1
+        except ImportError:
+            log("scripts/predict.py 缺失，跳过 SELF 推演")
+        if n_self:
+            log("SELF 推演完成：%d 个活跃台风生成自研预报线" % n_self)
+
     for s in storms:
         s["meta"] = {"source": used, "fetched_at": fetched_at}
 

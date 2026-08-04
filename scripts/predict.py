@@ -1,0 +1,327 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""predict.py — SELF 自研推演引擎（管道侧，纯标准库无 pip 依赖）
+
+对一份台风实况轨迹（track），用三种方法融合外推 120h（6h 步进）：
+  1. 持续性外推 persistence —— 最近实况位移矢量线性持续（短期主导）
+  2. 引导气流 steering     —— Open-Meteo 500hPa 探针风矢量驱动（中期修正）
+  3. 相似路径 analog       —— data/shapes.json 历史 32 点签名，检索窗口相似段，
+                              取历史后续位移序列加权作为长期趋势（转向参考）
+三源加权随提前量平滑过渡：短时重持续性、长时重相似、全程用 steering 压制无意义转向抖动。
+
+输出统一 schema 的 SELF 预报（agency 固定 "SELF"），与其它机构预报同构，
+写入 storm["forecasts"] 后自动进入 latest/归档/复盘评分，前端无需特判。
+
+任意子方法失败自动降级，绝不抛异常打断抓取管道：
+  - Open-Meteo 请求失败/超时 → 跳过 steering
+  - shapes.json 缺失/为空     → 跳过 analog（仅持续性）
+  - 实况轨迹不足 3 点         → 返回 None
+
+用法（调试，非管道入口）：
+  python3 scripts/predict.py            # 读 data/latest.json 活跃台风，打印 SELF 概要
+"""
+import datetime
+import json
+import math
+import os
+import sys
+
+D2R = math.pi / 180.0
+R_EARTH = 6371.0
+TZ_BJ = datetime.timezone(datetime.timedelta(hours=8))
+
+LEAD_H = 120          # 外推总长（小时）
+STEP_H = 6            # 每步（小时）
+WIND_SLOW = 20.0      # 引导风速度下限 km/h（避免浮点抖动）
+
+GRADE_BY_WIND = [      # CMA GB/T 19201 近中心最大风速 m/s 分级
+    (51.0, "SuperTY"), (41.5, "STY"), (33.0, "TY"),
+    (24.5, "STS"), (17.2, "TS"), (0.0, "TD"),
+]
+
+
+def grade_of(w):
+    if not w:
+        return "TD"
+    for thr, g in GRADE_BY_WIND:
+        if w >= thr:
+            return g
+    return "TD"
+
+
+# ---------------------------------------------------------------- 几何
+
+def hav(a, b):
+    f1, f2 = a[0] * D2R, b[0] * D2R
+    df = (b[0] - a[0]) * D2R
+    dl = (b[1] - a[1]) * D2R
+    s = math.sin(df / 2.0) ** 2 + math.cos(f1) * math.cos(f2) * math.sin(dl / 2.0) ** 2
+    return 2.0 * R_EARTH * math.asin(math.sqrt(s))
+
+
+def bearing(a, b):
+    """a→b 初始方位角（度，0=北）。"""
+    y = math.sin((b[1] - a[1]) * D2R) * math.cos(b[0] * D2R)
+    x = (math.cos(a[0] * D2R) * math.sin(b[0] * D2R) -
+         math.sin(a[0] * D2R) * math.cos(b[0] * D2R) * math.cos((b[1] - a[1]) * D2R))
+    return (math.degrees(math.atan2(y, x)) + 360.0) % 360.0
+
+
+def dest(lat, lon, brg, km):
+    d = km / R_EARTH
+    lat1, lon1 = lat * D2R, lon * D2R
+    brr = brg * D2R
+    la2 = math.asin(math.sin(lat1) * math.cos(d) +
+                    math.cos(lat1) * math.sin(d) * math.cos(brr))
+    lo2 = lon1 + math.atan2(math.sin(brr) * math.sin(d) * math.cos(lat1),
+                            math.cos(d) - math.sin(lat1) * math.sin(la2))
+    return [math.degrees(la2), (math.degrees(lo2) + 540.0) % 360.0 - 180.0]
+
+
+def _pt(p):
+    return [p["lat"], p["lon"]]
+
+
+# ---------------------------------------------------------------- 三方法
+
+def _http_json(url, timeout=8):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "typhoon-lab/1.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.load(r)
+
+
+def fetch_steering(lat, lon, radius_deg=6.0):
+    """大尺度引导气流近似：台风中心 ±radius_deg 五点（中心/北/南/东/西）500hPa
+    风矢量平均——台风自身环流半径可达数百 km，单点采样会被涡旋污染。
+    经验关系：台风移动速度 ≈ 0.7 × 引导风速（beta 效应折减），并设物理上限。
+    返回 (流向方位角, km/h)。失败抛异常由调用方降级。"""
+    pts = [(lat, lon), (lat + radius_deg, lon), (lat - radius_deg, lon),
+           (lat, lon + radius_deg), (lat, lon - radius_deg)]
+    sx = sy = ws = 0.0
+    k = 0
+    for plat, plon in pts:
+        url = ("https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
+               "&hourly=wind_speed_500hPa,wind_direction_500hPa"
+               "&forecast_days=2&wind_speed_unit=ms" % (plat, plon))
+        d = _http_json(url, 8)
+        hh = d.get("hourly") or {}
+        spd = hh.get("wind_speed_500hPa") or []
+        drc = hh.get("wind_direction_500hPa") or []
+        ph = [(s, r) for s, r in zip(spd, drc)
+              if s is not None and r is not None and not math.isnan(s) and not math.isnan(r)]
+        if not ph:
+            continue
+        m = min(len(ph), 4)
+        wx = sum(s * math.sin(r * D2R) for s, r in ph[:m]) / m
+        wy = sum(s * math.cos(r * D2R) for s, r in ph[:m]) / m
+        sx += wx
+        sy += wy
+        ws += math.hypot(wx, wy)
+        k += 1
+    if k == 0:
+        raise ValueError("Open-Meteo 无有效风场样本")
+    u = sx / k
+    v = sy / k
+    speed = math.hypot(u, v)
+    if speed < 0.5:
+        raise ValueError("引导风近似静稳")
+    br = (math.degrees(math.atan2(u, v)) + 180.0 + 360.0) % 360.0
+    return br, min(speed * 3.6 * 0.7, 55.0)                   # km/h，0.7 折减，≤55
+
+
+def _persist_vector(track):
+    """最近 ≤18h 实况位移 → (方位角, km/h)；样本不足返回 None。"""
+    latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
+    if len(latlon) < 2:
+        return None
+    a, b = latlon[-2], latlon[-1]
+    d = hav(_pt(a), _pt(b))
+    try:
+        dt = (datetime.datetime.fromisoformat(b["t"]) -
+              datetime.datetime.fromisoformat(a["t"])).total_seconds() / 3600.0
+    except (ValueError, KeyError):
+        dt = float("inf")
+    if dt <= 0 or not math.isfinite(dt):
+        dt = STEP_H
+    return bearing(_pt(a), _pt(b)), d / dt
+
+
+def _resample(pts, n):
+    """等弧长取 n 点（含首尾），pts:[[lat,lon]..]。"""
+    if len(pts) < 2:
+        return pts
+    seg = [0.0]
+    for i in range(len(pts) - 1):
+        seg.append(seg[-1] + hav(pts[i], pts[i + 1]))
+    total = seg[-1]
+    if total <= 0:
+        return None
+    out = [pts[0]]
+    step = total / (n - 1)
+    j = 1
+    for k in range(1, n - 1):
+        tgt = k * step
+        while j < len(seg) - 1 and seg[j + 1] < tgt:
+            j += 1
+        t = (tgt - seg[j]) / (seg[j + 1] - seg[j] or 1.0)
+        a, b2 = pts[j], pts[j + 1]
+        out.append([a[0] + (b2[0] - a[0]) * t, a[1] + (b2[1] - a[1]) * t])
+    out.append(pts[-1])
+    return out
+
+
+def _window_sim(cur, win):
+    n = min(len(cur), len(win))
+    if n < 3:
+        return float("inf")
+    d = 0.0
+    for i in range(n):
+        d += math.hypot((cur[i][1] - cur[0][1]) * 111.32 - (win[i][1] - win[0][1]) * 111.32,
+                        (cur[i][0] - cur[0][0]) * 110.57 - (win[i][0] - win[0][0]) * 110.57)
+    return d / n
+
+
+def analog_vector(track, shapes_path, top_n=3):
+    """data/shapes.json 相似路径检索 → 后续运动参考 (方位角, km/h)。
+
+    当前最近段与每个历史台风 32 点签名逐窗比较形状，取最相似 top 窗口的
+    "后续段"位移加权平均作为长期趋势。返回 None 表示无可用资料。"""
+    latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
+    if len(latlon) < 6 or not shapes_path or not os.path.exists(shapes_path):
+        return None
+    try:
+        with open(shapes_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return None
+    cur = _resample([_pt(p) for p in latlon[-9:]], 16)
+    if not cur:
+        return None
+    bests = []
+    for s in data.get("shapes") or []:
+        raw = s.get("pts") or []
+        if len(raw) < 20:
+            continue
+        lat0, lon0 = s.get("origin") or [0, 0]
+        hist = [[lat0 + v[0] / 1e5, lon0 + v[1] / 1e5] for v in raw]
+        for k in range(len(hist) - 15):
+            w = hist[k:k + 16]
+            if len(w) < 16:
+                continue
+            sim = _window_sim(cur, w)
+            if (s.get("path_km") or 0) > 250:
+                bests.append((sim, w))
+    if not bests:
+        return None
+    bests.sort(key=lambda x: x[0])
+    refs = bests[:top_n]
+    vecs = []
+    for sim, w in refs:
+        tail = w[-3:]
+        if len(tail) < 2:
+            continue
+        spd = hav(tail[0], tail[-1]) / (2.0 * STEP_H)
+        br = bearing(tail[0], tail[-1])
+        vecs.append((br, max(spd, 1e-6), 1.0 / (sim + 1e-6)))
+    if not vecs:
+        return None
+    tot = sum(v for _, _, v in vecs)
+    sx = sum(math.cos(br * D2R) * wt for br, _, wt in vecs) / tot
+    sy = sum(math.sin(br * D2R) * wt for br, _, wt in vecs) / tot
+    spd = sum(sp * wt for _, sp, wt in vecs) / tot
+    return (math.degrees(math.atan2(sy, sx)) % 360.0, spd)
+
+
+# ---------------------------------------------------------------- 融合
+
+def _weights(h):
+    """提前量 h(h) 的三源权重。0~24h 持续性为主；>72h 趋稳 steering+analog。"""
+    if h <= 24:
+        return {"persistence": 1.0, "steering": 0.0, "analog": 0.0}
+    if h >= 72:
+        return {"persistence": 0.0, "steering": 0.55, "analog": 0.45}
+    f = min(1.0, (h - 24) / 48.0)
+    return {"persistence": 1.0 - f, "steering": 0.55 * f, "analog": 0.45 * f}
+
+
+def generate_self(storm, shapes_path=None, step=STEP_H, lead=LEAD_H):
+    """引擎入口：storm 需含 track；shapes_path 指向 data/shapes.json（可缺）。
+
+    返回 {"agency":"SELF","issued_at","points":[{t,lat,lon,wind_ms,grade}], "methods":[...]}
+    轨迹样本不足返回 None。"""
+    track = storm.get("track") or []
+    latlon = [p for p in track if p.get("lat") is not None and p.get("lon") is not None]
+    if len(latlon) < 3:
+        return None
+    pv = _persist_vector(track)
+    sv, av = None, None
+    methods = []
+    if pv:
+        methods.append(("persistence", pv[0], pv[1]))
+    try:
+        sv = fetch_steering(latlon[-1]["lat"], latlon[-1]["lon"])
+        methods.append(("steering", sv[0], sv[1]))
+    except Exception:
+        pass
+    if shapes_path:
+        av = analog_vector(track, shapes_path)
+        if av:
+            methods.append(("analog", av[0], av[1]))
+    if not methods:
+        return None
+
+    last = latlon[-1]
+    t_last = datetime.datetime.fromisoformat(last["t"])
+    last_wind = last.get("wind_ms") or 0
+
+    # 每步算出方向/速度后打点；位置递推
+    lat, lon = last["lat"], last["lon"]
+    points = []
+    prev_deg = None
+    for k in range(1, int(lead / step) + 1):
+        h = k * step
+        nom = _weights(h)
+        wsum = sum(nom.get(name, 0.0) for name, _, _ in methods)
+        if wsum <= 1e-9:                       # 名义权重全落在不可用源 → 均分
+            wsum = len(methods)
+            nom = {name: 1.0 for name, _, _ in methods}
+        sx = sy = spd = tot = 0.0
+        stot = 0.0
+        for name, br, sp in methods:
+            wt = nom.get(name, 0.0) / wsum
+            if not wt:
+                continue
+            tot += wt
+            sx += math.cos(br * D2R) * wt
+            sy += math.sin(br * D2R) * wt
+            if name != "analog":              # analog 只定方向，速度无时间戳不可信
+                spd += sp * wt
+                stot += wt
+        if tot <= 0:
+            continue
+        br = (math.degrees(math.atan2(sy, sx)) + 360.0) % 360.0
+        spd = spd / stot if stot > 0 else 0.0
+        dist = spd * step
+        if prev_deg is not None:                  # 平滑转向：夹在 ±8°/6h，防抖
+            dbr = ((br - prev_deg + 540.0) % 360.0) - 180.0
+            br = prev_deg + max(-8.0, min(8.0, dbr))
+        prev_deg = br
+        lat, lon = dest(lat, lon, br, dist)
+        if last_wind:                              # 强度联动：随时间缓弱（不算实况）
+            wind = max(10.0, last_wind - k * step * 0.6)
+        else:
+            wind = 28.0 - k * step * 0.4
+        points.append({
+            "t": (datetime.datetime.fromisoformat(last["t"]) +
+                  datetime.timedelta(hours=h)).isoformat(),
+            "lat": round(lat, 3), "lon": round(lon, 3),
+            "wind_ms": round(wind, 1),
+            "grade": grade_of(wind),
+        })
+    return {
+        "agency": "SELF",
+        "issued_at": last["t"],
+        "points": points,
+        "methods": [m[0] for m in methods],
+    }
