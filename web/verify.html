@@ -176,6 +176,13 @@ a{color:var(--accent)}
       color:var(--accent);font:inherit;font-size:12px;padding:8px;border-radius:8px;cursor:pointer">寻找形状相似的台风</button>
     <div id="sim-list" style="margin-top:8px"></div>
   </section>
+  <section class="card" id="card-bench">
+    <h3>SELF 自研推演 · 回测基准</h3>
+    <div id="bench-box" style="font-size:11px;color:var(--dim);margin-top:6px">
+      <span style="color:var(--accent)">SELF</span> 路径误差与官方机构对比（离线形状回测，见
+      <code>scripts/backtest_self.py</code>）
+    </div>
+  </section>
 </aside>
 
 <div id="tl">
@@ -252,7 +259,33 @@ function whenMapReady(){
     INDEX.n_storms+" 个台风归档";
   buildPicker();
   buildMap();
+  renderBenchmark();
 })();
+
+/* ---------- SELF 回测基准 ---------- */
+function renderBenchmark(){
+  const box = $("#bench-box");
+  getJSON("../data/self_benchmark.json").then(b=>{
+    const agg = b && b.aggregate || {};
+    const leads = [24,48,72,120];
+    let rows = leads.map(h=>{
+      const a = agg[String(h)];
+      if(!a || a.self_mean_km == null) return null;
+      const ratio = a.official_mean_km ? (a.self_mean_km/a.official_mean_km).toFixed(1) : "—";
+      return `<tr><td>${h}h</td>`+
+        `<td style="color:#ff9d2e">${a.self_mean_km.toFixed(0)}<span style="color:var(--dim)">(${a.self_n})</span></td>`+
+        `<td>${a.official_mean_km!=null?a.official_mean_km.toFixed(0):"—"}<span style="color:var(--dim)">(${a.official_n})</span></td>`+
+        `<td>${ratio}×</td></tr>`;
+    }).filter(Boolean);
+    if(!rows.length){ box.innerHTML="尚无回测数据（运行 backtest_self.py 生成）"; return; }
+    box.innerHTML =
+      `<table class="board"><thead><tr><th class=l>提前量</th>`+
+      `<th>SELF km</th><th>官方 km</th><th>差距</th></tr></thead>`+
+      `<tbody>${rows.join("")}</tbody></table>`+
+      `<div style="font-size:10px;color:var(--dim);margin-top:6px">离线形状回测 · 2025-06 起台风 · `+
+      `SELF 现约官方 ${rows[0]?rows[0].match(/<td>([\d.]+)×<\/td>/)[1]:""} 倍，改进方向见 STATE.md</div>`;
+  }).catch(()=>{ box.innerHTML="benchmark 数据未生成"; });
+}
 
 /* ---------- 台风选择器 ---------- */
 function buildPicker(){

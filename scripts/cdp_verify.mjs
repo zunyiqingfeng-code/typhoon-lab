@@ -81,7 +81,14 @@ async function runPage(name, url, extra = {}) {
   ws.addEventListener("message", ev => {
     const m = JSON.parse(ev.data);
     if (m.method === "Runtime.exceptionThrown") {
-      errors.push(m.params.exceptionDetails.text || "exception");
+      const d = m.params.exceptionDetails || {};
+      let loc = "";
+      if (d.stackTrace && d.stackTrace.callFrames) {
+        const f0 = d.stackTrace.callFrames[0];
+        loc = ` @${(f0.url||"").split("/").pop()}:${f0.lineNumber}`;
+      }
+      errors.push((d.text || "exception") + loc +
+        (d.exception && d.exception.description ? " | " + d.exception.description.slice(0,200) : ""));
     } else if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") {
       errors.push(m.params.args.map(a => a.value || a.description || "").join(" "));
     }
