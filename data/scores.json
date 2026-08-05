@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-05T15:27:17.170Z",
+ "generated_at": "2026-08-05T17:54:22.919Z",
  "n_storms": 459,
- "n_points": 372151,
+ "n_points": 372157,
  "years": [
   "2000",
   "2001",
@@ -53,17 +53,17 @@
  ],
  "overall": {
   "CMA": {
-   "n": 106958,
+   "n": 106960,
    "posMean": 109.4,
    "windMean": 4.4,
    "presMean": 7.8,
    "byLead": {
     "12": {
-     "n": 34351,
+     "n": 34352,
      "posMean": 48
     },
     "24": {
-     "n": 19433,
+     "n": 19434,
      "posMean": 78
     },
     "36": {
@@ -161,13 +161,13 @@
    }
   },
   "JMA": {
-   "n": 63198,
+   "n": 63199,
    "posMean": 112.6,
    "windMean": 5,
    "presMean": 9.4,
    "byLead": {
     "12": {
-     "n": 15628,
+     "n": 15629,
      "posMean": 46.8
     },
     "24": {
@@ -253,26 +253,26 @@
    }
   },
   "PAGASA": {
-   "n": 1,
-   "posMean": 56.6,
-   "windMean": 0.1,
+   "n": 2,
+   "posMean": 58.1,
+   "windMean": 1.4,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 1,
-     "posMean": 56.6
+     "n": 2,
+     "posMean": 58.1
     }
    }
   },
   "SELF": {
-   "n": 48,
-   "posMean": 102.3,
+   "n": 50,
+   "posMean": 111.2,
    "windMean": 5,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 36,
-     "posMean": 105.9
+     "n": 38,
+     "posMean": 117.5
     },
     "24": {
      "n": 10,
@@ -896,7 +896,7 @@
   },
   "2026": {
    "CMA": {
-    "n": 4480,
+    "n": 4482,
     "posMean": 86.7,
     "pos72Mean": 130.3,
     "n72": 379
@@ -914,7 +914,7 @@
     "n72": 208
    },
    "JMA": {
-    "n": 3113,
+    "n": 3114,
     "posMean": 89.3,
     "pos72Mean": 129.9,
     "n72": 387
@@ -932,14 +932,14 @@
     "n72": 0
    },
    "PAGASA": {
-    "n": 1,
-    "posMean": 56.6,
+    "n": 2,
+    "posMean": 58.1,
     "pos72Mean": null,
     "n72": 0
    },
    "SELF": {
-    "n": 48,
-    "posMean": 102.3,
+    "n": 50,
+    "posMean": 111.2,
     "pos72Mean": null,
     "n72": 0
    }
