@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-05T11:31:02.926297+08:00",
+ "generated_at": "2026-08-05T14:40:37.563131+08:00",
  "n_storms": 649,
  "years": [
   2000,
@@ -10995,9 +10995,9 @@
    "name_zh": "鲸鱼",
    "name_en": "KUJIRA",
    "start": "2026-08-04T17:00:00+08:00",
-   "end": "2026-08-05T10:00:00+08:00",
-   "n_points": 7,
-   "n_forecasts": 22,
+   "end": "2026-08-05T14:00:00+08:00",
+   "n_points": 10,
+   "n_forecasts": 34,
    "agencies": [
     "CMA",
     "CWA",
@@ -11007,8 +11007,8 @@
     "PAGASA",
     "SELF"
    ],
-   "peak_wind_ms": 18.055555555555554,
-   "min_pressure_hpa": 998.0
+   "peak_wind_ms": 20.833333333333332,
+   "min_pressure_hpa": 996.0
   }
  ]
 }
