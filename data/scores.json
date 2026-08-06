@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-06T03:33:01.008Z",
+ "generated_at": "2026-08-06T06:43:48.103Z",
  "n_storms": 459,
- "n_points": 372400,
+ "n_points": 372499,
  "years": [
   "2000",
   "2001",
@@ -53,89 +53,89 @@
  ],
  "overall": {
   "CMA": {
-   "n": 107003,
+   "n": 107017,
    "posMean": 109.4,
    "windMean": 4.4,
    "presMean": 7.8,
    "byLead": {
     "12": {
-     "n": 34362,
+     "n": 34366,
      "posMean": 48
     },
     "24": {
-     "n": 19441,
+     "n": 19444,
      "posMean": 78
     },
     "36": {
-     "n": 13467,
+     "n": 13469,
      "posMean": 95.7
     },
     "48": {
-     "n": 13227,
+     "n": 13228,
      "posMean": 132.7
     },
     "72": {
-     "n": 8759,
+     "n": 8760,
      "posMean": 200.6
     },
     "96": {
-     "n": 5132,
+     "n": 5133,
      "posMean": 265.4
     },
     "120": {
-     "n": 3156,
-     "posMean": 353.2
+     "n": 3157,
+     "posMean": 353.1
     }
    }
   },
   "CWA": {
-   "n": 93583,
+   "n": 93609,
    "posMean": 107.5,
    "windMean": 4.6,
    "presMean": 9,
    "byLead": {
     "12": {
-     "n": 27868,
+     "n": 27878,
      "posMean": 49.5
     },
     "24": {
-     "n": 18792,
+     "n": 18796,
      "posMean": 76.6
     },
     "36": {
-     "n": 12755,
+     "n": 12757,
      "posMean": 99.2
     },
     "48": {
-     "n": 12779,
+     "n": 12781,
      "posMean": 132.3
     },
     "72": {
-     "n": 8545,
-     "posMean": 201.2
+     "n": 8547,
+     "posMean": 201.1
     },
     "96": {
-     "n": 4953,
-     "posMean": 262
+     "n": 4955,
+     "posMean": 261.9
     },
     "120": {
-     "n": 3033,
-     "posMean": 356.3
+     "n": 3035,
+     "posMean": 356.1
     }
    }
   },
   "HKO": {
-   "n": 40290,
+   "n": 40295,
    "posMean": 130.8,
    "windMean": 5.6,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 1966,
+     "n": 1968,
      "posMean": 83.9
     },
     "24": {
-     "n": 15205,
+     "n": 15208,
      "posMean": 72.8
     },
     "36": {
@@ -161,17 +161,17 @@
    }
   },
   "JMA": {
-   "n": 63238,
+   "n": 63256,
    "posMean": 112.6,
    "windMean": 5,
    "presMean": 9.4,
    "byLead": {
     "12": {
-     "n": 15642,
+     "n": 15648,
      "posMean": 46.8
     },
     "24": {
-     "n": 19510,
+     "n": 19513,
      "posMean": 75
     },
     "36": {
@@ -179,120 +179,120 @@
      "posMean": 126.4
     },
     "48": {
-     "n": 12669,
-     "posMean": 128.9
+     "n": 12671,
+     "posMean": 128.8
     },
     "72": {
-     "n": 8386,
+     "n": 8388,
      "posMean": 196.7
     },
     "96": {
-     "n": 3371,
+     "n": 3373,
      "posMean": 250.1
     },
     "120": {
-     "n": 2131,
-     "posMean": 341.8
+     "n": 2133,
+     "posMean": 341.6
     }
    }
   },
   "JTWC": {
-   "n": 68142,
+   "n": 68158,
    "posMean": 116.9,
    "windMean": 5.6,
    "presMean": 8.8,
    "byLead": {
     "12": {
-     "n": 15026,
+     "n": 15028,
      "posMean": 52.2
     },
     "24": {
-     "n": 15621,
+     "n": 15623,
      "posMean": 74.1
     },
     "36": {
-     "n": 10984,
+     "n": 10986,
      "posMean": 92.3
     },
     "48": {
-     "n": 10839,
+     "n": 10841,
      "posMean": 123.9
     },
     "72": {
-     "n": 7370,
+     "n": 7372,
      "posMean": 190.9
     },
     "96": {
-     "n": 4753,
-     "posMean": 259
+     "n": 4755,
+     "posMean": 258.9
     },
     "120": {
-     "n": 2615,
-     "posMean": 345.5
+     "n": 2617,
+     "posMean": 345.3
     }
    }
   },
   "KMA": {
-   "n": 45,
-   "posMean": 52.7,
-   "windMean": 5.6,
+   "n": 48,
+   "posMean": 52.4,
+   "windMean": 5.4,
    "presMean": 4.4,
    "byLead": {
     "12": {
-     "n": 25,
-     "posMean": 53
+     "n": 26,
+     "posMean": 51.9
     },
     "24": {
-     "n": 9,
-     "posMean": 62.4
+     "n": 10,
+     "posMean": 61.1
     },
     "36": {
      "n": 3,
      "posMean": 54.6
     },
     "48": {
-     "n": 1,
-     "posMean": 45.6
+     "n": 2,
+     "posMean": 57.6
     }
    }
   },
   "PAGASA": {
-   "n": 6,
-   "posMean": 43.2,
-   "windMean": 1.4,
+   "n": 8,
+   "posMean": 41.3,
+   "windMean": 1.5,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 5,
-     "posMean": 38.3
+     "n": 6,
+     "posMean": 39.1
     },
     "24": {
-     "n": 1,
-     "posMean": 67.6
+     "n": 2,
+     "posMean": 47.8
     }
    }
   },
   "SELF": {
-   "n": 93,
-   "posMean": 200.8,
-   "windMean": 5.7,
+   "n": 108,
+   "posMean": 223.4,
+   "windMean": 6.2,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 60,
-     "posMean": 211.7
+     "n": 70,
+     "posMean": 244.7
     },
     "24": {
-     "n": 21,
-     "posMean": 212.9
+     "n": 22,
+     "posMean": 211
     },
     "36": {
-     "n": 10,
-     "posMean": 135.3
+     "n": 12,
+     "posMean": 158.4
     },
     "48": {
-     "n": 2,
-     "posMean": 75.1
+     "n": 4,
+     "posMean": 112.6
     }
    }
   }
@@ -908,50 +908,50 @@
   },
   "2026": {
    "CMA": {
-    "n": 4525,
-    "posMean": 86.5,
-    "pos72Mean": 129.6,
-    "n72": 383
+    "n": 4539,
+    "posMean": 86.4,
+    "pos72Mean": 129.8,
+    "n72": 384
    },
    "CWA": {
-    "n": 4794,
-    "posMean": 67.8,
-    "pos72Mean": 116.1,
-    "n72": 359
+    "n": 4820,
+    "posMean": 67.7,
+    "pos72Mean": 115.7,
+    "n72": 361
    },
    "HKO": {
-    "n": 1302,
-    "posMean": 92.3,
+    "n": 1307,
+    "posMean": 92.1,
     "pos72Mean": 123.1,
     "n72": 208
    },
    "JMA": {
-    "n": 3153,
-    "posMean": 89,
-    "pos72Mean": 129.3,
-    "n72": 391
+    "n": 3171,
+    "posMean": 88.9,
+    "pos72Mean": 129.1,
+    "n72": 393
    },
    "JTWC": {
-    "n": 3477,
-    "posMean": 82.3,
-    "pos72Mean": 109.5,
-    "n72": 332
+    "n": 3493,
+    "posMean": 82.1,
+    "pos72Mean": 109.1,
+    "n72": 334
    },
    "KMA": {
-    "n": 12,
-    "posMean": 38.7,
+    "n": 15,
+    "posMean": 40.6,
     "pos72Mean": null,
     "n72": 0
    },
    "PAGASA": {
-    "n": 6,
-    "posMean": 43.2,
+    "n": 8,
+    "posMean": 41.3,
     "pos72Mean": null,
     "n72": 0
    },
    "SELF": {
-    "n": 93,
-    "posMean": 200.8,
+    "n": 108,
+    "posMean": 223.4,
     "pos72Mean": null,
     "n72": 0
    }

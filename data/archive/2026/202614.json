@@ -259,6 +259,14 @@
    "wind_ms": 15.277777777777777,
    "pressure_hpa": 1000.0,
    "grade": "TD"
+  },
+  {
+   "t": "2026-08-06T13:00:00+08:00",
+   "lat": 17.1,
+   "lon": 121.8,
+   "wind_ms": 12.5,
+   "pressure_hpa": 1002.0,
+   "grade": "TD"
   }
  ],
  "forecasts": [
@@ -46751,7 +46759,7 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-06T11:31:11.743274+08:00"
+  "fetched_at": "2026-08-06T14:41:53.125784+08:00"
  },
  "sources": [
   "pagasa",
