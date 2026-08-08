@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-08T07:12:52.364Z",
+ "generated_at": "2026-08-08T08:59:15.166Z",
  "n_storms": 459,
- "n_points": 373817,
+ "n_points": 373822,
  "years": [
   "2000",
   "2001",
@@ -53,13 +53,13 @@
  ],
  "overall": {
   "CMA": {
-   "n": 107226,
+   "n": 107228,
    "posMean": 109.3,
    "windMean": 4.3,
    "presMean": 7.8,
    "byLead": {
     "12": {
-     "n": 34416,
+     "n": 34418,
      "posMean": 48
     },
     "24": {
@@ -281,14 +281,14 @@
    }
   },
   "SELF": {
-   "n": 417,
-   "posMean": 585.6,
-   "windMean": 7,
+   "n": 420,
+   "posMean": 582.9,
+   "windMean": 6.9,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 157,
-     "posMean": 347.9
+     "n": 160,
+     "posMean": 345.3
     },
     "24": {
      "n": 80,
@@ -924,7 +924,7 @@
   },
   "2026": {
    "CMA": {
-    "n": 4748,
+    "n": 4750,
     "posMean": 85.6,
     "pos72Mean": 128.9,
     "n72": 401
@@ -966,8 +966,8 @@
     "n72": 0
    },
    "SELF": {
-    "n": 417,
-    "posMean": 585.6,
+    "n": 420,
+    "posMean": 582.9,
     "pos72Mean": 495.5,
     "n72": 29
    }
