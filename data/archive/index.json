@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-09T03:44:44.259864+08:00",
+ "generated_at": "2026-08-09T04:47:54.498143+08:00",
  "n_storms": 650,
  "years": [
   2000,
@@ -10974,9 +10974,9 @@
    "name_zh": "白海豚",
    "name_en": "DOLPHIN",
    "start": "2026-07-27T08:00:00+08:00",
-   "end": "2026-08-09T03:00:00+08:00",
-   "n_points": 123,
-   "n_forecasts": 587,
+   "end": "2026-08-09T04:00:00+08:00",
+   "n_points": 124,
+   "n_forecasts": 593,
    "agencies": [
     "CMA",
     "CWA",
@@ -10995,8 +10995,8 @@
    "name_zh": "鲸鱼",
    "name_en": "KUJIRA",
    "start": "2026-08-04T17:00:00+08:00",
-   "end": "2026-08-08T20:00:00+08:00",
-   "n_points": 29,
+   "end": "2026-08-09T02:00:00+08:00",
+   "n_points": 30,
    "n_forecasts": 76,
    "agencies": [
     "CMA",
