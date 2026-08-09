@@ -331,6 +331,14 @@
    "pressure_hpa": 998.0,
    "wind_ms": 12.86,
    "grade": "TD"
+  },
+  {
+   "t": "2026-08-09T14:00:00+08:00",
+   "lat": 21.2,
+   "lon": 142.7,
+   "pressure_hpa": 998.0,
+   "wind_ms": 18.003999999999998,
+   "grade": "TS"
   }
  ],
  "forecasts": [
@@ -46823,7 +46831,7 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-09T15:11:34.840736+08:00"
+  "fetched_at": "2026-08-09T16:57:58.311979+08:00"
  },
  "sources": [
   "jtwc"
