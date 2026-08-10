@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-11T02:04:14.839848+08:00",
+ "generated_at": "2026-08-11T03:16:39.348486+08:00",
  "n_storms": 651,
  "years": [
   2000,
@@ -10974,9 +10974,9 @@
    "name_zh": "白海豚",
    "name_en": "DOLPHIN",
    "start": "2026-07-27T08:00:00+08:00",
-   "end": "2026-08-11T01:00:00+08:00",
-   "n_points": 169,
-   "n_forecasts": 845,
+   "end": "2026-08-11T02:00:00+08:00",
+   "n_points": 170,
+   "n_forecasts": 850,
    "agencies": [
     "CMA",
     "CWA",
@@ -11016,9 +11016,9 @@
    "name_zh": "灿鸿",
    "name_en": "CHAN-HOM",
    "start": "2026-08-05T14:00:00+08:00",
-   "end": "2026-08-10T23:00:00+08:00",
-   "n_points": 44,
-   "n_forecasts": 215,
+   "end": "2026-08-11T02:00:00+08:00",
+   "n_points": 45,
+   "n_forecasts": 220,
    "agencies": [
     "CMA",
     "CWA",
@@ -11036,9 +11036,9 @@
    "name_zh": "琵鹭",
    "name_en": "PEILOU",
    "start": "2026-08-05T08:00:00+08:00",
-   "end": "2026-08-10T23:00:00+08:00",
-   "n_points": 24,
-   "n_forecasts": 53,
+   "end": "2026-08-11T02:00:00+08:00",
+   "n_points": 25,
+   "n_forecasts": 57,
    "agencies": [
     "CMA",
     "CWA",
