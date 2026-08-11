@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-11T19:54:48.673590+08:00",
+ "generated_at": "2026-08-11T21:39:37.780937+08:00",
  "n_storms": 651,
  "years": [
   2000,
@@ -10974,8 +10974,8 @@
    "name_zh": "白海豚",
    "name_en": "DOLPHIN",
    "start": "2026-07-27T08:00:00+08:00",
-   "end": "2026-08-11T14:00:00+08:00",
-   "n_points": 180,
+   "end": "2026-08-11T20:00:00+08:00",
+   "n_points": 181,
    "n_forecasts": 897,
    "agencies": [
     "CMA",
@@ -11016,9 +11016,9 @@
    "name_zh": "灿鸿",
    "name_en": "CHAN-HOM",
    "start": "2026-08-05T14:00:00+08:00",
-   "end": "2026-08-11T17:00:00+08:00",
-   "n_points": 50,
-   "n_forecasts": 245,
+   "end": "2026-08-11T20:00:00+08:00",
+   "n_points": 51,
+   "n_forecasts": 250,
    "agencies": [
     "CMA",
     "CWA",
@@ -11028,7 +11028,7 @@
     "SELF"
    ],
    "peak_wind_ms": 20.0,
-   "min_pressure_hpa": 995.0
+   "min_pressure_hpa": 990.0
   },
   {
    "id": "202616",
@@ -11036,9 +11036,9 @@
    "name_zh": "琵鹭",
    "name_en": "PEILOU",
    "start": "2026-08-05T08:00:00+08:00",
-   "end": "2026-08-11T17:00:00+08:00",
-   "n_points": 30,
-   "n_forecasts": 80,
+   "end": "2026-08-11T20:00:00+08:00",
+   "n_points": 31,
+   "n_forecasts": 84,
    "agencies": [
     "CMA",
     "CWA",
