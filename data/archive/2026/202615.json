@@ -2,7 +2,7 @@
  "id": "202615",
  "name_zh": "灿鸿",
  "name_en": "CHAN-HOM",
- "is_active": true,
+ "is_active": false,
  "basin": "WP",
  "track": [
   {
@@ -190703,6 +190703,6 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-12T01:09:24.837191+08:00"
+  "fetched_at": "2026-08-12T03:16:25.417256+08:00"
  }
 }
