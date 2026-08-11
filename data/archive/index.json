@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-11T17:12:52.845861+08:00",
+ "generated_at": "2026-08-11T19:04:16.477523+08:00",
  "n_storms": 651,
  "years": [
   2000,
@@ -11036,9 +11036,9 @@
    "name_zh": "琵鹭",
    "name_en": "PEILOU",
    "start": "2026-08-05T08:00:00+08:00",
-   "end": "2026-08-11T14:00:00+08:00",
-   "n_points": 29,
-   "n_forecasts": 76,
+   "end": "2026-08-11T17:00:00+08:00",
+   "n_points": 30,
+   "n_forecasts": 80,
    "agencies": [
     "CMA",
     "CWA",
