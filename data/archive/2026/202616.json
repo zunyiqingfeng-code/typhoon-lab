@@ -2,7 +2,7 @@
  "id": "202616",
  "name_zh": "琵鹭",
  "name_en": "PEILOU",
- "is_active": true,
+ "is_active": false,
  "basin": "WP",
  "track": [
   {
@@ -451,7 +451,9 @@
    "lon": 162.2,
    "pressure_hpa": 1002.0,
    "wind_ms": 15.0,
-   "grade": "TD"
+   "grade": "TD",
+   "move_dir_deg": 67.5,
+   "move_speed_kmh": 29.0
   }
  ],
  "forecasts": [
@@ -1304,17 +1306,17 @@
    "issued_at": "2026-08-12T08:00:00+08:00",
    "points": [
     {
-     "t": "2026-08-12T05:00:00+08:00",
-     "lat": 28.0,
-     "lon": 161.3,
-     "pressure_hpa": 998.0,
-     "wind_ms": 18.0,
-     "grade": "TS"
+     "t": "2026-08-12T08:00:00+08:00",
+     "lat": 29.0,
+     "lon": 162.2,
+     "pressure_hpa": 1002.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
     },
     {
-     "t": "2026-08-12T17:00:00+08:00",
-     "lat": 30.2,
-     "lon": 163.0,
+     "t": "2026-08-12T20:00:00+08:00",
+     "lat": 30.7,
+     "lon": 165.2,
      "pressure_hpa": 1000.0,
      "wind_ms": 15.0,
      "grade": "TD"
@@ -87807,6 +87809,6 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-12T10:39:36.718641+08:00"
+  "fetched_at": "2026-08-12T12:57:07.999503+08:00"
  }
 }
