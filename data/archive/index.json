@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-14T19:55:33.556959+08:00",
+ "generated_at": "2026-08-14T21:36:12.285133+08:00",
  "n_storms": 652,
  "years": [
   2000,
@@ -11056,8 +11056,8 @@
    "name_zh": "浪卡",
    "name_en": "NANGKA",
    "start": "2026-08-12T08:00:00+08:00",
-   "end": "2026-08-14T17:00:00+08:00",
-   "n_points": 20,
+   "end": "2026-08-14T20:00:00+08:00",
+   "n_points": 21,
    "n_forecasts": 100,
    "agencies": [
     "CMA",
@@ -11068,7 +11068,7 @@
     "SELF"
    ],
    "peak_wind_ms": 18.0,
-   "min_pressure_hpa": 998.0
+   "min_pressure_hpa": 996.0
   }
  ]
 }

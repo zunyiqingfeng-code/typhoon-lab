@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-14T19:53:43.469062+08:00",
+ "generated_at": "2026-08-14T21:35:39.209751+08:00",
  "source": "zjwater",
  "fixture": false,
  "storms": [
@@ -13532,7 +13532,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-14T19:53:43.469062+08:00"
+    "fetched_at": "2026-08-14T21:35:39.209751+08:00"
    },
    "sources": [
     "jtwc"
@@ -23136,7 +23136,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-14T19:53:43.469062+08:00"
+    "fetched_at": "2026-08-14T21:35:39.209751+08:00"
    },
    "sources": [
     "jtwc"
@@ -33326,7 +33326,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-14T19:53:43.469062+08:00"
+    "fetched_at": "2026-08-14T21:35:39.209751+08:00"
    },
    "land": [
     {
@@ -43097,14 +43097,14 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-14T19:53:43.469062+08:00"
+    "fetched_at": "2026-08-14T21:35:39.209751+08:00"
    }
   },
   {
    "id": "202617",
    "name_zh": "浪卡",
    "name_en": "NANGKA",
-   "is_active": true,
+   "is_active": false,
    "basin": "WP",
    "track": [
     {
@@ -43408,6 +43408,16 @@
      "grade": "TD",
      "move_dir_deg": 67.5,
      "move_speed_kmh": 4.0
+    },
+    {
+     "t": "2026-08-14T20:00:00+08:00",
+     "lat": 28.4,
+     "lon": 154.6,
+     "pressure_hpa": 996.0,
+     "wind_ms": 15.0,
+     "grade": "TD",
+     "move_dir_deg": 90,
+     "move_speed_kmh": 10.0
     }
    ],
    "forecasts": [
@@ -52649,7 +52659,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-14T19:53:43.469062+08:00"
+    "fetched_at": "2026-08-14T21:35:39.209751+08:00"
    },
    "sources": [
     "kma",
