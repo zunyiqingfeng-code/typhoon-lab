@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-15T19:31:52.207443+08:00",
+ "generated_at": "2026-08-15T20:56:25.756128+08:00",
  "n_storms": 652,
  "years": [
   2000,
@@ -11068,7 +11068,7 @@
     "SELF"
    ],
    "peak_wind_ms": 18.0,
-   "min_pressure_hpa": 996.0
+   "min_pressure_hpa": 998.0
   }
  ]
 }
