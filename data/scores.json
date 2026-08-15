@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-15T03:02:16.149Z",
+ "generated_at": "2026-08-15T03:51:08.777Z",
  "n_storms": 461,
- "n_points": 379077,
+ "n_points": 379075,
  "years": [
   "2000",
   "2001",
@@ -125,10 +125,10 @@
    }
   },
   "HKO": {
-   "n": 40581,
+   "n": 40580,
    "posMean": 130.6,
    "windMean": 5.6,
-   "presMean": 0,
+   "presMean": null,
    "byLead": {
     "12": {
      "n": 1979,
@@ -155,13 +155,13 @@
      "posMean": 238.4
     },
     "120": {
-     "n": 1608,
-     "posMean": 320.8
+     "n": 1607,
+     "posMean": 321
     }
    }
   },
   "JMA": {
-   "n": 64296,
+   "n": 64295,
    "posMean": 112.2,
    "windMean": 4.9,
    "presMean": 9.4,
@@ -944,13 +944,13 @@
     "n72": 467
    },
    "HKO": {
-    "n": 1593,
+    "n": 1592,
     "posMean": 93.8,
     "pos72Mean": 122.2,
     "n72": 258
    },
    "JMA": {
-    "n": 4211,
+    "n": 4210,
     "posMean": 88.7,
     "pos72Mean": 132.3,
     "n72": 494
