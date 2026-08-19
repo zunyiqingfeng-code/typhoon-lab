@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-19T08:53:16.206Z",
- "n_storms": 462,
- "n_points": 379248,
+ "generated_at": "2026-08-19T09:47:13.569Z",
+ "n_storms": 463,
+ "n_points": 379249,
  "years": [
   "2000",
   "2001",
@@ -285,14 +285,14 @@
    }
   },
   "SELF": {
-   "n": 2127,
-   "posMean": 716.3,
+   "n": 2128,
+   "posMean": 715.9,
    "windMean": 9.8,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 533,
-     "posMean": 208
+     "n": 534,
+     "posMean": 207.7
     },
     "24": {
      "n": 325,
@@ -974,8 +974,8 @@
     "n72": 0
    },
    "SELF": {
-    "n": 2127,
-    "posMean": 716.3,
+    "n": 2128,
+    "posMean": 715.9,
     "pos72Mean": 1136.4,
     "n72": 284
    }
