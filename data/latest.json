@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-19T12:48:22.533347+08:00",
+ "generated_at": "2026-08-19T13:42:22.210719+08:00",
  "source": "zjwater",
  "fixture": false,
  "storms": [
@@ -9763,7 +9763,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-19T12:48:22.533347+08:00"
+    "fetched_at": "2026-08-19T13:42:22.210719+08:00"
    }
   },
   {
@@ -19379,7 +19379,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-19T12:48:22.533347+08:00"
+    "fetched_at": "2026-08-19T13:42:22.210719+08:00"
    },
    "sources": [
     "jtwc"
@@ -19849,8 +19849,8 @@
        "t": "2026-08-24T11:00:00+08:00",
        "lat": 16.175,
        "lon": 146.608,
-       "wind_ms": 50.7,
-       "grade": "STY"
+       "wind_ms": 51.8,
+       "grade": "SuperTY"
       }
      ],
      "method": "persistence|steering",
@@ -28793,7 +28793,7 @@
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-08-19T12:48:22.533347+08:00"
+    "fetched_at": "2026-08-19T13:42:22.210719+08:00"
    }
   }
  ]
