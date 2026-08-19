@@ -1,7 +1,7 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-19T11:58:24.135105+08:00",
- "n_storms": 652,
+ "generated_at": "2026-08-19T12:49:35.345066+08:00",
+ "n_storms": 653,
  "years": [
   2000,
   2001,
@@ -11064,6 +11064,24 @@
     "CWA",
     "JMA",
     "JTWC",
+    "KMA",
+    "SELF"
+   ],
+   "peak_wind_ms": 18.0,
+   "min_pressure_hpa": 998.0
+  },
+  {
+   "id": "202618",
+   "year": 2026,
+   "name_zh": "沙德尔",
+   "name_en": "SAUDEL",
+   "start": "2026-08-18T20:00:00+08:00",
+   "end": "2026-08-19T11:00:00+08:00",
+   "n_points": 4,
+   "n_forecasts": 4,
+   "agencies": [
+    "CMA",
+    "JMA",
     "KMA",
     "SELF"
    ],
