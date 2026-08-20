@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-21T01:43:44.973665+08:00",
+ "generated_at": "2026-08-21T02:57:43.338836+08:00",
  "n_storms": 654,
  "years": [
   2000,
@@ -10748,9 +10748,9 @@
    "name_zh": "热带低压",
    "name_en": "NAMELESS",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-20T23:00:00+08:00",
-   "n_points": 11,
-   "n_forecasts": 21,
+   "end": "2026-08-21T02:00:00+08:00",
+   "n_points": 12,
+   "n_forecasts": 23,
    "agencies": [
     "CMA",
     "HKO",
@@ -11093,9 +11093,9 @@
    "name_zh": "沙德尔",
    "name_en": "SAUDEL",
    "start": "2026-08-18T20:00:00+08:00",
-   "end": "2026-08-20T23:00:00+08:00",
-   "n_points": 16,
-   "n_forecasts": 70,
+   "end": "2026-08-21T02:00:00+08:00",
+   "n_points": 17,
+   "n_forecasts": 75,
    "agencies": [
     "CMA",
     "CWA",
