@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-22T06:40:57.195240+08:00",
+ "generated_at": "2026-08-22T07:37:12.047901+08:00",
  "n_storms": 655,
  "years": [
   2000,
@@ -11113,9 +11113,9 @@
    "name_zh": "未命名",
    "name_en": "NAMELESS",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-22T06:00:00+08:00",
-   "n_points": 30,
-   "n_forecasts": 41,
+   "end": "2026-08-22T07:00:00+08:00",
+   "n_points": 31,
+   "n_forecasts": 43,
    "agencies": [
     "CMA",
     "HKO",
