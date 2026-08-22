@@ -84,10 +84,77 @@
      "grade": "TD"
     }
    ]
+  },
+  {
+   "agency": "KMA",
+   "issued_at": "2026-08-22T11:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-08-22T23:00:00+08:00",
+     "lat": 25.2,
+     "lon": 123.6,
+     "pressure_hpa": 998.0,
+     "wind_ms": 18.0,
+     "grade": "TD",
+     "move_dir_deg": 247.5,
+     "move_speed_kmh": 9.0,
+     "r7": {
+      "ne": 220,
+      "se": 220,
+      "sw": 220,
+      "nw": 120
+     }
+    },
+    {
+     "t": "2026-08-23T11:00:00+08:00",
+     "lat": 25.0,
+     "lon": 122.7,
+     "pressure_hpa": 998.0,
+     "wind_ms": 18.0,
+     "grade": "TD",
+     "move_dir_deg": 247.5,
+     "move_speed_kmh": 8.0,
+     "r7": {
+      "ne": 220,
+      "se": 220,
+      "sw": 220,
+      "nw": 120
+     }
+    },
+    {
+     "t": "2026-08-23T23:00:00+08:00",
+     "lat": 25.1,
+     "lon": 122.3,
+     "pressure_hpa": 998.0,
+     "wind_ms": 18.0,
+     "grade": "TD",
+     "move_dir_deg": 292.5,
+     "move_speed_kmh": 4.0,
+     "r7": {
+      "ne": 220,
+      "se": 220,
+      "sw": 220,
+      "nw": 120
+     }
+    },
+    {
+     "t": "2026-08-24T11:00:00+08:00",
+     "lat": 25.4,
+     "lon": 121.6,
+     "pressure_hpa": 1000.0,
+     "wind_ms": 15.0,
+     "grade": "TD",
+     "move_dir_deg": 292.5,
+     "move_speed_kmh": 6.0
+    }
+   ]
   }
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-22T12:45:16.036632+08:00"
- }
+  "fetched_at": "2026-08-22T13:38:37.327097+08:00"
+ },
+ "sources": [
+  "kma"
+ ]
 }
