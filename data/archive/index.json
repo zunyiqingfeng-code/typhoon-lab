@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-22T17:41:10.902894+08:00",
+ "generated_at": "2026-08-22T18:38:48.288181+08:00",
  "n_storms": 657,
  "years": [
   2000,
@@ -11109,9 +11109,9 @@
    "name_zh": "沙德尔",
    "name_en": "SAUDEL",
    "start": "2026-08-18T20:00:00+08:00",
-   "end": "2026-08-22T14:00:00+08:00",
-   "n_points": 29,
-   "n_forecasts": 140,
+   "end": "2026-08-22T17:00:00+08:00",
+   "n_points": 30,
+   "n_forecasts": 145,
    "agencies": [
     "CMA",
     "CWA",
@@ -11120,8 +11120,8 @@
     "KMA",
     "SELF"
    ],
-   "peak_wind_ms": 40.0,
-   "min_pressure_hpa": 960.0
+   "peak_wind_ms": 42.0,
+   "min_pressure_hpa": 955.0
   },
   {
    "id": "202619",
@@ -11129,9 +11129,9 @@
    "name_zh": "紫檀",
    "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-22T17:00:00+08:00",
-   "n_points": 41,
-   "n_forecasts": 97,
+   "end": "2026-08-22T18:00:00+08:00",
+   "n_points": 42,
+   "n_forecasts": 103,
    "agencies": [
     "CMA",
     "CWA",
@@ -11150,9 +11150,9 @@
    "name_zh": "简拉维",
    "name_en": "GAENARI",
    "start": "2026-08-22T08:00:00+08:00",
-   "end": "2026-08-22T17:00:00+08:00",
-   "n_points": 6,
-   "n_forecasts": 20,
+   "end": "2026-08-22T18:00:00+08:00",
+   "n_points": 7,
+   "n_forecasts": 24,
    "agencies": [
     "CMA",
     "HKO",
