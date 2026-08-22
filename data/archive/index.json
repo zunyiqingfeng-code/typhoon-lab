@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-22T07:37:12.047901+08:00",
+ "generated_at": "2026-08-22T09:49:17.014871+08:00",
  "n_storms": 655,
  "years": [
   2000,
@@ -11093,9 +11093,9 @@
    "name_zh": "沙德尔",
    "name_en": "SAUDEL",
    "start": "2026-08-18T20:00:00+08:00",
-   "end": "2026-08-22T05:00:00+08:00",
-   "n_points": 26,
-   "n_forecasts": 125,
+   "end": "2026-08-22T08:00:00+08:00",
+   "n_points": 27,
+   "n_forecasts": 130,
    "agencies": [
     "CMA",
     "CWA",
@@ -11104,21 +11104,23 @@
     "KMA",
     "SELF"
    ],
-   "peak_wind_ms": 35.0,
-   "min_pressure_hpa": 970.0
+   "peak_wind_ms": 40.0,
+   "min_pressure_hpa": 960.0
   },
   {
    "id": "202619",
    "year": 2026,
-   "name_zh": "未命名",
-   "name_en": "NAMELESS",
+   "name_zh": "紫檀",
+   "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-22T07:00:00+08:00",
-   "n_points": 31,
-   "n_forecasts": 43,
+   "end": "2026-08-22T09:00:00+08:00",
+   "n_points": 33,
+   "n_forecasts": 51,
    "agencies": [
     "CMA",
     "HKO",
+    "JMA",
+    "KMA",
     "SELF"
    ],
    "peak_wind_ms": 18.0,
