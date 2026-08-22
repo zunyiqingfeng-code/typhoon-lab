@@ -1,7 +1,7 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-22T14:58:58.484150+08:00",
- "n_storms": 656,
+ "generated_at": "2026-08-22T15:43:48.121496+08:00",
+ "n_storms": 657,
  "years": [
   2000,
   2001,
@@ -11129,9 +11129,9 @@
    "name_zh": "紫檀",
    "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-22T14:00:00+08:00",
-   "n_points": 38,
-   "n_forecasts": 78,
+   "end": "2026-08-22T15:00:00+08:00",
+   "n_points": 39,
+   "n_forecasts": 83,
    "agencies": [
     "CMA",
     "CWA",
@@ -11142,6 +11142,25 @@
    ],
    "peak_wind_ms": 18.0,
    "min_pressure_hpa": 992.0
+  },
+  {
+   "id": "202620",
+   "year": 2026,
+   "name_zh": "简拉维",
+   "name_en": "GAENARI",
+   "start": "2026-08-22T08:00:00+08:00",
+   "end": "2026-08-22T14:00:00+08:00",
+   "n_points": 3,
+   "n_forecasts": 9,
+   "agencies": [
+    "CMA",
+    "HKO",
+    "JMA",
+    "KMA",
+    "SELF"
+   ],
+   "peak_wind_ms": 18.0,
+   "min_pressure_hpa": 998.0
   }
  ]
 }
