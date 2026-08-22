@@ -1,0 +1,54 @@
+{
+ "id": "20260022",
+ "name_zh": "热带低压",
+ "name_en": "NAMELESS",
+ "is_active": true,
+ "basin": "WP",
+ "track": [
+  {
+   "t": "2026-08-22T08:00:00+08:00",
+   "lat": 25.4,
+   "lon": 124.9,
+   "pressure_hpa": 1002.0,
+   "wind_ms": 15.0,
+   "grade": "TD",
+   "move_speed_kmh": 35.0
+  }
+ ],
+ "forecasts": [
+  {
+   "agency": "CMA",
+   "issued_at": "2026-08-22T08:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-08-22T08:00:00+08:00",
+     "lat": 25.4,
+     "lon": 124.9,
+     "pressure_hpa": 1002.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    },
+    {
+     "t": "2026-08-22T20:00:00+08:00",
+     "lat": 28.2,
+     "lon": 122.1,
+     "pressure_hpa": 1000.0,
+     "wind_ms": 15.0,
+     "grade": "TD"
+    },
+    {
+     "t": "2026-08-23T08:00:00+08:00",
+     "lat": 30.6,
+     "lon": 119.4,
+     "pressure_hpa": 1004.0,
+     "wind_ms": 12.0,
+     "grade": "TD"
+    }
+   ]
+  }
+ ],
+ "meta": {
+  "source": "zjwater",
+  "fetched_at": "2026-08-22T11:04:45.419671+08:00"
+ }
+}
