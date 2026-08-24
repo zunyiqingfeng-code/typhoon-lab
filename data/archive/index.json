@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-24T15:19:44.503732+08:00",
+ "generated_at": "2026-08-24T17:03:50.429174+08:00",
  "n_storms": 658,
  "years": [
   2000,
@@ -11130,9 +11130,9 @@
    "name_zh": "紫檀",
    "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-24T14:00:00+08:00",
-   "n_points": 86,
-   "n_forecasts": 361,
+   "end": "2026-08-24T17:00:00+08:00",
+   "n_points": 89,
+   "n_forecasts": 377,
    "agencies": [
     "CMA",
     "CWA",
@@ -11151,9 +11151,9 @@
    "name_zh": "简拉维",
    "name_en": "GAENARI",
    "start": "2026-08-22T08:00:00+08:00",
-   "end": "2026-08-24T14:00:00+08:00",
-   "n_points": 43,
-   "n_forecasts": 163,
+   "end": "2026-08-24T15:00:00+08:00",
+   "n_points": 44,
+   "n_forecasts": 167,
    "agencies": [
     "CMA",
     "HKO",
@@ -11172,7 +11172,7 @@
    "start": "2026-08-22T20:00:00+08:00",
    "end": "2026-08-24T14:00:00+08:00",
    "n_points": 9,
-   "n_forecasts": 16,
+   "n_forecasts": 17,
    "agencies": [
     "CMA",
     "CWA",
