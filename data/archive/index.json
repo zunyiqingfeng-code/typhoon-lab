@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-24T23:54:32.275353+08:00",
+ "generated_at": "2026-08-25T00:54:52.686389+08:00",
  "n_storms": 658,
  "years": [
   2000,
@@ -11130,9 +11130,9 @@
    "name_zh": "紫檀",
    "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-24T23:00:00+08:00",
-   "n_points": 95,
-   "n_forecasts": 412,
+   "end": "2026-08-25T00:00:00+08:00",
+   "n_points": 96,
+   "n_forecasts": 418,
    "agencies": [
     "CMA",
     "CWA",
