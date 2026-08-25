@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-25T23:01:20.359172+08:00",
+ "generated_at": "2026-08-25T23:58:06.989627+08:00",
  "n_storms": 658,
  "years": [
   2000,
@@ -11109,9 +11109,9 @@
    "name_zh": "沙德尔",
    "name_en": "SAUDEL",
    "start": "2026-08-18T20:00:00+08:00",
-   "end": "2026-08-25T20:00:00+08:00",
-   "n_points": 57,
-   "n_forecasts": 288,
+   "end": "2026-08-25T23:00:00+08:00",
+   "n_points": 58,
+   "n_forecasts": 294,
    "agencies": [
     "CMA",
     "CWA",
@@ -11130,9 +11130,9 @@
    "name_zh": "紫檀",
    "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-25T22:00:00+08:00",
-   "n_points": 118,
-   "n_forecasts": 547,
+   "end": "2026-08-25T23:00:00+08:00",
+   "n_points": 119,
+   "n_forecasts": 553,
    "agencies": [
     "CMA",
     "CWA",
