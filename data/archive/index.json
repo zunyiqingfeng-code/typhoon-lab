@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-25T15:07:00.583419+08:00",
+ "generated_at": "2026-08-25T15:58:15.965574+08:00",
  "n_storms": 658,
  "years": [
   2000,
@@ -11130,9 +11130,9 @@
    "name_zh": "紫檀",
    "name_en": "NARRA",
    "start": "2026-08-19T17:00:00+08:00",
-   "end": "2026-08-25T14:00:00+08:00",
-   "n_points": 110,
-   "n_forecasts": 499,
+   "end": "2026-08-25T15:00:00+08:00",
+   "n_points": 111,
+   "n_forecasts": 505,
    "agencies": [
     "CMA",
     "CWA",
@@ -11170,8 +11170,8 @@
    "name_zh": "艾莎尼",
    "name_en": "ATSANI",
    "start": "2026-08-22T20:00:00+08:00",
-   "end": "2026-08-25T08:00:00+08:00",
-   "n_points": 14,
+   "end": "2026-08-25T14:00:00+08:00",
+   "n_points": 15,
    "n_forecasts": 37,
    "agencies": [
     "CMA",
