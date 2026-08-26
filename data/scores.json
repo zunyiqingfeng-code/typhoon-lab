@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-08-26T07:06:31.465Z",
+ "generated_at": "2026-08-26T07:57:57.833Z",
  "n_storms": 467,
  "n_points": 385043,
  "years": [
@@ -54,7 +54,7 @@
  "overall": {
   "CMA": {
    "n": 109529,
-   "posMean": 109.4,
+   "posMean": 109.5,
    "windMean": 4.3,
    "presMean": 7.8,
    "byLead": {
@@ -72,7 +72,7 @@
     },
     "48": {
      "n": 13491,
-     "posMean": 132.6
+     "posMean": 132.7
     },
     "72": {
      "n": 8950,
@@ -224,7 +224,7 @@
     },
     "96": {
      "n": 4842,
-     "posMean": 256.9
+     "posMean": 257
     },
     "120": {
      "n": 2679,
@@ -286,17 +286,17 @@
   },
   "SELF": {
    "n": 4063,
-   "posMean": 591.2,
+   "posMean": 591.3,
    "windMean": 9.2,
    "presMean": null,
    "byLead": {
     "12": {
      "n": 1110,
-     "posMean": 166.9
+     "posMean": 166.8
     },
     "24": {
      "n": 640,
-     "posMean": 366
+     "posMean": 366.1
     },
     "36": {
      "n": 558,
@@ -304,7 +304,7 @@
     },
     "48": {
      "n": 464,
-     "posMean": 695.5
+     "posMean": 695.7
     },
     "72": {
      "n": 509,
@@ -312,11 +312,11 @@
     },
     "96": {
      "n": 282,
-     "posMean": 1211.5
+     "posMean": 1211.6
     },
     "120": {
      "n": 97,
-     "posMean": 1416.8
+     "posMean": 1416.9
     }
    }
   }
@@ -933,31 +933,31 @@
   "2026": {
    "CMA": {
     "n": 7051,
-    "posMean": 96,
-    "pos72Mean": 151.4,
+    "posMean": 96.1,
+    "pos72Mean": 151.5,
     "n72": 574
    },
    "CWA": {
     "n": 6949,
-    "posMean": 74.8,
+    "posMean": 74.9,
     "pos72Mean": 133.1,
     "n72": 539
    },
    "HKO": {
     "n": 1870,
-    "posMean": 94.3,
+    "posMean": 94.4,
     "pos72Mean": 121.2,
     "n72": 288
    },
    "JMA": {
     "n": 4789,
-    "posMean": 92.2,
+    "posMean": 92.3,
     "pos72Mean": 148,
     "n72": 564
    },
    "JTWC": {
     "n": 4990,
-    "posMean": 84.1,
+    "posMean": 84.2,
     "pos72Mean": 111.1,
     "n72": 471
    },
@@ -975,7 +975,7 @@
    },
    "SELF": {
     "n": 4063,
-    "posMean": 591.2,
+    "posMean": 591.3,
     "pos72Mean": 943.2,
     "n72": 509
    }
