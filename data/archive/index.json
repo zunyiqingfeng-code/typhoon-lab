@@ -1,7 +1,7 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-28T13:22:17.635577+08:00",
- "n_storms": 659,
+ "generated_at": "2026-08-29T02:40:27.560149+08:00",
+ "n_storms": 660,
  "years": [
   2000,
   2001,
@@ -11109,9 +11109,9 @@
    "name_zh": "沙德尔",
    "name_en": "SAUDEL",
    "start": "2026-08-18T20:00:00+08:00",
-   "end": "2026-08-28T13:00:00+08:00",
-   "n_points": 111,
-   "n_forecasts": 579,
+   "end": "2026-08-29T02:00:00+08:00",
+   "n_points": 123,
+   "n_forecasts": 640,
    "agencies": [
     "CMA",
     "CWA",
@@ -11190,9 +11190,9 @@
    "name_zh": "艾涛",
    "name_en": "ETAU",
    "start": "2026-08-27T08:00:00+08:00",
-   "end": "2026-08-28T11:00:00+08:00",
-   "n_points": 9,
-   "n_forecasts": 35,
+   "end": "2026-08-29T02:00:00+08:00",
+   "n_points": 14,
+   "n_forecasts": 56,
    "agencies": [
     "CMA",
     "CWA",
@@ -11203,6 +11203,24 @@
    ],
    "peak_wind_ms": 23.0,
    "min_pressure_hpa": 990.0
+  },
+  {
+   "id": "202623",
+   "year": 2026,
+   "name_zh": "班朗",
+   "name_en": "BANG-LANG",
+   "start": "2026-08-26T14:00:00+08:00",
+   "end": "2026-08-29T02:00:00+08:00",
+   "n_points": 13,
+   "n_forecasts": 16,
+   "agencies": [
+    "CMA",
+    "CWA",
+    "JMA",
+    "SELF"
+   ],
+   "peak_wind_ms": 30.863999999999997,
+   "min_pressure_hpa": 989.0
   }
  ]
 }
