@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-30T14:38:17.514809+08:00",
+ "generated_at": "2026-08-30T20:52:33.591043+08:00",
  "n_storms": 660,
  "years": [
   2000,
@@ -11190,9 +11190,9 @@
    "name_zh": "艾涛",
    "name_en": "ETAU",
    "start": "2026-08-26T14:00:00+08:00",
-   "end": "2026-08-30T14:00:00+08:00",
-   "n_points": 29,
-   "n_forecasts": 111,
+   "end": "2026-08-30T17:00:00+08:00",
+   "n_points": 30,
+   "n_forecasts": 116,
    "agencies": [
     "CMA",
     "CWA",
@@ -11210,9 +11210,9 @@
    "name_zh": "班朗",
    "name_en": "BANG-LANG",
    "start": "2026-08-26T14:00:00+08:00",
-   "end": "2026-08-30T14:00:00+08:00",
-   "n_points": 25,
-   "n_forecasts": 59,
+   "end": "2026-08-30T20:00:00+08:00",
+   "n_points": 27,
+   "n_forecasts": 66,
    "agencies": [
     "CMA",
     "CWA",
