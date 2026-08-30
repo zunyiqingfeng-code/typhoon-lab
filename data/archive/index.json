@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-08-31T05:02:47.603996+08:00",
+ "generated_at": "2026-08-31T07:28:23.854687+08:00",
  "n_storms": 660,
  "years": [
   2000,
@@ -11210,9 +11210,9 @@
    "name_zh": "班朗",
    "name_en": "BANG-LANG",
    "start": "2026-08-26T14:00:00+08:00",
-   "end": "2026-08-31T02:00:00+08:00",
-   "n_points": 29,
-   "n_forecasts": 74,
+   "end": "2026-08-31T05:00:00+08:00",
+   "n_points": 30,
+   "n_forecasts": 78,
    "agencies": [
     "CMA",
     "CWA",
