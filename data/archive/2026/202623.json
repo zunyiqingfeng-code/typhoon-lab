@@ -2,7 +2,7 @@
  "id": "202623",
  "name_zh": "班朗",
  "name_en": "BANG-LANG",
- "is_active": true,
+ "is_active": false,
  "basin": "WP",
  "track": [
   {
@@ -454,6 +454,14 @@
     "nw": 80.0,
     "sw": 50.0
    }
+  },
+  {
+   "t": "2026-08-31T08:00:00+08:00",
+   "lat": 36.7,
+   "lon": 165.3,
+   "pressure_hpa": 993.0,
+   "wind_ms": 15.431999999999999,
+   "grade": "TD"
   }
  ],
  "forecasts": [
@@ -54074,6 +54082,6 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-08-31T07:26:45.767865+08:00"
+  "fetched_at": "2026-08-31T13:25:55.918899+08:00"
  }
 }
