@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-03T02:40:41.725881+08:00",
+ "generated_at": "2026-09-03T05:48:16.146823+08:00",
  "n_storms": 661,
  "years": [
   2000,
@@ -11109,9 +11109,9 @@
    "name_zh": "沙德尔",
    "name_en": "SAUDEL",
    "start": "2026-08-18T20:00:00+08:00",
-   "end": "2026-09-03T02:00:00+08:00",
-   "n_points": 188,
-   "n_forecasts": 929,
+   "end": "2026-09-03T05:00:00+08:00",
+   "n_points": 191,
+   "n_forecasts": 945,
    "agencies": [
     "CMA",
     "CWA",
@@ -11228,9 +11228,9 @@
    "name_zh": "科罗旺",
    "name_en": "KROVANH",
    "start": "2026-09-01T08:00:00+08:00",
-   "end": "2026-09-03T02:00:00+08:00",
-   "n_points": 22,
-   "n_forecasts": 77,
+   "end": "2026-09-03T05:00:00+08:00",
+   "n_points": 24,
+   "n_forecasts": 83,
    "agencies": [
     "CMA",
     "CWA",
@@ -11241,7 +11241,7 @@
     "SELF"
    ],
    "peak_wind_ms": 20.833333333333332,
-   "min_pressure_hpa": 994.0
+   "min_pressure_hpa": 992.0
   }
  ]
 }
