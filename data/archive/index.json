@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-05T12:21:56.835099+08:00",
+ "generated_at": "2026-09-05T17:01:41.708789+08:00",
  "n_storms": 661,
  "years": [
   2000,
@@ -11228,9 +11228,9 @@
    "name_zh": "科罗旺",
    "name_en": "KROVANH",
    "start": "2026-08-31T17:00:00+08:00",
-   "end": "2026-09-05T11:00:00+08:00",
-   "n_points": 49,
-   "n_forecasts": 177,
+   "end": "2026-09-05T14:00:00+08:00",
+   "n_points": 50,
+   "n_forecasts": 183,
    "agencies": [
     "CMA",
     "CWA",
