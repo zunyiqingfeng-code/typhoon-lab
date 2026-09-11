@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-09-10T22:32:04.060Z",
+ "generated_at": "2026-09-11T01:01:29.115Z",
  "n_storms": 470,
  "n_points": 391355,
  "years": [
@@ -59,7 +59,7 @@
    "presMean": 7.7,
    "byLead": {
     "12": {
-     "n": 35767,
+     "n": 35766,
      "posMean": 48.7
     },
     "24": {
