@@ -1,7 +1,7 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-12T06:31:52.417880+08:00",
- "n_storms": 661,
+ "generated_at": "2026-09-12T09:05:06.279227+08:00",
+ "n_storms": 662,
  "years": [
   2000,
   2001,
@@ -10774,6 +10774,21 @@
    ],
    "peak_wind_ms": 15.0,
    "min_pressure_hpa": 1002.0
+  },
+  {
+   "id": "20260027",
+   "year": 2026,
+   "name_zh": "热带低压",
+   "name_en": "NAMELESS",
+   "start": "2026-09-12T08:00:00+08:00",
+   "end": "2026-09-12T08:00:00+08:00",
+   "n_points": 1,
+   "n_forecasts": 1,
+   "agencies": [
+    "CMA"
+   ],
+   "peak_wind_ms": 13.0,
+   "min_pressure_hpa": 1005.0
   },
   {
    "id": "202601",
