@@ -2,7 +2,7 @@
  "id": "20260027",
  "name_zh": "热带低压",
  "name_en": "NAMELESS",
- "is_active": true,
+ "is_active": false,
  "basin": "WP",
  "track": [
   {
@@ -119,6 +119,20 @@
    "grade": "TD",
    "move_dir_deg": 270,
    "move_speed_kmh": 12.0
+  },
+  {
+   "t": "2026-09-13T20:00:00+08:00",
+   "lat": 17.4,
+   "lon": 106.6,
+   "wind_ms": 12.5,
+   "grade": "TD"
+  },
+  {
+   "t": "2026-09-13T23:00:00+08:00",
+   "lat": 17.7,
+   "lon": 106.2,
+   "wind_ms": 11.11111111111111,
+   "grade": "TD"
   }
  ],
  "forecasts": [
@@ -35657,9 +35671,18 @@
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-09-13T19:45:12.228378+08:00"
+  "fetched_at": "2026-09-14T00:11:45.850570+08:00"
  },
  "sources": [
   "hko"
+ ],
+ "land": [
+  {
+   "t": "2026-09-13T17:00:00+08:00",
+   "lat": 17.2,
+   "lon": 106.95,
+   "address": "越南广治省沿海",
+   "grade": null
+  }
  ]
 }
