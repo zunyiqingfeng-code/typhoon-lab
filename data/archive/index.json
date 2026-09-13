@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-13T06:14:16.133740+08:00",
+ "generated_at": "2026-09-13T08:57:19.637630+08:00",
  "n_storms": 662,
  "years": [
   2000,
@@ -10781,9 +10781,9 @@
    "name_zh": "热带低压",
    "name_en": "NAMELESS",
    "start": "2026-09-12T08:00:00+08:00",
-   "end": "2026-09-13T05:00:00+08:00",
-   "n_points": 8,
-   "n_forecasts": 14,
+   "end": "2026-09-13T08:00:00+08:00",
+   "n_points": 9,
+   "n_forecasts": 16,
    "agencies": [
     "CMA",
     "HKO",
