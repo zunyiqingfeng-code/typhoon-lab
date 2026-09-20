@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-20T09:04:23.958884+08:00",
+ "generated_at": "2026-09-20T14:10:57.981521+08:00",
  "n_storms": 663,
  "years": [
   2000,
@@ -11267,9 +11267,9 @@
    "name_zh": "杜鹃",
    "name_en": "DUJUAN",
    "start": "2026-09-15T20:00:00+08:00",
-   "end": "2026-09-20T08:00:00+08:00",
-   "n_points": 33,
-   "n_forecasts": 161,
+   "end": "2026-09-20T11:00:00+08:00",
+   "n_points": 34,
+   "n_forecasts": 167,
    "agencies": [
     "CMA",
     "CWA",
