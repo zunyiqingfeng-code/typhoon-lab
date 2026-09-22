@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-23T02:49:18.317558+08:00",
+ "generated_at": "2026-09-23T06:02:19.268959+08:00",
  "source": "zjwater",
  "fixture": false,
  "storms": [
@@ -1003,13 +1003,11 @@
     },
     {
      "t": "2026-09-22T20:00:00+08:00",
-     "lat": 40.0,
-     "lon": 153.7,
-     "pressure_hpa": 980.0,
-     "wind_ms": 29.0,
-     "grade": "STS",
-     "move_dir_deg": 67.5,
-     "move_speed_kmh": 38.0
+     "lat": 40.5,
+     "lon": 154.2,
+     "pressure_hpa": 975.0,
+     "wind_ms": 30.863999999999997,
+     "grade": "STS"
     }
    ],
    "forecasts": [
@@ -10245,12 +10243,11 @@
     }
    ],
    "sources": [
-    "kma",
     "jtwc"
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-09-23T02:49:18.317558+08:00"
+    "fetched_at": "2026-09-23T06:02:19.268959+08:00"
    }
   }
  ]
