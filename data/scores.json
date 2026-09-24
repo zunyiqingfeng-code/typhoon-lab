@@ -1,8 +1,8 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-09-24T09:58:14.977Z",
+ "generated_at": "2026-09-24T15:03:27.017Z",
  "n_storms": 473,
- "n_points": 392941,
+ "n_points": 392954,
  "years": [
   "2000",
   "2001",
@@ -53,13 +53,13 @@
  ],
  "overall": {
   "CMA": {
-   "n": 111139,
+   "n": 111140,
    "posMean": 109.8,
    "windMean": 4.3,
    "presMean": 7.7,
    "byLead": {
     "12": {
-     "n": 35824,
+     "n": 35825,
      "posMean": 48.7
     },
     "24": {
@@ -89,13 +89,13 @@
    }
   },
   "CWA": {
-   "n": 97328,
+   "n": 97334,
    "posMean": 107.2,
    "windMean": 4.5,
    "presMean": 8.9,
    "byLead": {
     "12": {
-     "n": 29168,
+     "n": 29173,
      "posMean": 50.1
     },
     "24": {
@@ -167,7 +167,7 @@
    "presMean": 9.3,
    "byLead": {
     "12": {
-     "n": 16383,
+     "n": 16384,
      "posMean": 46.5
     },
     "24": {
@@ -197,13 +197,13 @@
    }
   },
   "JTWC": {
-   "n": 70527,
+   "n": 70529,
    "posMean": 116.6,
    "windMean": 5.5,
    "presMean": 8.8,
    "byLead": {
     "12": {
-     "n": 15528,
+     "n": 15530,
      "posMean": 52.7
     },
     "24": {
@@ -233,18 +233,18 @@
    }
   },
   "KMA": {
-   "n": 529,
-   "posMean": 135.8,
+   "n": 531,
+   "posMean": 136,
    "windMean": 3.9,
    "presMean": 5.1,
    "byLead": {
     "12": {
-     "n": 114,
-     "posMean": 57.5
+     "n": 115,
+     "posMean": 58.3
     },
     "24": {
-     "n": 95,
-     "posMean": 77.5
+     "n": 96,
+     "posMean": 78.9
     },
     "36": {
      "n": 86,
@@ -269,14 +269,14 @@
    }
   },
   "PAGASA": {
-   "n": 21,
-   "posMean": 53.4,
-   "windMean": 0.6,
+   "n": 22,
+   "posMean": 58.2,
+   "windMean": 0.7,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 13,
-     "posMean": 48.4
+     "n": 14,
+     "posMean": 56.3
     },
     "24": {
      "n": 6,
@@ -289,14 +289,14 @@
    }
   },
   "SELF": {
-   "n": 6105,
-   "posMean": 697.2,
+   "n": 6106,
+   "posMean": 697.1,
    "windMean": 9.1,
    "presMean": null,
    "byLead": {
     "12": {
-     "n": 1506,
-     "posMean": 177.3
+     "n": 1507,
+     "posMean": 177.4
     },
     "24": {
      "n": 876,
@@ -936,13 +936,13 @@
   },
   "2026": {
    "CMA": {
-    "n": 8661,
+    "n": 8662,
     "posMean": 102.4,
     "pos72Mean": 158.9,
     "n72": 688
    },
    "CWA": {
-    "n": 8539,
+    "n": 8545,
     "posMean": 82.1,
     "pos72Mean": 137.1,
     "n72": 654
@@ -960,26 +960,26 @@
     "n72": 662
    },
    "JTWC": {
-    "n": 5862,
+    "n": 5864,
     "posMean": 92.3,
     "pos72Mean": 116.6,
     "n72": 538
    },
    "KMA": {
-    "n": 496,
-    "posMean": 141,
+    "n": 498,
+    "posMean": 141.1,
     "pos72Mean": 191.5,
     "n72": 64
    },
    "PAGASA": {
-    "n": 21,
-    "posMean": 53.4,
+    "n": 22,
+    "posMean": 58.2,
     "pos72Mean": null,
     "n72": 0
    },
    "SELF": {
-    "n": 6105,
-    "posMean": 697.2,
+    "n": 6106,
+    "posMean": 697.1,
     "pos72Mean": 1035.2,
     "n72": 789
    }

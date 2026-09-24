@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-09-24T17:58:04.502253+08:00",
+ "generated_at": "2026-09-24T23:03:15.901228+08:00",
  "n_storms": 664,
  "years": [
   2000,
@@ -11288,9 +11288,9 @@
    "name_zh": "舒力基",
    "name_en": "SURIGAE",
    "start": "2026-09-23T02:00:00+08:00",
-   "end": "2026-09-24T17:00:00+08:00",
-   "n_points": 13,
-   "n_forecasts": 44,
+   "end": "2026-09-24T22:00:00+08:00",
+   "n_points": 15,
+   "n_forecasts": 52,
    "agencies": [
     "CMA",
     "CWA",
@@ -11301,8 +11301,8 @@
     "PAGASA",
     "SELF"
    ],
-   "peak_wind_ms": 20.833333333333332,
-   "min_pressure_hpa": 995.0
+   "peak_wind_ms": 23.0,
+   "min_pressure_hpa": 990.0
   }
  ]
 }
