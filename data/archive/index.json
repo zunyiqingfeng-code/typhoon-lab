@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-10-05T23:59:53.421853+08:00",
+ "generated_at": "2026-10-06T06:41:20.652217+08:00",
  "n_storms": 667,
  "years": [
   2000,
@@ -11310,9 +11310,9 @@
    "name_zh": "彩云",
    "name_en": "CHOI-WAN",
    "start": "2026-09-30T08:00:00+08:00",
-   "end": "2026-10-05T23:00:00+08:00",
-   "n_points": 43,
-   "n_forecasts": 194,
+   "end": "2026-10-06T05:00:00+08:00",
+   "n_points": 45,
+   "n_forecasts": 203,
    "agencies": [
     "CMA",
     "CWA",
@@ -11330,9 +11330,9 @@
    "name_zh": "诺洛",
    "name_en": "NOLO",
    "start": "2026-10-05T08:00:00+08:00",
-   "end": "2026-10-05T23:00:00+08:00",
-   "n_points": 6,
-   "n_forecasts": 20,
+   "end": "2026-10-06T05:00:00+08:00",
+   "n_points": 8,
+   "n_forecasts": 27,
    "agencies": [
     "CMA",
     "CWA",
@@ -11348,9 +11348,9 @@
    "name_zh": "小熊",
    "name_en": "KOGUMA",
    "start": "2026-10-05T08:00:00+08:00",
-   "end": "2026-10-05T20:00:00+08:00",
-   "n_points": 5,
-   "n_forecasts": 24,
+   "end": "2026-10-06T05:00:00+08:00",
+   "n_points": 8,
+   "n_forecasts": 38,
    "agencies": [
     "CMA",
     "CWA",
