@@ -1,7 +1,7 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-10-05T08:52:48.267456+08:00",
- "n_storms": 665,
+ "generated_at": "2026-10-05T14:59:47.367549+08:00",
+ "n_storms": 667,
  "years": [
   2000,
   2001,
@@ -11310,9 +11310,9 @@
    "name_zh": "彩云",
    "name_en": "CHOI-WAN",
    "start": "2026-09-30T08:00:00+08:00",
-   "end": "2026-10-05T08:00:00+08:00",
-   "n_points": 38,
-   "n_forecasts": 172,
+   "end": "2026-10-05T14:00:00+08:00",
+   "n_points": 40,
+   "n_forecasts": 181,
    "agencies": [
     "CMA",
     "CWA",
@@ -11323,6 +11323,44 @@
    ],
    "peak_wind_ms": 65.0,
    "min_pressure_hpa": 910.0
+  },
+  {
+   "id": "202628",
+   "year": 2026,
+   "name_zh": "诺洛",
+   "name_en": "NOLO",
+   "start": "2026-10-05T08:00:00+08:00",
+   "end": "2026-10-05T14:00:00+08:00",
+   "n_points": 3,
+   "n_forecasts": 10,
+   "agencies": [
+    "CMA",
+    "CWA",
+    "JMA",
+    "SELF"
+   ],
+   "peak_wind_ms": 52.0,
+   "min_pressure_hpa": 935.0
+  },
+  {
+   "id": "202629",
+   "year": 2026,
+   "name_zh": "小熊",
+   "name_en": "KOGUMA",
+   "start": "2026-10-05T08:00:00+08:00",
+   "end": "2026-10-05T14:00:00+08:00",
+   "n_points": 3,
+   "n_forecasts": 14,
+   "agencies": [
+    "CMA",
+    "CWA",
+    "JMA",
+    "JTWC",
+    "KMA",
+    "SELF"
+   ],
+   "peak_wind_ms": 18.0,
+   "min_pressure_hpa": 998.0
   }
  ]
 }
