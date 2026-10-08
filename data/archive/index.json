@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-10-09T01:52:45.603897+08:00",
+ "generated_at": "2026-10-09T07:19:08.306730+08:00",
  "n_storms": 667,
  "years": [
   2000,
@@ -11330,9 +11330,9 @@
    "name_zh": "诺洛",
    "name_en": "NOLO",
    "start": "2026-10-05T08:00:00+08:00",
-   "end": "2026-10-08T23:00:00+08:00",
-   "n_points": 30,
-   "n_forecasts": 104,
+   "end": "2026-10-09T05:00:00+08:00",
+   "n_points": 32,
+   "n_forecasts": 111,
    "agencies": [
     "CMA",
     "CWA",
@@ -11348,9 +11348,9 @@
    "name_zh": "小熊",
    "name_en": "KOGUMA",
    "start": "2026-10-05T08:00:00+08:00",
-   "end": "2026-10-08T23:00:00+08:00",
-   "n_points": 30,
-   "n_forecasts": 148,
+   "end": "2026-10-09T05:00:00+08:00",
+   "n_points": 32,
+   "n_forecasts": 158,
    "agencies": [
     "CMA",
     "CWA",
@@ -11359,8 +11359,8 @@
     "KMA",
     "SELF"
    ],
-   "peak_wind_ms": 35.0,
-   "min_pressure_hpa": 970.0
+   "peak_wind_ms": 40.0,
+   "min_pressure_hpa": 960.0
   }
  ]
 }
