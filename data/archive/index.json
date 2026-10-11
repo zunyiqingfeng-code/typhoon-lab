@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-10-11T15:08:02.908521+08:00",
+ "generated_at": "2026-10-11T22:02:38.471490+08:00",
  "n_storms": 667,
  "years": [
   2000,
@@ -11348,9 +11348,9 @@
    "name_zh": "小熊",
    "name_en": "KOGUMA",
    "start": "2026-10-05T08:00:00+08:00",
-   "end": "2026-10-11T14:00:00+08:00",
-   "n_points": 51,
-   "n_forecasts": 252,
+   "end": "2026-10-11T20:00:00+08:00",
+   "n_points": 53,
+   "n_forecasts": 262,
    "agencies": [
     "CMA",
     "CWA",
