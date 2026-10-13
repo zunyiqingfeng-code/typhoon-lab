@@ -2,7 +2,7 @@
  "id": "202629",
  "name_zh": "小熊",
  "name_en": "KOGUMA",
- "is_active": true,
+ "is_active": false,
  "basin": "WP",
  "track": [
   {
@@ -1551,6 +1551,28 @@
     "se": 180.0,
     "nw": 160.0,
     "sw": 130.0
+   }
+  },
+  {
+   "t": "2026-10-13T20:00:00+08:00",
+   "lat": 36.9,
+   "lon": 155.3,
+   "pressure_hpa": 985.0,
+   "wind_ms": 27.0,
+   "grade": "TS",
+   "move_dir_deg": 22.5,
+   "move_speed_kmh": 28.0,
+   "r7": {
+    "ne": 190,
+    "se": 190,
+    "sw": 190,
+    "nw": 100
+   },
+   "r10": {
+    "ne": 50,
+    "se": 50,
+    "sw": 50,
+    "nw": 30
    }
   }
  ],
@@ -23706,6 +23728,38 @@
      "grade": "STS",
      "move_dir_deg": 67.5,
      "move_speed_kmh": 37.0
+    }
+   ]
+  },
+  {
+   "agency": "KMA",
+   "issued_at": "2026-10-13T20:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-10-14T08:00:00+08:00",
+     "lat": 39.5,
+     "lon": 158.6,
+     "pressure_hpa": 990.0,
+     "wind_ms": 24.0,
+     "grade": "TD",
+     "move_dir_deg": 45,
+     "move_speed_kmh": 34.0,
+     "r7": {
+      "ne": 180,
+      "se": 180,
+      "sw": 180,
+      "nw": 90
+     }
+    },
+    {
+     "t": "2026-10-14T20:00:00+08:00",
+     "lat": 41.1,
+     "lon": 162.5,
+     "pressure_hpa": 990.0,
+     "wind_ms": 24.0,
+     "grade": "TS",
+     "move_dir_deg": 67.5,
+     "move_speed_kmh": 31.0
     }
    ]
   },
@@ -151103,11 +151157,10 @@
   }
  ],
  "sources": [
-  "kma",
-  "jtwc"
+  "kma"
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-10-13T18:27:05.304900+08:00"
+  "fetched_at": "2026-10-14T02:12:38.177159+08:00"
  }
 }
