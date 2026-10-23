@@ -1,7 +1,7 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-10-24T03:10:02.546906+08:00",
- "n_storms": 668,
+ "generated_at": "2026-10-24T06:11:44.761385+08:00",
+ "n_storms": 669,
  "years": [
   2000,
   2001,
@@ -11368,9 +11368,9 @@
    "name_zh": "蔷琵",
    "name_en": "CHAMPI",
    "start": "2026-10-14T20:00:00+08:00",
-   "end": "2026-10-24T02:00:00+08:00",
-   "n_points": 104,
-   "n_forecasts": 521,
+   "end": "2026-10-24T06:00:00+08:00",
+   "n_points": 108,
+   "n_forecasts": 543,
    "agencies": [
     "CMA",
     "CWA",
@@ -11383,6 +11383,26 @@
    ],
    "peak_wind_ms": 68.0,
    "min_pressure_hpa": 900.0
+  },
+  {
+   "id": "202631",
+   "year": 2026,
+   "name_zh": "烟花",
+   "name_en": "IN-FA",
+   "start": "2026-10-23T20:00:00+08:00",
+   "end": "2026-10-24T05:00:00+08:00",
+   "n_points": 3,
+   "n_forecasts": 10,
+   "agencies": [
+    "CMA",
+    "CWA",
+    "JMA",
+    "JTWC",
+    "KMA",
+    "SELF"
+   ],
+   "peak_wind_ms": 18.0,
+   "min_pressure_hpa": 1000.0
   }
  ]
 }
