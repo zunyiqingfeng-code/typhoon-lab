@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-10-30T22:04:38.289845+08:00",
+ "generated_at": "2026-10-31T03:18:24.169439+08:00",
  "n_storms": 669,
  "years": [
   2000,
@@ -11390,9 +11390,9 @@
    "name_zh": "烟花",
    "name_en": "IN-FA",
    "start": "2026-10-23T20:00:00+08:00",
-   "end": "2026-10-30T20:00:00+08:00",
-   "n_points": 56,
-   "n_forecasts": 276,
+   "end": "2026-10-31T02:00:00+08:00",
+   "n_points": 58,
+   "n_forecasts": 286,
    "agencies": [
     "CMA",
     "CWA",
