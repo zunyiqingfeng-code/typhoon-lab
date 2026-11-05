@@ -2468,6 +2468,36 @@
     "nw": 100.0,
     "sw": 80.0
    }
+  },
+  {
+   "t": "2026-11-05T14:00:00+08:00",
+   "lat": 29.4,
+   "lon": 141.5,
+   "pressure_hpa": 983.0,
+   "wind_ms": 30.863999999999997,
+   "grade": "STS"
+  },
+  {
+   "t": "2026-11-05T20:00:00+08:00",
+   "lat": 31.4,
+   "lon": 144.0,
+   "pressure_hpa": 980.0,
+   "wind_ms": 29.0,
+   "grade": "TS",
+   "move_dir_deg": 45,
+   "move_speed_kmh": 60.0,
+   "r7": {
+    "ne": 240,
+    "se": 240,
+    "sw": 240,
+    "nw": 140
+   },
+   "r10": {
+    "ne": 60,
+    "se": 60,
+    "sw": 60,
+    "nw": 40
+   }
   }
  ],
  "forecasts": [
@@ -36425,6 +36455,22 @@
      "grade": "STS",
      "move_dir_deg": 45,
      "move_speed_kmh": 82.0
+    }
+   ]
+  },
+  {
+   "agency": "KMA",
+   "issued_at": "2026-11-05T20:00:00+08:00",
+   "points": [
+    {
+     "t": "2026-11-06T08:00:00+08:00",
+     "lat": 38.5,
+     "lon": 152.5,
+     "pressure_hpa": 985.0,
+     "wind_ms": 27.0,
+     "grade": "STS",
+     "move_dir_deg": 45,
+     "move_speed_kmh": 92.0
     }
    ]
   },
@@ -238478,11 +238524,10 @@
  ],
  "sources": [
   "kma",
-  "hko",
   "jtwc"
  ],
  "meta": {
   "source": "zjwater",
-  "fetched_at": "2026-11-05T14:35:47.745851+08:00"
+  "fetched_at": "2026-11-05T23:24:30.293309+08:00"
  }
 }
