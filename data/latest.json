@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-11-06T10:20:44.967670+08:00",
+ "generated_at": "2026-11-06T18:45:04.173901+08:00",
  "source": "zjwater",
  "fixture": false,
  "storms": [
@@ -11795,12 +11795,11 @@
     }
    ],
    "sources": [
-    "kma",
     "jtwc"
    ],
    "meta": {
     "source": "zjwater",
-    "fetched_at": "2026-11-06T10:20:44.967670+08:00"
+    "fetched_at": "2026-11-06T18:45:04.173901+08:00"
    }
   }
  ]
