@@ -1,6 +1,6 @@
 {
  "schema_version": "1.2",
- "generated_at": "2026-11-08T08:31:40.967274+08:00",
+ "generated_at": "2026-11-08T15:16:02.099939+08:00",
  "n_storms": 670,
  "years": [
   2000,
@@ -11411,9 +11411,9 @@
    "name_zh": "查帕卡",
    "name_en": "CEMPAKA",
    "start": "2026-11-06T14:00:00+08:00",
-   "end": "2026-11-08T08:00:00+08:00",
-   "n_points": 11,
-   "n_forecasts": 39,
+   "end": "2026-11-08T14:00:00+08:00",
+   "n_points": 13,
+   "n_forecasts": 51,
    "agencies": [
     "CMA",
     "CWA",
