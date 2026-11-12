@@ -1,6 +1,6 @@
 {
  "schema_version": "1.1",
- "generated_at": "2026-11-12T10:58:20.868Z",
+ "generated_at": "2026-11-12T18:52:39.899Z",
  "n_storms": 479,
  "n_points": 409223,
  "years": [
@@ -235,7 +235,7 @@
   "KMA": {
    "n": 1452,
    "posMean": 123,
-   "windMean": 5.2,
+   "windMean": 5.3,
    "presMean": 8.5,
    "byLead": {
     "12": {
@@ -306,7 +306,7 @@
   },
   "SELF": {
    "n": 9637,
-   "posMean": 702.9,
+   "posMean": 703,
    "windMean": 9.5,
    "presMean": null,
    "byLead": {
@@ -332,7 +332,7 @@
     },
     "96": {
      "n": 962,
-     "posMean": 1282.2
+     "posMean": 1282.3
     },
     "120": {
      "n": 489,
@@ -972,7 +972,7 @@
    "JMA": {
     "n": 7983,
     "posMean": 104.8,
-    "pos72Mean": 154.2,
+    "pos72Mean": 154.1,
     "n72": 978
    },
    "JTWC": {
@@ -983,7 +983,7 @@
    },
    "KMA": {
     "n": 1419,
-    "posMean": 124.6,
+    "posMean": 124.5,
     "pos72Mean": 157.7,
     "n72": 191
    },
@@ -995,7 +995,7 @@
    },
    "SELF": {
     "n": 9637,
-    "posMean": 702.9,
+    "posMean": 703,
     "pos72Mean": 999,
     "n72": 1293
    }
